@@ -8,8 +8,8 @@ Router.post("/follow",async (req,res)=>{
    const followee_id=req.body.userId; //other guy
 
    try{
-    const current_user=User.findOne({id:current_user_id});
-    const other_user=User.findOne({id:followee_id});
+    const current_user=await User.findOne({id:current_user_id});
+    const other_user=await User.findOne({id:followee_id});
     if(!current_user || !other_user){
         throw new Error("either of user doesnt exsit");
     }
@@ -30,13 +30,15 @@ Router.post("/follow",async (req,res)=>{
 Router.post("/unfollow",async (req,res)=>{
    const current_user_id=req.user.id; //current guy
    const followee_id=req.body.userId; //other guy
-
    try{
-    const current_user=User.findOne({id:current_user_id});
-    const other_user=User.findOne({id:followee_id});
+    const current_user=await User.findOne({id:current_user_id});
+    const other_user=await User.findOne({id:followee_id});
     if(!current_user || !other_user){
         throw new Error("either of user doesnt exsit");
     }
+    console.log(current_user);
+    console.log(other_user);
+
     current_user.following.pull(followee_id); //adding to following list
     other_user.followers.pull(current_user_id); //adding to other guys follower list
     await current_user.save();
@@ -56,7 +58,7 @@ Router.post("/unfollow",async (req,res)=>{
 Router.get("/following/:username",async (req,res)=>{
   const username = req.params.username;
   const current_user_id=req.user.id;
-  const skip=req.query.skip || 0 //for infinite fetching 
+  const skip=parseInt(req.query.skip) || 0 //for infinite fetching 
   try{
     const target_user=await User.findOne({username:username});
     const current_user=await User.findOne({id:current_user_id});
@@ -75,6 +77,7 @@ Router.get("/following/:username",async (req,res)=>{
     {
       $project:{
           username:1,
+          fullName: 1,
           id:1,
           amIFollowing:{
               $in:[current_user_id,"$followers"]
@@ -86,7 +89,8 @@ Router.get("/following/:username",async (req,res)=>{
     }
     ]);
    res.status(200).json({
-       following
+       users:following,
+       finished: following.length < 20
    })
   }catch(err){
       res.status(400).json({
@@ -99,7 +103,7 @@ Router.get("/following/:username",async (req,res)=>{
 Router.get("/followers/:username", async (req, res) => {
   const username = req.params.username;
   const current_user_id=req.user.id;
-  const skip=req.query.skip || 0 //for infinite fetching 
+  const skip=parseInt(req.query.skip) || 0 //for infinite fetching 
   try{
     const target_user=await User.findOne({username:username});
     const current_user=await User.findOne({id:current_user_id});
@@ -117,8 +121,10 @@ Router.get("/followers/:username", async (req, res) => {
     },
     {
       $project:{
-          username:1,
+          
           id:1,
+          username: 1,
+          fullName:1,
           amIFollowing:{
               $in:[current_user_id,"$followers"]
           },
@@ -129,7 +135,8 @@ Router.get("/followers/:username", async (req, res) => {
     }
     ]);
    res.status(200).json({
-       followers
+       users:followers,
+       finished:followers.length<20
    })
   }catch(err){
       res.status(400).json({

@@ -1,10 +1,7 @@
 <template>
   <section>
       <div class="container">
-          <NavWithBack/>
-          <div class="form-wrapper">
-
-         
+          <div class="form-wrapper">         
           <div class="form" v-if="state==1">
               <div class="input-wrapper">
                   <label for="username">username</label>
@@ -54,10 +51,11 @@
 <script>
 import {mapMutations} from "vuex"
 import Axios from 'axios';
-import NavWithBack from "../NavWithBack";
 export default {
   name:"ResetPassword",
-  components:{NavWithBack},
+  components:{
+
+  },
   data:()=>({
       state:1,
       username:"",

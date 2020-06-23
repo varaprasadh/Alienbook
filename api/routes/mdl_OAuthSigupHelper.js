@@ -10,8 +10,6 @@ const OAuthSigupHelper=(req,res,next)=>{
         ...req.body,
         password,
         thirdPartyAuthId,
-        security_question:" ",
-        security_answer:" "
     }
     next();
 }

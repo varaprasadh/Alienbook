@@ -3,7 +3,7 @@
     <nav>todo</nav>
     <div class="wrapper">
       <div class="image">
-        <img src="../../assets/404.svg" alt="404">
+        <img src="../assets/404.svg" alt="404">
       </div>
       <div class="message">Ouch, we Lost!</div>
     </div>

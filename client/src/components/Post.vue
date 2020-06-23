@@ -65,6 +65,23 @@
 </template>
 
 <script>
+/*
+
+     {
+            "_id": "5eee288c851db513497397ad",
+            "id": "29d601b0-b309-11ea-983b-f7603bc07de6",
+            "content": "hello world",
+            "author": "007e9ae0-b226-11ea-bdc7-311036107f31",
+            "createdAt": "2020-06-20T15:17:32.619Z",
+            "likes": 0,
+            "comments": 0,
+            "shared": 0,
+            "authorName": "varaprasadh1",
+            "liked": false,
+            "isSharedByUser": false
+        }
+
+*/
 import axios from "axios";
 import { mapState, mapMutations } from 'vuex';
 
@@ -80,7 +97,6 @@ export default {
    showLastComment:false,
    lastComment:"",
    saved:false,
-   tagColors:['tomato','orang','black','blue','green']
 }),
  computed:{
     ...mapState({
@@ -213,9 +229,8 @@ export default {
   fill: rgb(11, 34, 82);
 }
 .post-wrapper{
-    margin: 1em 0em;
-    max-width: 500px;
     flex: 1;
+    width: 100%;
 }
 .svg-icon{
     width:1.8em;
@@ -367,9 +382,4 @@ export default {
      color: white;
  }
 
-  @media screen and (min-width:600px){
-    .post-wrapper{
-      width: 500px;
-    }
- }
 </style>

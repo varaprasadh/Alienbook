@@ -3,26 +3,19 @@ const User = require('../models/User');
 const uuid = require('uuid').v1;
 
 const Post = require("../models/Post");
-
+const {createPost} =require("./helper/createPost");
 
 //add the post
-Router.post('/create', (req, res) => {
-    let userId=req.user.id;
-    const { content} = req.body; //extract tags
-    let post =new Post({
-        id:uuid(),
-        content:content,
-        author:userId,
-    });
-    post.save().then(post=>{
+Router.post('/create',(req, res) => {
+    let author=req.user.id;
+    const { content} = req.body;
+    createPost({author,content}).then(post=>{
         res.status(200).json({
-            success:true,
-           post:{...post._doc,likes:post.likes.length,comments:post.comments.length,shared:post.shared.length}
-        });
+            post:post
+        })
     }).catch(err=>{
         res.status(400).json({
-           success:false,
-           error:"something went wrong!"
+            error:err.message
         })
     })
 });
@@ -38,7 +31,6 @@ Router.post("/update",(req,res)=>{
           lastModifiedAt:Date.now()
       }).then(post=>{
           res.status(200).json({
-              success:true,
               post:{...post._doc,likes:post.likes.length,comments:post.comments.length,shared:post.shared.length}
           })
       }).catch(err=>{
@@ -73,8 +65,13 @@ const retrieveUserInfo=(req,res,next)=>{
         });
     })
 }
+
+
 //returns the all posts
 Router.get("/",retrieveUserInfo,(req, res) => {
+
+    console.log("debug");
+
     let skip=req.query.skip && parseInt(req.query.skip) || 0;
     let current_user_id=req.user.id
     Post.aggregate([
@@ -117,24 +114,21 @@ Router.get("/",retrieveUserInfo,(req, res) => {
                }
            }
         }]).skip(skip).limit(20).then(records => {
-        res.json({
-            success: true,
+        res.status(200).json({
             posts: records,
             completed: records.length < 20
         });
     }).catch(err => {
-        res.json({
-            success: false,
+        res.status(400).json({
             error: err.message
         });
     })
 });
-//returns posts for the specific user (redundent code,figure it out laster);
-Router.get("/:username?",retrieveUserInfo,(req, res) => {
+//returns posts for the specific user (redundent code,figure it out later);
+Router.get("/:username",(req, res) => {
     let skip=req.query.skip && parseInt(req.query.skip) || 0;
-    let username=req.params.username || req.user.username;
+    let username=req.params.username;
     let current_user_id = req.user.id;
-    console.log("here is")
     Post.aggregate([
         {
              $lookup: {
@@ -177,13 +171,12 @@ Router.get("/:username?",retrieveUserInfo,(req, res) => {
             }
         }
         ]).skip(skip).limit(20).then(records => {
-        res.json({
-            success: true,
+        res.status(200).json({
             posts: records,
             completed: records.length < 20
         });
     }).catch(err => {
-        res.json({
+        res.status(400).json({
             success: false,
             error: err.message
         });
@@ -235,18 +228,14 @@ Router.get("/post/:id",(req,res)=>{
    ]).limit(1).then(([post]) => {
        if(!post) throw new Error("post does'nt exist");
        res.status(200).json({
-           success: true,
            post: post
        });
    }).catch(err => {
        res.status(404).json({
-           success: false,
            error: "post does'nt exit"
        });
    })
 
 })
-
-
 
 module.exports=Router;

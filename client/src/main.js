@@ -3,31 +3,25 @@ import App from './App.vue'
 import VueRouter from 'vue-router'
 
 
-import LandingPage from "./components/pages/LandingPage";
-import Auth from "./components/pages/Auth.vue";
-import Error from "./components/pages/Error.vue";
-import TagSelector from "./components/pages/TagSelector.vue";
-import Home from "./components/pages/Home.vue";
-import Profile from "./components/pages/Profile.vue";
-import PostView from "./components/pages/PostView.vue";
-import ResetPassword from "./components/pages/ResetPassword.vue";
-
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faUserSecret } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-
-library.add(faUserSecret)
-
-Vue.component('font-awesome-icon', FontAwesomeIcon)
+// import LandingPage from "./pages/LandingPage";
+import Auth from "./pages/Auth.vue";
+import Error from "./pages/Error.vue";
+import Home from "./pages/Home.vue";
+import ResetPassword from "./pages/ResetPassword.vue";
 
 
 import store from "./store"
 
 import axios from 'axios';
 
-import UsernameView from "./components/pages/UserName.vue";
-import saveToken from "./components/pages/saveToken.vue";
+import UsernameView from "./pages/UserName.vue";
+import saveToken from "./pages/saveToken.vue";
 
+
+import Profile from "./pages/Profile.vue";
+import Settings from "./pages/Settings.vue";
+import FindAliens from "./pages/FindAliens.vue";
+import Notifications from "./pages/Notifications.vue";
 
 axios.defaults.baseURL = 'http://localhost:3000';
 
@@ -62,16 +56,48 @@ axios.interceptors.response.use((response) => {
 const router = new VueRouter({
   mode:"history",
   routes:[
-    {path:"/welcome",component:LandingPage,exact:true},
-    {path:"/",component:Home,exact:true},
+    // {path:"/welcome",component:LandingPage,exact:true},
     {path:"/auth/switch/:type",component:Auth },
-    {path:"/auth/tags",component:TagSelector},
     {path:"/resetpassword",component:ResetPassword},
     {path:"/signup/createuserame",component:UsernameView},
     {path:"/signin/saveToken",component:saveToken},
-    {path:"/post/:id",component:PostView},
+    {path:"/",
+     component:Home,
+     exact:true,
+     children:[
+       {
+        path:"aliens",
+        name:"aliens",
+        component: FindAliens
+      },
+       {
+        path: "profile/:username/followers",
+        name:"findaliens",
+        component: FindAliens
+      },
+       {
+        path: "notifications",
+        name:"findaliens",
+        component: Notifications
+      },
+       {
+        path: "profile/:username/following",
+        name:"findaliens",
+        component: FindAliens
+      },
+       {
+        path:"profile/:username?",
+        name:"profile",
+        component: Profile
+      },
+       {
+        path:"settings",
+        name:"settings",
+        component: Settings
+      },
+    ]
+    },
     
-    {path:"/profile/:username?",component:Profile},
     {path:"*",component:Error},
   ],
 })

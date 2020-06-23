@@ -22,8 +22,8 @@ const Post=new mongoose.Schema({
       required:true,
       default:Date.now
     },
-    shared:{
-        type:Array(String),//author id's
+    saved:{
+        type:Array(String)
     },
     
     // tags:{

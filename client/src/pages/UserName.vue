@@ -41,9 +41,8 @@ export default {
            this.runLoader();
            Axios.post("/auth/signup",newuser).then(({data})=>{
                if(data.success==true){
-                   alert("sucess");
                    localStorage.setItem('token',data.token);
-                   this.$router.replace("/auth/tags");
+                   this.$router.replace("/");
                }
                this.stopLoader();
            }).catch(()=>{

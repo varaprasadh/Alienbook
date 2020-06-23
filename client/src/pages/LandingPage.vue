@@ -4,7 +4,7 @@
            <nav></nav>
            <div class="container">
                <div class="box left">
-                    <img src="../../assets/home_main.svg" alt="main image">
+                    <img src="../assets/home_main.svg" alt="main image">
                </div>
                <div class="box right">
                   <div class="slogan">

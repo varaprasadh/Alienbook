@@ -1,8 +1,7 @@
 const express=require('express');
 const mongoose=require('mongoose');
 const Auth =require("./routes/auth");
-const PostHandler=require('./routes/PostHandler');
-const Tags=require('./routes/Tags');
+const PostService = require('./routes/PostService');
 const LikeHandler=require("./routes/LikeHandler");
 const CommentHandler=require("./routes/commentHandler");
 const cors=require('cors');
@@ -12,9 +11,9 @@ const verifyAndAttachUser = require("./routes/verifyAndAttachUser");
 
 const attachUserInfo=require("./routes/mdl_attachuserinfo");
 
-const saveHandler=require("./routes/saveHandler");
 const userService =require("./routes/userService");
 const shareService=require("./routes/ShareService");
+const saveService = require("./routes/saveService");
 
 
 const  LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
@@ -42,14 +41,13 @@ app.use(cors());
 
 
 app.use("/auth",Auth);
-app.use("/posts", verifyAndAttachUser, attachUserInfo, PostHandler);
-app.use("/tags", verifyAndAttachUser,Tags);
+app.use("/posts", verifyAndAttachUser, attachUserInfo, PostService); 
 app.use("/users", verifyAndAttachUser, userService);
 app.use("/post", verifyAndAttachUser,shareService);
 app.use('/post', verifyAndAttachUser, LikeHandler);
 app.use("/post", verifyAndAttachUser, CommentHandler);
-
-app.use("/fl", verifyAndAttachUser, FollowManager);
+// app.use("/post",verifyAndAttachUser,saveService);
+app.use("/users", verifyAndAttachUser, FollowManager);
 
 
 passport.serializeUser((user, cb) => {

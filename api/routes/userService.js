@@ -9,7 +9,7 @@ const LIMIT=20;
 //getting users 
 //excluding current user
 Router.get("/",(req,res)=>{
-  const skip=req.query.skip || 0;
+  const skip=parseInt(req.query.skip) || 0;
   const current_user_id=req.user.id;
   console.log("debug",req.user);
   User.aggregate([
@@ -20,6 +20,7 @@ Router.get("/",(req,res)=>{
             }
        }
       },
+
       {
         $project:{
             username:1,
@@ -34,7 +35,7 @@ Router.get("/",(req,res)=>{
   ]).skip(skip).limit(LIMIT).then(users => {
       res.status(200).json({
           users:users,
-          completed:user.length<LIMIT
+          finished:users.length<LIMIT
       })
   }).catch(err=>{
       res.status(400).json({
@@ -49,8 +50,8 @@ Router.get("/",(req,res)=>{
 
 
 // get user info for single user
-Router.get("/profile/:username",(req,res)=>{
- const username=req.params.username;
+Router.get("/profile/:username?",(req,res)=>{
+ const username=req.params.username || req.user.username;
  User.aggregate([
      {
      $match:{
@@ -90,6 +91,7 @@ Router.get("/profile/:username",(req,res)=>{
      }
      res.status(200).json({
          data:user
+
      })
  }).catch(err=>{
      res.status(404).json({

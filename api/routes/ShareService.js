@@ -7,18 +7,9 @@ const Post = require("../models/Post");
 Router.post("/share",(req,res)=>{
     const userid=req.user.id;
     const postid=req.body.postid;
-    Post.findOne({id:postid}).then(post=>{
-        post.shared.addToSet(userid);
-        post.save().then(post=>{
-            res.status(200).json({
-                message:"this post has been shared to your timeline!"
-            });
-        })
-    }).catch(err=>{
-        res.status(400).json({
-            error:err.message
-        })
-    })
+    res.status(200).json({
+        message:"we dont support this feature,use real facebook"
+    });
 });
 Router.post("/unshare",(req,res)=>{
     const userid=req.user.id;

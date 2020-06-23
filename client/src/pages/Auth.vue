@@ -145,13 +145,10 @@ export default {
       };
       this.loading=true;
       axios.post("/auth/signin",data).then(({data})=>{
-          this.loading=false;
-          this.error=false;
-          if(data.success==true){
-              //redirect to home page
+              this.loading=false;
+              this.error=false;
               localStorage.setItem("token",data.token);
               this.$router.replace('/');
-          }
       }).catch(()=>{
           this.loading=false;
           this.error=true;
@@ -170,12 +167,8 @@ export default {
         axios.post("/auth/signup",data).then(({data})=>{
           this.loading=false;
           this.error=false;
-          if(data.success==true){
-              //redirect to home page
-              console.log("procees to tag selection");
-              localStorage.setItem("token",data.token);
-              this.$router.replace("/auth/tags");
-          }
+          localStorage.setItem("token",data.token);
+          this.$router.replace("/");
       }).catch(()=>{
           this.loading=false;
           this.error=true;
