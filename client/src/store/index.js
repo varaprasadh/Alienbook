@@ -9,6 +9,7 @@ import axios from 'axios';
       user:null,
       posts:[],
       appLoadingState: false,
+      gl_h_loader:false,
     },
     getters:{
      
@@ -38,6 +39,12 @@ import axios from 'axios';
       },
       stopLoader(state){
           state.appLoadingState=false;
+      },
+      rungl_loader(state){
+        state.gl_h_loader=true;
+      },
+      stopgl_loader(state){
+       state.gl_h_loader = false;
       },
         removeFromPosts(state,id){
             let index=state.posts.findIndex(post=>post.id===id);

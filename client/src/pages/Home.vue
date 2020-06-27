@@ -1,6 +1,9 @@
 <template>
   <section class="home">
-    <AppNavBar/>
+    <div class="app-nav-wrappe">
+      <AppNavBar/>
+      <GLHLoader/>
+    </div>
     <router-view></router-view>
   </section>
 </template>
@@ -8,12 +11,15 @@
 <script>
 
 import AppNavBar from "../components/AppNavBar";
+import GLHLoader from "../components/GLHLoader";
+
 import Axios from 'axios';
 import { mapMutations } from 'vuex';
 export default {
    name:"Home",
    components:{
-    AppNavBar
+    AppNavBar,
+    GLHLoader
    },
    methods:{
     ...mapMutations(['setUser','runLoader','stopLoader'])
@@ -36,5 +42,8 @@ export default {
   display: flex;
   flex-direction: column;
 }
-
+.app-nav-wrappe{
+  position: sticky;
+  top:0px;
+}
 </style>

@@ -17,6 +17,9 @@ import axios from 'axios';
 import UsernameView from "./pages/UserName.vue";
 import saveToken from "./pages/saveToken.vue";
 
+import Feed from "./pages/Feed.vue";
+import PostView from "./pages/PostView.vue";
+
 
 import Profile from "./pages/Profile.vue";
 import Settings from "./pages/Settings.vue";
@@ -66,29 +69,41 @@ const router = new VueRouter({
      exact:true,
      children:[
        {
+        path:"/",
+        name:"feed",
+        component: Feed
+      },
+       {
+        path:"/post/:postid",
+        name:"postview",
+        component: PostView,
+        props:true
+      },
+       {
         path:"aliens",
         name:"aliens",
         component: FindAliens
       },
        {
         path: "profile/:username/followers",
-        name:"findaliens",
+        name:"followers",
         component: FindAliens
       },
        {
         path: "notifications",
-        name:"findaliens",
+        name: "notifications",
         component: Notifications
       },
        {
         path: "profile/:username/following",
-        name:"findaliens",
+        name:"following",
         component: FindAliens
       },
        {
         path:"profile/:username?",
         name:"profile",
-        component: Profile
+        component: Profile,
+        props:true
       },
        {
         path:"settings",

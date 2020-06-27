@@ -112,10 +112,6 @@ a{
     text-decoration: none;
     color:inherit;
 }
-.nav-wrapper{
-  position: sticky;
-  top:0px;
-}
 .main-nav{
     padding: 5px;
     background: black;
