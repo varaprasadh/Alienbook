@@ -6,6 +6,7 @@ const Post = require("../models/Post");
 
 const Comment=require("../models/Comment");
 
+const LIMIT=20;
 
 //create a comment for the post
 Router.post("/comment",(req,res)=>{
@@ -13,18 +14,61 @@ Router.post("/comment",(req,res)=>{
   const {postId,text}=req.body;
   //update comment count on post
   //insert a comment
+  const cid = uuid()
   let comment=new Comment({
-      id:uuid(),
+      id: cid,
       user_id:userId,
       text:text
   });
   Post.update({id:postId},{$addToSet:{comments:comment}}).then(doc=>{
-    console.log(doc);
-    res.status(200).json({
-      message:"created"
+    Post.aggregate([{
+        $match: {
+          id: postId
+        }
+      },
+      {
+        $unwind: {
+          path: "$comments",
+          "preserveNullAndEmptyArrays": true,
+        }
+      },
+      {
+        $match: {
+          "comments.id": cid
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "comments.user_id",
+          foreignField: "id",
+          as: "authorinfo"
+        }
+      },
+      {
+        $unwind: "$authorinfo"
+      },
+      {
+        $project: {
+          content: "$comments.text",
+          timestamp: "$comments.timestamp",
+          comment_id: "$comments.id",
+          post_id: "$id",
+          author_id: "$comments.user_id",
+          authorName: "$authorinfo.username"
+        }
+      }
+    ]).then(([comment])=>{
+      console.log(comment);
+      res.status(200).json({
+        comment
+      })
+    })
+  }).catch(err=>{
+    res.status(400).json({
+      error:err.message
     })
   })
-
 });
 //delete a comment for the post
 Router.post("/uncomment",(req,res)=>{
@@ -49,17 +93,49 @@ Router.post("/uncomment",(req,res)=>{
 //return all comments for the post;
 Router.get("/comments/:postId",(req,res)=>{
   let {postId}=req.params;
-  Post.findOne({id:postId}).then(post=>{
-    if(!post) throw new Error("post doesnt exist");
+  let skip=parseInt(req.query.skip) || 0
+  Post.aggregate([{
+      $match: {
+        id: postId
+      }
+    },
+    {
+      $unwind: {
+        path: "$comments",
+        "preserveNullAndEmptyArrays": true,
+      }
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "comments.user_id",
+        foreignField: "id",
+        as: "authorinfo"
+      }
+    },
+    {
+      $unwind: "$authorinfo"
+    },
+    {
+      $project: {
+        content: "$comments.text",
+        timestamp: "$comments.timestamp",
+        comment_id: "$comments.id",
+        post_id: "$id",
+        author_id: "$comments.user_id",
+        authorName: "$authorinfo.username"
+      }
+    }
+  ]).skip(skip).limit(LIMIT).then(comments=>{
     res.status(200).json({
-      comments:post.comments
+      comments,
+       completed: comments.length < 20
     });
   }).catch(err=>{
     res.status(400).json({
       error:err.message
     })
   })
-
 });
 
 

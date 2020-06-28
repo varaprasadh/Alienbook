@@ -23,6 +23,7 @@ Router.post("/like",(req,res)=>{
                 message: "liked the post"
             });
        }).catch(err=>{
+           console.log(err);
            throw new Error("cant like the post");
        })
     

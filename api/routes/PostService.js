@@ -3,13 +3,14 @@ const User = require('../models/User');
 const uuid = require('uuid').v1;
 
 const Post = require("../models/Post");
-const {createPost} =require("./helper/createPost");
+const {createPost,formatPost} =require("./helper/createPost");
+const getPost = require("./helper/getPost");
 
 //add the post
 Router.post('/create',(req, res) => {
     let author=req.user.id;
     const { content} = req.body;
-    createPost({author,content}).then(post=>{
+    createPost({author,content}).then(formatPost).then(post=>{
         res.status(200).json({
             post:post
         })
@@ -22,24 +23,29 @@ Router.post('/create',(req, res) => {
 
 //update the post 
 Router.post("/update",(req,res)=>{
-    // let userId=req.user.id;
-      const {content, id} = req.body; //parse the content extract tags
+     let userId=req.user.id;
+      const {content, postid} = req.body; //parse the content extract tags
+      console.log("debug", userId,postid )
       Post.findOneAndUpdate({
-          id
+          id: postid
       }, {
           content,
           lastModifiedAt:Date.now()
       }).then(post=>{
-          res.status(200).json({
-              post:{...post._doc,likes:post.likes.length,comments:post.comments.length,shared:post.shared.length}
+          getPost(postid,userId).then(post=>{
+              res.status(200).json({
+                  post:post
+              })
+          }).catch(err=>{
+              throw new Error(err)
           })
       }).catch(err=>{
+         console.log(err);
           res.status(400).json({
-              success:false,
               error: "something went wrong!"
           })
       })
-})
+}) 
 // delete a post 
 Router.post("/delete",(req,res)=>{
     const {id} =req.body;
@@ -67,7 +73,8 @@ const retrieveUserInfo=(req,res,next)=>{
 }
 
 
-//returns the all posts
+
+//returns the all posts that user following
 Router.get("/",retrieveUserInfo,(req, res) => {
 
     console.log("debug");
@@ -82,38 +89,79 @@ Router.get("/",retrieveUserInfo,(req, res) => {
                 }
             }
         },
-        {
-             $lookup: {
-                 "from": "users",
-                 "localField": "author",
-                 "foreignField": "id",
-                 "as": "authorData"
-             }
-        },
-        {
-            $unwind: "$authorData"
-        },
-        {
-           $project: {
-               id: 1,
-               content: 1,
-               likes: {
-                   $size:"$likes"
-               },
-               comments:{
-                   $size:"$comments"
-               },
-               shared:{
-                   $size:"$shared"
-               },
-               author: 1,
-               createdAt: 1,
-               authorName: "$authorData.username",
-               liked: {
-                   $in: [current_user_id, "$likes.user_id"]
-               }
-           }
-        }]).skip(skip).limit(20).then(records => {
+    {
+        $lookup: {
+            "from": "users",
+            "localField": "author",
+            "foreignField": "id",
+            "as": "authorData"
+        }
+    }, {
+        $unwind: "$authorData"
+    }, {
+        $lookup: {
+            "from": "posts",
+            "localField": "refId",
+            "foreignField": "id",
+            "as": "sharedContent"
+        }
+    }, {
+        $unwind: {
+            preserveNullAndEmptyArrays: true,
+            path: "$sharedContent"
+        }
+    }, {
+        $lookup: {
+            "from": "users",
+            "localField": "sharedContent.author",
+            "foreignField": "id",
+            "as": "prim_author"
+        }
+    }, {
+        $unwind: {
+            path: "$prim_author",
+            preserveNullAndEmptyArrays: true
+        }
+    },
+
+    {
+        $project: {
+            id: 1,
+            content: 1,
+            likes: {
+                $size: "$likes"
+            },
+            comments: {
+                $size: "$comments"
+            },
+            refId: 1,
+            ref_author_username: 1,
+            type: 1,
+            author: 1,
+            createdAt: 1,
+            liked:{
+                $in:[current_user_id,"$likes.user_id"]
+            },
+            authorName: "$authorData.username",
+            ref_author_username:1,
+            originalPost: {
+                $cond: {
+                    if: {
+                        $ne: ["$sharedContent", undefined]
+                    },
+                    then: {
+                        content: "$sharedContent.content",
+                        createdAt: "$sharedContent.createdAt",
+                        id: "$sharedContent.id",
+                        author: "$sharedContent.author",
+                        authorName: "$prim_author.username"
+                    },
+                    else: null
+                }
+            }
+        }
+    }
+    ]).skip(skip).limit(20).then(records => {
         res.status(200).json({
             posts: records,
             completed: records.length < 20
@@ -130,18 +178,42 @@ Router.get("/:username",(req, res) => {
     let username=req.params.username;
     let current_user_id = req.user.id;
     Post.aggregate([
-        {
-             $lookup: {
-                 "from": "users",
-                 "localField": "author",
-                 "foreignField": "id",
-                 "as": "authorData"
-             }
-        },
-        {
-            $unwind: "$authorData"
-        },
-        {
+       {
+           $lookup: {
+               "from": "users",
+               "localField": "author",
+               "foreignField": "id",
+               "as": "authorData"
+           }
+       }, {
+           $unwind: "$authorData"
+       }, {
+           $lookup: {
+               "from": "posts",
+               "localField": "refId",
+               "foreignField": "id",
+               "as": "sharedContent"
+           }
+       }, {
+           $unwind: {
+               preserveNullAndEmptyArrays: true,
+               path: "$sharedContent"
+           }
+       }, {
+           $lookup: {
+               "from": "users",
+               "localField": "sharedContent.author",
+               "foreignField": "id",
+               "as": "prim_author"
+           }
+       }, {
+           $unwind: {
+               path: "$prim_author",
+               preserveNullAndEmptyArrays: true
+           }
+       },
+
+       {
            $project: {
                id: 1,
                content: 1,
@@ -151,20 +223,33 @@ Router.get("/:username",(req, res) => {
                comments: {
                    $size: "$comments"
                },
-               shared: {
-                    $size: "$shared"
-               },
+               refId: 1,
+               ref_author_username: 1,
+               type: 1,
                author: 1,
                createdAt: 1,
                authorName: "$authorData.username",
-               liked: {
-                  $in:[current_user_id,"$likes.user_id"]
+                liked: {
+                    $in: [current_user_id, "$likes.user_id"]
                 },
-               isSharedByUser:{
-                   $in:[current_user_id,"$shared"]
+                ref_author_username:1,
+                originalPost: {
+                   $cond: {
+                       if: {
+                           $ne: ["$sharedContent", undefined]
+                       },
+                       then: {
+                           content: "$sharedContent.content",
+                           createdAt: "$sharedContent.createdAt",
+                           id: "$sharedContent.id",
+                           author: "$sharedContent.author",
+                           authorName: "$prim_author.username"
+                       },
+                       else: null
+                   }
                }
            }
-        },
+       },
         {
             "$match": {
                 "authorName":username
@@ -177,7 +262,6 @@ Router.get("/:username",(req, res) => {
         });
     }).catch(err => {
         res.status(400).json({
-            success: false,
             error: err.message
         });
     })
@@ -185,57 +269,17 @@ Router.get("/:username",(req, res) => {
 
 Router.get("/post/:id",(req,res)=>{
     let current_user_id=req.user.id;
-   Post.aggregate([
-       {
-           $match:{
-               id:req.params.id
-           }
-       },
-
-       {
-           $lookup: {
-               "from": "users",
-               "localField": "author",
-               "foreignField": "id",
-               "as": "authorData"
-
-           }
-       },
-       {
-           $unwind: "$authorData"
-       },
-       {
-           $project: {
-               id: 1,
-               content: 1,
-               likes: {
-                   $size:"$likes"
-               },
-               comments:{
-                   $size:"$comments"
-               },
-                shared: {
-                    $size: "$shared"
-                },
-               author: 1,
-               createdAt: 1,
-               authorName: "$authorData.username",
-               liked: {
-                   $in: [current_user_id, "$likes.user_id"]
-               }
-           }
-       }
-   ]).limit(1).then(([post]) => {
-       if(!post) throw new Error("post does'nt exist");
-       res.status(200).json({
-           post: post
-       });
-   }).catch(err => {
-       res.status(404).json({
-           error: "post does'nt exit"
-       });
-   })
-
+    let postid=req.params.id;
+    getPost(postid,current_user_id).then(post=>{
+        res.status(200).json({
+            post:post
+        });
+    }).catch(err=>{
+        res.status(400).json({
+            error:err.message
+        })
+    })
 })
+
 
 module.exports=Router;

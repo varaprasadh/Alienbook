@@ -12,9 +12,7 @@
                             <span class="shared-meta" v-if="post.type==='SHARE'">
                                 shared <span class="author-name">{{post.ref_author_username}}'s post</span>
                             </span>
-                            <span else>
-                                shared a post 
-                            </span>
+                            <span v-else> shared a post</span>
                         </div>
                         <div class="pub-date">{{new Date(post.createdAt).toLocaleDateString()}}</div>
                     </div>
@@ -25,7 +23,7 @@
                     </div>
                     <div class="options-container" v-if="showOptions">
                         <div class="option" @click="deletePost" v-if="userid===post.author">Delete</div>
-                        <div class="option" @click="editPost" v-if="userid===post.author">Edit</div>
+                        <div class="option" @click="edit" v-if="userid===post.author">Edit</div>
                     </div>
                 </div>
             </div>
@@ -110,7 +108,7 @@ export default {
     }),
  },
   methods:{
-      ...mapMutations(['rungl_loader','stopgl_loader']),
+      ...mapMutations(['rungl_loader','stopgl_loader','openEditor']),
       like:function(){
           //if not liked  the post
          if(!this.post.liked){
@@ -155,9 +153,6 @@ export default {
              this.commentLoadingSpinner=false;
          })
       },
-      share:function(){
-          this.showShareOptions=true;
-      },
       deletePost(){ 
             this.rungl_loader()
             axios.post("/posts/delete",{id:this.post.id}).then(()=>{
@@ -167,9 +162,20 @@ export default {
                  this.stopgl_loader();
             })
       },
-      editPost(){
-        
-      }
+      edit(){
+        this.openEditor({post:{...this.post},callback:this.onEditPost,type:"EDIT"})
+      },
+      onEditPost(post){
+          this.post=post;
+          this.$emit("update",post);
+      },
+      onPostShare(post){
+          console.log("shitty",post);
+        this.$emit("share",post);
+      },
+      share:function(){
+        this.openEditor({post:{...this.post},callback:this.onPostShare,type:"SHARE"});
+      },
   }
 }
 

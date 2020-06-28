@@ -6,26 +6,33 @@ const postTypes = {
     SHARE: "SHARE"
 }
 
-const createPost = async (postData) => {
-  //@param refId is the referrence of original id if post is the shared one
-  const {content="",author,type=postTypes.NORMAL,refID=""}=postData;
+const createPost = (postData) => {
   let post=new Post({
       id:uuid(),
-      content,
-      author,
-      refId
+      ...postData
   });
+
    return new Promise((resolve,reject)=>{
         post.save().then(post=>{
-            let result = {
-                ...post._doc,
-                likes: post.likes.length,
-                comments: post.comments.length
-            }
-            resolve(result);
+            resolve(post);
         }).catch(err=>{
+          console.log(err);
           reject(err);
         })
    })
 }
-module.exports={createPost}
+const formatPost = post =>{
+    return {
+        ...post._doc,
+        likes: post._doc.likes.length,
+        comments: post._doc.comments.length,
+    }
+};
+
+
+
+
+module.exports = {
+    createPost,
+    formatPost
+}

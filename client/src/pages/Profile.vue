@@ -5,7 +5,7 @@
       <ProfileCard :user='user'/>
     </div>
     <div class="container user-posts">
-      <Post v-on:delete="deletePost" v-for="(post,i) in posts" :key="i" :post="post"/>
+      <Post v-on:share="onShare($event)" v-on:delete="deletePost" v-for="(post,i) in posts" :key="i" :post="post"/>
     </div>
   </section>
 </template>
@@ -33,6 +33,10 @@ export default {
        if(index!=-1){
          this.posts.splice(index,1);
        }
+    },
+     onShare(post){
+        console.log("fuck shit",post);
+        this.posts.unshift(post);
     }
   },
   beforeRouteUpdate(to,from,next){
@@ -55,7 +59,7 @@ export default {
       next();
     }
   },
-
+ 
   mounted(){
        let username=this.$route.params.username;
         Axios.get(`/users/profile/${username}`).then(({data})=>{
@@ -64,7 +68,8 @@ export default {
         Axios.get(`/posts/${username}`).then(({data})=>{
           this.posts.push(...data.posts);
         }).catch(err=>{console.log(err) })
-  }
+  },
+
 }
 /*
 

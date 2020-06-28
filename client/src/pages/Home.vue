@@ -4,6 +4,9 @@
       <AppNavBar/>
       <GLHLoader/>
     </div>
+    <div class="utils">
+       <PostEditor/>
+    </div>
     <router-view></router-view>
   </section>
 </template>
@@ -12,6 +15,8 @@
 
 import AppNavBar from "../components/AppNavBar";
 import GLHLoader from "../components/GLHLoader";
+import PostEditor from "../components/PostEditor";
+
 
 import Axios from 'axios';
 import { mapMutations } from 'vuex';
@@ -19,7 +24,8 @@ export default {
    name:"Home",
    components:{
     AppNavBar,
-    GLHLoader
+    GLHLoader,
+    PostEditor
    },
    methods:{
     ...mapMutations(['setUser','runLoader','stopLoader'])
@@ -41,9 +47,13 @@ export default {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  /* position: relative; */
 }
 .app-nav-wrappe{
   position: sticky;
   top:0px;
+}
+.utils{
+  position: absolute;
 }
 </style>

@@ -4,29 +4,34 @@ const uuid = require('uuid').v1;
 
 const Post = require("../models/Post");
 
+const {createPost,formatPost} =require("./helper/createPost");
+const getPost=require("./helper/getPost");
+
+
 Router.post("/share",(req,res)=>{
     const userid=req.user.id;
-    const postid=req.body.postid;
-    res.status(200).json({
-        message:"we dont support this feature,use real facebook"
-    });
-});
-Router.post("/unshare",(req,res)=>{
-    const userid=req.user.id;
-    const postid=req.body.postid;
-    Post.findOne({id:postid}).then(post=>{
-        post.shared.pull(userid);
-        post.save().then(()=>{
+    const {postid,username,content=" "}=req.body;
+    createPost({
+        author: userid,
+        refId:postid,
+        ref_author_username:username,
+        content: content,
+        type:"SHARE",
+    }).then(post=>{
+        getPost(post.id,userid).then(post=>{
             res.status(200).json({
-                message:"post has been removed from timeline"
-            })
-        });
+                post:post
+            });
+        }).catch(err=>{
+            throw new Error(err);
+        })
     }).catch(err=>{
         res.status(400).json({
             error:err.message
         })
     })
-})
+});
+
 
 
 

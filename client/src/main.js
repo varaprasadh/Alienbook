@@ -105,14 +105,13 @@ const router = new VueRouter({
         component: Profile,
         props:true
       },
-       {
-        path:"settings",
-        name:"settings",
-        component: Settings
-      },
     ]
     },
-    
+    {
+      path:"/settings",
+      name:"settings",
+      component:Settings
+    },
     {path:"*",component:Error},
   ],
 })

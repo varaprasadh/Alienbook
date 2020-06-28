@@ -11,7 +11,8 @@ const Post=new mongoose.Schema({
     },
     content:{
         type:String,
-        required:true
+        required:true,
+        default:""
     },
     author:{
         type:String,
@@ -25,7 +26,17 @@ const Post=new mongoose.Schema({
     saved:{
         type:Array(String)
     },
-    
+    refId:{
+        type:String,
+        default:null
+    },
+    type:{
+        type:String,
+        default:"NORMAL"
+    },
+    ref_author_username:{
+        type:String,
+    },
     // tags:{
     //     type:Array(String),
     //     default:[]
