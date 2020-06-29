@@ -1,5 +1,9 @@
 const mongoose =require('mongoose');
 
+const Notification =require("../models/Notification");
+
+
+
 const User=new mongoose.Schema({
     id:{
         required:true,
@@ -10,7 +14,8 @@ const User=new mongoose.Schema({
      },
      username:{
          required:true,
-         type:String
+         type:String,
+         unique:true
      },
      fullName:{
          required:true,
@@ -43,6 +48,10 @@ const User=new mongoose.Schema({
      },
      followers:{
          type:Array(String),
+         default:[]
+     },
+     notifications:{
+         type:Array(Notification.schema),
          default:[]
      }
 });

@@ -25,7 +25,6 @@ Router.post('/create',(req, res) => {
 Router.post("/update",(req,res)=>{
      let userId=req.user.id;
       const {content, postid} = req.body; //parse the content extract tags
-      console.log("debug", userId,postid )
       Post.findOneAndUpdate({
           id: postid
       }, {
@@ -73,20 +72,28 @@ const retrieveUserInfo=(req,res,next)=>{
 }
 
 
+/*
+ author:{
+                   $or:[
+                       {"$in": req.user.info.following},//following
+                       {"$eq":current_user_id} //user itself
+                   ] 
+                }
+
+*/
 
 //returns the all posts that user following
 Router.get("/",retrieveUserInfo,(req, res) => {
-
-    console.log("debug");
 
     let skip=req.query.skip && parseInt(req.query.skip) || 0;
     let current_user_id=req.user.id
     Post.aggregate([
         {  $match:
             {
-                author:{
-                    "$in": req.user.info.following //following
-                }
+                $or:[
+                    {author:{"$in": req.user.info.following}},
+                    {author:{"$eq": current_user_id }}
+                ]
             }
         },
     {

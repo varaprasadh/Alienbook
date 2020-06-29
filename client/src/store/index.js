@@ -21,13 +21,23 @@ import Axios from 'axios';
       posts:[],
       appLoadingState: false,
       gl_h_loader:false,
-      editorOpen:true,
+      editorOpen:false,
       editorAuxData: editorInitialState
     },
     getters:{
      
     },
     actions:{
+        loadUserInfo({commit}){
+            commit('runLoader')
+            axios.get("/users/profile").then(({data})=>{
+                commit('setuser',data.data);
+                 commit('stopLoader');
+            }).catch(err=>{
+                commit('stopLoader');
+                commit('logout');
+            })
+        },
        loadPosts({commit}){
           commit('runLoader')
           axios.get("/posts/").then(({data})=>{
@@ -88,7 +98,7 @@ import Axios from 'axios';
         runLoader(state){
             state.appLoadingState=true;
         },
-        setUser(state,user){
+        setuser(state, user) {
             state.user=user;
         },
         stopLoader(state){

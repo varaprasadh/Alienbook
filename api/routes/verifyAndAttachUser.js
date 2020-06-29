@@ -6,7 +6,6 @@ const verifyAndAttachUser = (req, res, next)=>{
        try{
          let payload = jwt.verify(token, process.env.SECRET_ACCESS_TOKEN);
          req.user=payload;
-       //   console.log(payload,"attacked");
          next();
        }catch(err){
               req.user=null;

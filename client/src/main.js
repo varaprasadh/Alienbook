@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import VueRouter from 'vue-router'
-
+import VueNotifications from 'vue-notification'
 
 // import LandingPage from "./pages/LandingPage";
 import Auth from "./pages/Auth.vue";
@@ -115,6 +115,7 @@ const router = new VueRouter({
     {path:"*",component:Error},
   ],
 })
+Vue.use(VueNotifications);
 
 
 Vue.config.productionTip = false

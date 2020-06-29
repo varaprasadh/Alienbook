@@ -1,6 +1,8 @@
 const Router = require('express').Router();
 const User = require("../models/User");
 const bcrypt=require('bcrypt');
+const retrieveUserInfo=require("./mdl_attachuserinfo");
+const getUserProfile = require("./helper/getUserProfile");
 
 
 const LIMIT=20;
@@ -50,64 +52,29 @@ Router.get("/",(req,res)=>{
 
 
 // get user info for single user
-Router.get("/profile/:username?",(req,res)=>{
- const username=req.params.username || req.user.username;
- User.aggregate([
-     {
-     $match:{
-         username:{
-             $eq:username
-         }
-     }
-    },
-    {
-        $lookup: {
-            "from": "posts",
-            "localField": "id",
-            "foreignField": "author",
-            "as": "posts"
-        }
-    },
-    {
-        $project:{
-           username:1,
-           fullName:1,
-           id:1,
-           createdAt:1,
-           following:{
-               $size:"$following"
-           },
-           followers: {
-               $size: "$followers"
-           },
-           posts:{
-               $size:"$posts"
-           }
-        }
-    }
- ]).limit(1).then(([user])=>{
-     if(!user){
-         throw new Error("user doesn't exist");
-     }
-     res.status(200).json({
-         data:user
-
-     })
- }).catch(err=>{
-     res.status(404).json({
-         error:err.message
-     })
- })
+Router.get("/profile/:username?", retrieveUserInfo, (req, res) => {
+    const username=req.params.username || req.user.info.username;
+    getUserProfile(username).then(userprofile=>{
+        res.status(200).json({
+            data:userprofile
+        })
+    }).catch(err=>{
+        res.status(400).json({
+            error:err.message
+        })
+    })
 })
 
 
 Router.post("/profile",(req,res)=>{
     const userid=req.user.id;
-    const {fullName,username,bio}=req.body;
-    User.findOneAndUpdate({id:userid},{fullName,username,bio}).then((status)=>{
-       res.status(200).json({
-           message:"profile has been updated"
-       });
+    const {fullName,username}=req.body;
+    User.findOneAndUpdate({id:userid},{fullName,username}).then((status)=>{
+       getUserProfile(username).then(user=>{
+           res.status(200).json({
+            profile:user
+        })
+       })
     }).catch(err=>{
         res.status(400).json({
             error:err.message
