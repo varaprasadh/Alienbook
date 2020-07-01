@@ -18,7 +18,7 @@ import Axios from 'axios';
  const store = new Vuex.Store({
     state:{
       user:null,
-      posts:[],
+      feed: [],
       appLoadingState: false,
       gl_h_loader:false,
       editorOpen:false,
@@ -38,17 +38,7 @@ import Axios from 'axios';
                 commit('logout');
             })
         },
-       loadPosts({commit}){
-          commit('runLoader')
-          axios.get("/posts/").then(({data})=>{
-                if(data.success==true){
-                    commit('loadPosts',data.posts)
-                }
-                commit('stopLoader');
-            }).catch(()=>{
-                commit('stopLoader');
-            })
-       },
+
        publishPost({commit},payload){
            console.log(payload);
        },
@@ -92,8 +82,8 @@ import Axios from 'axios';
        }
     },
     mutations:{
-        loadPosts(state,posts){
-            state.posts.push(...posts);
+        setFeedPosts(state, posts) {
+            state.feed.push(...posts);
         },
         runLoader(state){
             state.appLoadingState=true;
@@ -119,7 +109,7 @@ import Axios from 'axios';
         logout(state){
             state.user=null;
         },
-        openEditor(state, data) {
+        openEditor(state, data={type:"NORMAL"}) {
             let {post={content:" "},callback=()=>{},type="NORMAL",content=""}=data;
             if(type==='EDIT'){
                 content=post.content;

@@ -5,11 +5,7 @@
        <div class="alien-container" v-for="(alien,i) in aliens" :key="i">
              <AlienCard :alien="alien"/>
        </div>
-       <div class="loading" v-if="loading">
-           <div class="loading-bar">
-              <div class="loading-line"></div>
-           </div>
-       </div>
+        <BottomLoadBar v-if="loading"/>
      </div>
   </section>
 </template>
@@ -19,11 +15,12 @@ import AlienCard from "../components/AlienCard";
 
 import { mapState, mapMutations } from 'vuex'
 import Axios from 'axios';
+import BottomLoadBar from "../components/BottomLoadBar";
 
 export default {
   name:"aliens",
   components:{
-    AlienCard
+    AlienCard,BottomLoadBar
   },
   data:()=>({
       aliens:[],
@@ -89,35 +86,5 @@ export default {
 .alien-list{
   max-width: 600px;
   margin: 10px auto;
-}
-
-.loading{
-  text-align: center;
-  padding: 10px;
-  background: white;
-}
-
-.loading-bar{
-  width: 100%;
-  height: 5px;
-  overflow: hidden;
-  position: relative;
-}
-.loading-line{
-  position: absolute;
-  animation: load 1s cubic-bezier(0.77, 0, 0.175, 1) infinite alternate-reverse;
-  background: rgb(179, 175, 175);
-  height: 100%;
-}
-
-@keyframes load{
-  from{
-     left:0%;
-     width:20%;
-  }
-  to{
-    left:100%;
-    width: 100%;
-  }
 }
 </style>
