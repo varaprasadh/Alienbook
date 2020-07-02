@@ -49,10 +49,6 @@ const User=new mongoose.Schema({
      followers:{
          type:Array(String),
          default:[]
-     },
-     notifications:{
-         type:Array(Notification.schema),
-         default:[]
      }
 });
 

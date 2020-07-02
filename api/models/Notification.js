@@ -17,9 +17,15 @@ const Notification = mongoose.Schema({
         type: String,
         required: true
     },
+    ref_id:{ //comment id || like id || null 
+        type:String,
+    },
+    owner:{
+        type:String,
+        required:true
+    },
     postId: {
         type: String,
-        required: true
     },
     timestamp: {
         type: Date,

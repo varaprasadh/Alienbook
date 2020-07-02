@@ -5,60 +5,129 @@ const uuid=require('uuid').v4;
 const NOTIFY_TYPES={
     LIKE:"LIKE",
     COMMENT:"COMMENT",
-    SHARE:"SHARE"
+    SHARE:"SHARE",
+    FOLLOW:"FOLLOW"
 }
 
-class NotificationService(){
 
-  createNotification({type,initiatorId,postId,authorId}){
+
+const createNotification = ({
+        type,
+        initiator,
+        postId = "",
+        ref_id,
+        owner
+    }) => {
         let notification=new Notification({
             type,
-            initiator: initiatorId,
+            initiator,
             postId,
-            id:uuid();
+            ref_id,
+            owner,
+            id:uuid()
         });
-        if (authorId === initiatorId){
+        if (owner === initiator) {
+            console.log("cant");
             return;
         }
-        User.findOne({
-            id: authorId
-        }).then(user=>{
-            if(!user) throw new Error("user not found");
-            user.notifications.push(notification);
-            user.save().then(user=>{
-                //send push notification to user to update notification section
-            });
-
-        }).catch(err=>{
-            //ignore
-        })
+       notification.save().then(()=>{
+           //push notificagtion thing
+           console.log("added notification");
+       })
   }
-  removeNotification(userId,notificationId){
+  const removeNotification=(notificationId)=>{
      return new Promise((resolve,reject)=>{
-         User.findOne({id: userId},{
-             $pull: {
-                 notifications: {
-                     id: notificationId
-                 }
-             }
-         }).then(doc => {
-             if (doc.nModified === 0) {
-                 throw new Error("already deleted")
-             }
-             resolve("done")
-         }).catch(err => {
-             reject(err);
-         })
+        Notification.findOneAndDelete({id:notificationId}).then(notification=>{
+            resolve("done");
+        }).catch(err=>reject(err))
      })
   }
-  //todo  
-//   markAsRead(userid,notificationId){
-//       return new Promise((resolve,reject)=>{
-//           User.find
-//       })
-//   }
+
+  const markasRead=(notificationId)=>{
+    return new Promise((resolve,reject)=>{
+        Notification.findOneAndUpdate({id: notificationId},{$set:{read:true}})
+        .then((doc)=>{
+            console.log(doc);
+            resolve(doc)
+        }).catch(err=>reject(err))
+    })
+  }
+
+  //refid : commentid || likeid || 
+  
+  const undoNotification=({type,postId,ref_id,initiator,owner})=>{
+     if(type==="LIKE" || type==="COMMENT"){
+         return new Promise((resolve,reject)=>{
+            Notification.findOneAndDelete({ref_id,type}).then(()=>{
+                resolve("done");
+            }).catch(err=>reject(err));
+     })
+    }
+     if(type==="SHARE"){
+         return new Promise((resolve, reject) => {
+           Notification.findOneAndDelete({
+               initiator,
+               owner,
+               type,
+               postId
+           }).then(()=>resolve("done")).catch(err=>reject(err))
+         })
+     }
+     if(type==="FOLLOW"){
+        return new Promise((resolve,reject)=>{
+           Notification.findOneAndDelete({
+               initiator,
+               owner,
+               type:"FOLLOW"
+           }).then(()=>{
+               resolve("done");
+           }).catch(err=>reject(err));
+         })
+     }
+   }
+ 
+  const getNotifications=(userid,skip=0)=>{
+      return new Promise((resolve,reject)=>{
+       Notification.aggregate([{
+               $match: {
+                   owner: userid
+               }
+           },
+           {
+               $lookup: {
+                   from: "users",
+                   localField: "initiator",
+                   foreignField: "id",
+                   as: "initiator"
+               },
+           },
+           {
+               $unwind: "$initiator"
+           },
+           {
+               $project: {
+                   from: "$initiator.username",
+                   type: 1,
+                   timestamp: 1,
+                   ref_id: 1,
+                   postId: 1,
+                   read: 1,
+                   notification_id: "$id"
+               }
+           }
+       ]).skip(skip).limit(20).then(notifications=>{
+           resolve(notifications);
+       }).catch(err=>reject(err))
+      })
+  }
+
+module.exports = {
+    createNotification,
+    getNotifications,
+    markasRead,
+    removeNotification
+};
 
 
-}
 
-module.exports=NotificationService;
+

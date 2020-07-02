@@ -1,12 +1,11 @@
 <template>
   <section class="feed">
     <div class="container">
-      <div class="create-post">
-        <div class="create-post-skeleton" @click="openEditor">
+      <div class="create-post fab" ref="createPostButton">
+        <div class="create-post-skeleton" @click="()=>openEditor()">
           <div class="icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 477.873 477.873"><path d="M392.533 238.937c-9.426 0-17.067 7.641-17.067 17.067V426.67c0 9.426-7.641 17.067-17.067 17.067H51.2c-9.426 0-17.067-7.641-17.067-17.067V85.337c0-9.426 7.641-17.067 17.067-17.067H256c9.426 0 17.067-7.641 17.067-17.067S265.426 34.137 256 34.137H51.2C22.923 34.137 0 57.06 0 85.337V426.67c0 28.277 22.923 51.2 51.2 51.2h307.2c28.277 0 51.2-22.923 51.2-51.2V256.003c0-9.425-7.641-17.066-17.067-17.066z"/><path d="M458.742 19.142A65.328 65.328 0 00412.536.004a64.85 64.85 0 00-46.199 19.149L141.534 243.937a17.254 17.254 0 00-4.113 6.673l-34.133 102.4c-2.979 8.943 1.856 18.607 10.799 21.585 1.735.578 3.552.873 5.38.875a17.336 17.336 0 005.393-.87l102.4-34.133c2.515-.84 4.8-2.254 6.673-4.13l224.802-224.802c25.515-25.512 25.518-66.878.007-92.393z"/></svg>
+            <SVGEdit/>
           </div>
-            <div class="create-button">WRITE A POST!</div>
         </div>
       </div>
       <div class="feed">
@@ -23,11 +22,12 @@ import Axios from "axios";
 import {mapMutations, mapState} from 'vuex';
 import Post from "../components/Post";
 import BottomLoadBar from "../components/BottomLoadBar";
+import SVGEdit from "../components/svg/edit_pen";
 
 export default {
     name:"feed",
     components:{
-      Post,BottomLoadBar
+      Post,BottomLoadBar,SVGEdit
     },
     data(){
       return ({
@@ -44,9 +44,13 @@ export default {
     },
     mounted(){
       window.onscroll=()=>{
+        let btntimer=null;
         let isbottomVisible=document.documentElement.scrollTop+window.innerHeight===document.documentElement.offsetHeight;
         if(isbottomVisible){
           this.loadFeed();
+        }
+        if(btntimer){
+          clearTimeout(btntimer);
         }
       }
     },
@@ -75,24 +79,26 @@ export default {
    max-width: 600px;
    margin:1rem auto;
  }
- .create-post{
-   margin-bottom:1rem;
- }
+
+ .create-post.fab{
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+}
+.create-post{
+  z-index: 99;
+}
  .create-post-skeleton{
-  background: white;
-  display: flex;
-  justify-content: center;
-  align-items:center;
-  padding:10px;
-  border: 2px solid rgb(185, 184, 184);
+  padding:20px;
   cursor: pointer;
+  background: rgb(10, 10, 53);
+  color: white;
+  fill: white;
+  border-radius: 50%;
+   filter: drop-shadow(2px 2px 2px rgb(27, 27, 27));
  }
-.create-button{
-  font-weight: bold;
-  font-size: 1.2rem;
-  padding: 10px;
-}
 .create-post-skeleton .icon svg{
-  width: 1.5rem;
+  width: 2rem;
 }
+
 </style>

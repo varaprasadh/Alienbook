@@ -41,6 +41,18 @@ import Axios from 'axios';
 
        publishPost({commit},payload){
            console.log(payload);
+           const {content} =payload;
+           if(content.trim()===""){
+               return;
+           }
+           commit("rungl_loader");
+           commit("closeEditor");
+           Axios.post("/posts/create",{content}).then(({data})=>{
+               commit("setNewFeed",[data.post]);
+               commit("stopgl_loader")
+           }).catch(()=>{
+              commit("stopgl_loader")
+           })
        },
        updatePost({commit},payload){
         //  const {conten}
@@ -85,6 +97,9 @@ import Axios from 'axios';
         setFeedPosts(state, posts) {
             state.feed.push(...posts);
         },
+        setNewFeed(state,posts){
+            state.feed.unshift(...posts);
+        },
         runLoader(state){
             state.appLoadingState=true;
         },
@@ -109,8 +124,9 @@ import Axios from 'axios';
         logout(state){
             state.user=null;
         },
-        openEditor(state, data={type:"NORMAL"}) {
+        openEditor(state, data={}) {
             let {post={content:" "},callback=()=>{},type="NORMAL",content=""}=data;
+            console.log("debug",type);
             if(type==='EDIT'){
                 content=post.content;
             }

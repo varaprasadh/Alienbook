@@ -6,6 +6,7 @@ const Post = require("../models/Post");
 
 const {createPost,formatPost} =require("./helper/createPost");
 const getPost=require("./helper/getPost");
+// const NotificationService=require("./NotificationService");
 
 
 Router.post("/share",(req,res)=>{
@@ -14,7 +15,7 @@ Router.post("/share",(req,res)=>{
     createPost({
         author: userid,
         refId:postid,
-        ref_author_username:username,
+        ref_author_username:username, 
         content: content,
         type:"SHARE",
     }).then(post=>{

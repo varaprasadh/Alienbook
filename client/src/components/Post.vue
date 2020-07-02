@@ -17,11 +17,11 @@
                         <div class="pub-date">{{new Date(post.createdAt).toLocaleDateString()}}</div>
                     </div>
                 </div>
-                <div class="options" @click="showOptions=!showOptions">
+                <div class="options" @click="showOptions=!showOptions" v-click-outside="()=>showOptions=false">
                     <div class="option-icon">
                         <menuOptionsIcon/>
                     </div>
-                    <div class="options-container" v-if="showOptions">
+                    <div class="options-container"  v-if="showOptions">
                         <div class="option" @click="deletePost" v-if="userid===post.author">Delete</div>
                         <div class="option" @click="edit" v-if="userid===post.author">Edit</div>
                     </div>
@@ -49,7 +49,7 @@
         <div class="share-options-wrapper">
            
         </div>
-        <div class="comment-box-wrapper" v-if="showCommentBox">
+        <div class="comment-box-wrapper" v-if="showCommentBox" v-click-outside="()=>showCommentBox=false">
             <div class="comment-box">
                 <div class="inputbox">
                     <input type="text" placeholder="start typing..." @keyup.enter="sendComment" v-model="comment" class="comment">
@@ -312,7 +312,7 @@ export default {
  .comment-box{
     display: flex;
     align-items: center;
-    background: rgb(246, 248, 248);
+    background: rgb(255, 255, 255);
     margin: 5px 0px;
     padding: 0.5em;
     filter: drop-shadow(1px 1px 10px rgb(216, 213, 213));

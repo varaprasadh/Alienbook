@@ -1,7 +1,6 @@
 const Router = require('express').Router();
 const User = require('../models/User');
 
-
 //@many to many connection
 Router.post("/follow",async (req,res)=>{
    const current_user_id=req.user.id; //current guy

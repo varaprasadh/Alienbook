@@ -7,6 +7,7 @@ const Post = require("../models/Post");
 const Comment=require("../models/Comment");
 
 const LIMIT=20;
+const NotificationService=require("./NotificationService");
 
 //create a comment for the post
 Router.post("/comment",(req,res)=>{
@@ -50,6 +51,7 @@ Router.post("/comment",(req,res)=>{
       },
       {
         $project: {
+          "post_author_id":"$author",
           content: "$comments.text",
           timestamp: "$comments.timestamp",
           comment_id: "$comments.id",
@@ -59,7 +61,13 @@ Router.post("/comment",(req,res)=>{
         }
       }
     ]).then(([comment])=>{
-      console.log(comment);
+      NotificationService.createNotification({
+        initiator: comment.post_author_id,
+        type:"COMMENT",
+        initiator:userId,
+        postId:postId,
+        ref_id: comment.comment_id
+      });
       res.status(200).json({
         comment
       })
@@ -87,8 +95,6 @@ Router.post("/uncomment",(req,res)=>{
     })
   });
 });
-
-
 
 //return all comments for the post;
 Router.get("/comments/:postId",(req,res)=>{

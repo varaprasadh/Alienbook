@@ -18,9 +18,9 @@
           </div>
           <div class="actions">
             <div class="action cancel" @click="closeEditor">Cancel</div>
-            <div class="action post" @click="post" v-if="type==='NORMAL'">Publish</div>
+            <div :class="['action','post',{disable:disableButton}]" @click="post" v-if="type==='NORMAL'">Publish</div>
             <div class="action update" @click="update" v-if="type==='EDIT'">Update</div>
-            <div class="action share" @click="share" v-if="type==='SHARE'">Share</div>
+            <div :class="['action','share',{disable:disableButton}]" @click="share" v-if="type==='SHARE'">Share</div>
           </div>
         </div>
       </div>
@@ -60,8 +60,9 @@ export default {
      ...mapState(['editorOpen','editorAuxData']),
     ...mapState({
        type:({editorAuxData})=>editorAuxData.type || 'NORMAL',
-       content:({editorAuxData})=>editorAuxData.content
-      }),
+       content:({editorAuxData})=>editorAuxData.content,
+       disableButton:({editorAuxData})=>(editorAuxData.type==="NORMAL" || editorAuxData.type==="EDIT") && editorAuxData.content.trim()===""
+      })
    }
 }
 
@@ -123,7 +124,10 @@ export default {
   background: tomato;
 }
 .action.post{
-  background: gray;
+  background: rgb(10, 100, 173);
+}
+.action.post.disable,.action.update.disable{
+  background: rgb(111, 112, 112);
 }
 .action.update{
   background: rgb(26, 179, 107);

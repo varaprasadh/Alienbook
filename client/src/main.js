@@ -2,6 +2,8 @@ import Vue from 'vue'
 import App from './App.vue'
 import VueRouter from 'vue-router'
 import VueNotifications from 'vue-notification'
+import vClickOutside from 'v-click-outside'
+
 
 // import LandingPage from "./pages/LandingPage";
 import Auth from "./pages/Auth.vue";
@@ -116,6 +118,7 @@ const router = new VueRouter({
   ],
 })
 Vue.use(VueNotifications);
+Vue.use(vClickOutside);
 
 
 Vue.config.productionTip = false
