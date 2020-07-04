@@ -8,7 +8,7 @@
 
 <script>
 export default {
-
+   name:"loading-bar-bottom"
 }
 </script>
 

@@ -29,13 +29,12 @@ export default {
   methods:{
     ...mapMutations(['runLoader','stopLoader']),
     deletePost(id){
-       let index=this.posts.find(post=>post.id===id);
+       let index=this.posts.findIndex(post=>post.id===id);
        if(index!=-1){
          this.posts.splice(index,1);
        }
     },
      onShare(post){
-        console.log("fuck shit",post);
         this.posts.unshift(post);
     }
   },

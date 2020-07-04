@@ -4,7 +4,7 @@
        <Post v-if="post" :post="post" v-on:comment="addToComments($event)" :preventOnComment="true"/>
        <div class="comments">
          <div class="label">comments</div>
-         <Comment v-for="(cmt,i) in comments" :key="i" :comment="cmt"/>
+         <Comment v-for="(cmt,i) in comments" v-on:commentdelete="deleteComment($event)" :key="i" :comment="cmt"/>
        </div>
     </div>
   </section>
@@ -82,6 +82,16 @@ export default {
       },
       addToComments(comment){
          this.comments.unshift(comment);
+     },
+     deleteComment(id){
+       Axios.post("/post/uncomment",{postId:this.post.id,commentId:id}).then(()=>{
+         let index=this.comments.findIndex(c=>c.comment_id===id);
+         if(index!=-1){
+           this.comments.splice(index,1);
+         }
+       }).catch(()=>{
+         //
+       })
      }
   },
 

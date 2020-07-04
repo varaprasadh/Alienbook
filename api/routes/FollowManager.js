@@ -1,5 +1,7 @@
 const Router = require('express').Router();
 const User = require('../models/User');
+const NotificationService =require("./NotificationService");
+
 
 //@many to many connection
 Router.post("/follow",async (req,res)=>{
@@ -16,6 +18,9 @@ Router.post("/follow",async (req,res)=>{
     other_user.followers.addToSet(current_user_id); //adding to other guys follower list
     await current_user.save();
     await other_user.save();
+    //generate notification 
+    NotificationService.createNotification({initiator:current_user_id,owner:followee_id,type:"FOLLOW"});
+
     res.status(200).json({
         message: "user being followed"
     })
@@ -35,9 +40,9 @@ Router.post("/unfollow",async (req,res)=>{
     if(!current_user || !other_user){
         throw new Error("either of user doesnt exsit");
     }
-    console.log(current_user);
-    console.log(other_user);
-
+   // console.log(current_user);
+   // console.log(other_user);
+    NotificationService.undoNotification({type:"FOLLOW",initiator:current_user_id,owner:followee_id});
     current_user.following.pull(followee_id); //adding to following list
     other_user.followers.pull(current_user_id); //adding to other guys follower list
     await current_user.save();

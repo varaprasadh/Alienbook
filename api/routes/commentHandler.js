@@ -62,11 +62,11 @@ Router.post("/comment",(req,res)=>{
       }
     ]).then(([comment])=>{
       NotificationService.createNotification({
-        initiator: comment.post_author_id,
         type:"COMMENT",
         initiator:userId,
+        owner: comment.post_author_id,
         postId:postId,
-        ref_id: comment.comment_id
+        ref_id: comment.comment_id,
       });
       res.status(200).json({
         comment
@@ -86,6 +86,7 @@ Router.post("/uncomment",(req,res)=>{
     if (doc.nModified===0){
       throw new Error("comment was already deleted");
     }
+    NotificationService.undoNotification({type:"COMMENT",ref_id:commentId,postId:postId});
     res.status(200).json({
       message:"comment deleted"
     })

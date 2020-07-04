@@ -53,7 +53,7 @@ Router.post("/dislike",(req,res)=>{
         if (doc.nModified===0){
             throw new Error("already disliked");
         }
-    
+        NotificationService.undoNotification({postId:postId,type:"LIKE",initiator:userId});
         res.status(200).json({
             message:"disliked!"
         })

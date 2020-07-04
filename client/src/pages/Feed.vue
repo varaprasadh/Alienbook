@@ -1,18 +1,11 @@
 <template>
   <section class="feed">
     <div class="container">
-      <div class="create-post fab" ref="createPostButton">
-        <div class="create-post-skeleton" @click="()=>openEditor()">
-          <div class="icon">
-            <SVGEdit/>
-          </div>
-        </div>
-      </div>
       <div class="feed">
-        <Post v-for="(post,i) in feed" :key="i" :post="post"/>
+        <Post v-for="(post,i) in feed" :key="i" :post="post" v-on:delete="removeFromFeed($event)"/>
         <BottomLoadBar v-if="loading"/>
       </div>
-    </div>
+    </div> 
   </section>
 </template>
 
@@ -22,12 +15,11 @@ import Axios from "axios";
 import {mapMutations, mapState} from 'vuex';
 import Post from "../components/Post";
 import BottomLoadBar from "../components/BottomLoadBar";
-import SVGEdit from "../components/svg/edit_pen";
 
 export default {
     name:"feed",
     components:{
-      Post,BottomLoadBar,SVGEdit
+      Post,BottomLoadBar
     },
     data(){
       return ({
@@ -40,22 +32,20 @@ export default {
       ...mapState(['feed'])
     },
     created(){
-      this.loadFeed();
+      if(this.feed.length<=0){
+        this.loadFeed();
+      }
     },
     mounted(){
       window.onscroll=()=>{
-        let btntimer=null;
         let isbottomVisible=document.documentElement.scrollTop+window.innerHeight===document.documentElement.offsetHeight;
         if(isbottomVisible){
           this.loadFeed();
         }
-        if(btntimer){
-          clearTimeout(btntimer);
-        }
       }
     },
     methods:{
-      ...mapMutations(['setFeedPosts','rungl_loader','stopgl_loader','openEditor']),
+      ...mapMutations(['setFeedPosts','rungl_loader','stopgl_loader','openEditor','removeFromFeed']),
       loadFeed(){
         if(this.loading || this.completed){
           return;
@@ -70,6 +60,7 @@ export default {
           this.loading=false;
         })
       },
+      
     }
 }
 </script>

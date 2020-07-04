@@ -3,8 +3,6 @@ const User = require("../models/User");
 const bcrypt=require('bcrypt');
 const retrieveUserInfo=require("./mdl_attachuserinfo");
 const getUserProfile = require("./helper/getUserProfile");
-
-
 const LIMIT=20;
 
 
@@ -106,5 +104,7 @@ Router.post("/profile/changepwd",async (req,res)=>{
         })
     })
 })
+
+
 
 module.exports=Router;

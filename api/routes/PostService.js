@@ -10,9 +10,11 @@ const getPost = require("./helper/getPost");
 Router.post('/create',(req, res) => {
     let author=req.user.id;
     const { content} = req.body;
-    createPost({author,content}).then(formatPost).then(post=>{
-        res.status(200).json({
-            post:post
+    createPost({author,content}).then(post=>{
+        getPost(post.id, author).then(post => {
+            res.status(200).json({
+                post:post
+            })
         })
     }).catch(err=>{
         res.status(400).json({
@@ -49,12 +51,13 @@ Router.post("/update",(req,res)=>{
 Router.post("/delete",(req,res)=>{
     const {id} =req.body;
     Post.findOneAndDelete({id}).then(post => {
+        if(!post) throw new Error("post does'nt exist");
         res.status(200).json({
            message:"post deleted!"
         })
     }).catch(err=>{
         res.status(400).json({
-            error:"unable to delete,try again"
+            error:err.message
         })
     })
 })
@@ -71,16 +74,6 @@ const retrieveUserInfo=(req,res,next)=>{
     })
 }
 
-
-/*
- author:{
-                   $or:[
-                       {"$in": req.user.info.following},//following
-                       {"$eq":current_user_id} //user itself
-                   ] 
-                }
-
-*/
 
 //returns the all posts that user following
 Router.get("/",retrieveUserInfo,(req, res) => {

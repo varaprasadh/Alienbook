@@ -10,9 +10,11 @@
                </div>
            </div>
            <div class="nav-group">
-                <!-- <div class="nav-item">
-                   <input type="text">
-               </div> -->
+               <div class="nav-item write-post" @click="openEditor({})">
+                   <div class="icon">
+                    <svg class="svg-icon" viewBox="0 0 20 20"><path fill="none" d="M13.388,9.624h-3.011v-3.01c0-0.208-0.168-0.377-0.376-0.377S9.624,6.405,9.624,6.613v3.01H6.613c-0.208,0-0.376,0.168-0.376,0.376s0.168,0.376,0.376,0.376h3.011v3.01c0,0.208,0.168,0.378,0.376,0.378s0.376-0.17,0.376-0.378v-3.01h3.011c0.207,0,0.377-0.168,0.377-0.376S13.595,9.624,13.388,9.624z M10,1.344c-4.781,0-8.656,3.875-8.656,8.656c0,4.781,3.875,8.656,8.656,8.656c4.781,0,8.656-3.875,8.656-8.656C18.656,5.219,14.781,1.344,10,1.344z M10,17.903c-4.365,0-7.904-3.538-7.904-7.903S5.635,2.096,10,2.096S17.903,5.635,17.903,10S14.365,17.903,10,17.903z"></path></svg>
+                   </div>
+               </div>
                <div class="nav-item home">
                    <router-link class="nav-link" to="/">
                    <div class="icon">
@@ -30,7 +32,7 @@
                <div class="nav-item notifycations">
                   <router-link class="nav-link" to="/notifications">
                     <div class="icon">
-                        <div class="badge">12</div>
+                        <div class="badge" v-if="getUnreadNotifCount>0">{{getUnreadNotifCount}}</div>
                         <svg class="svg-icon" viewBox="0 0 20 20"><path d="M14.38,3.467l0.232-0.633c0.086-0.226-0.031-0.477-0.264-0.559c-0.229-0.081-0.48,0.033-0.562,0.262l-0.234,0.631C10.695,2.38,7.648,3.89,6.616,6.689l-1.447,3.93l-2.664,1.227c-0.354,0.166-0.337,0.672,0.035,0.805l4.811,1.729c-0.19,1.119,0.445,2.25,1.561,2.65c1.119,0.402,2.341-0.059,2.923-1.039l4.811,1.73c0,0.002,0.002,0.002,0.002,0.002c0.23,0.082,0.484-0.033,0.568-0.262c0.049-0.129,0.029-0.266-0.041-0.377l-1.219-2.586l1.447-3.932C18.435,7.768,17.085,4.676,14.38,3.467 M9.215,16.211c-0.658-0.234-1.054-0.869-1.014-1.523l2.784,0.998C10.588,16.215,9.871,16.447,9.215,16.211 M16.573,10.27l-1.51,4.1c-0.041,0.107-0.037,0.227,0.012,0.33l0.871,1.844l-4.184-1.506l-3.734-1.342l-4.185-1.504l1.864-0.857c0.104-0.049,0.188-0.139,0.229-0.248l1.51-4.098c0.916-2.487,3.708-3.773,6.222-2.868C16.187,5.024,17.489,7.783,16.573,10.27"></path></svg>
                     </div>
                   </router-link>
@@ -49,7 +51,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters, mapMutations } from 'vuex'
 
 export default {
   name:"app-nav",
@@ -57,7 +59,11 @@ export default {
     profileMenu:false
   }),
   computed:{
-    ...mapState(['user'])
+    ...mapState(['user']),
+    ...mapGetters(['getUnreadNotifCount'])
+  },
+  methods:{
+    ...mapMutations(['openEditor'])
   }
 }
 
@@ -98,6 +104,8 @@ a{
     align-items: center;
     justify-content: space-between;
     flex: 1;
+    max-width: 700px;
+    margin: 0px auto;
 }
 .main-nav .nav-group{
     display: flex;
@@ -110,6 +118,10 @@ a{
     padding: 10px;
     cursor: pointer;
     position: relative;
+}
+
+.nav-item.write-post svg path{
+  stroke-width: 10px;
 }
 
 .nav-item:hover{
@@ -131,9 +143,14 @@ a{
     position: absolute;
     top:0%;
     right:0%;
+    width:15px;
+    height:15px;
     background: tomato;
     border-radius: 50%;
-    padding: 2px;
+    padding: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .profile-option-menu{
   position: absolute;

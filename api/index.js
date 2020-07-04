@@ -20,6 +20,7 @@ const  LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 const passport=require('passport');
 const User=require("./models/User");
 const FollowManager =require("./routes/FollowManager");
+const NotificationHandler=require("./routes/NotificationsHandler");
 
 const getWebToken=require("./routes/helper/createJWT");
 
@@ -48,6 +49,7 @@ app.use('/post', verifyAndAttachUser, LikeHandler);
 app.use("/post", verifyAndAttachUser, CommentHandler);
 // app.use("/post",verifyAndAttachUser,saveService);
 app.use("/users", verifyAndAttachUser, FollowManager);
+app.use("/notifications",verifyAndAttachUser,NotificationHandler);
 
 
 passport.serializeUser((user, cb) => {

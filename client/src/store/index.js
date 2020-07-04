@@ -22,10 +22,13 @@ import Axios from 'axios';
       appLoadingState: false,
       gl_h_loader:false,
       editorOpen:false,
-      editorAuxData: editorInitialState
+      editorAuxData: editorInitialState,
+      notifications:[]
     },
     getters:{
-     
+     getUnreadNotifCount(state,){
+         return state.notifications.reduce((sum,notif)=>sum+(notif.read==false?1:0),0)
+     }
     },
     actions:{
         loadUserInfo({commit}){
@@ -100,6 +103,21 @@ import Axios from 'axios';
         setNewFeed(state,posts){
             state.feed.unshift(...posts);
         },
+        removeFromFeed(state,postId){            
+           const index=state.feed.findIndex(post=>post.id===postId);
+           if(index!=-1){
+              state.feed.splice(index,1);
+           }
+        },
+        setNotifications(state,notifications){
+            state.notifications.push(...notifications)
+        },
+        removeNotification(state,id){
+          let index=state.notifications.findIndex(n=>n.notification_id===id);
+          if(index!=-1){
+              state.notifications.splice(index,1);
+          }
+        },
         runLoader(state){
             state.appLoadingState=true;
         },
@@ -114,12 +132,6 @@ import Axios from 'axios';
         },
         stopgl_loader(state){
         state.gl_h_loader = false;
-        },
-        removeFromPosts(state,id){
-            let index=state.posts.findIndex(post=>post.id===id);
-            if(index!=-1){
-                state.posts.splice(index,1);
-            }
         },
         logout(state){
             state.user=null;

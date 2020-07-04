@@ -24,12 +24,14 @@
                     <div class="options-container"  v-if="showOptions">
                         <div class="option" @click="deletePost" v-if="userid===post.author">Delete</div>
                         <div class="option" @click="edit" v-if="userid===post.author">Edit</div>
+                        <div class="option" @click="unfollow" v-if="!post.unfollowd && userid!==post.author">unfollow {{post.authorName}}</div>
+                        <div class="option" @click="follow" v-if="post.unfollowd && userid!==post.author">follow {{post.authorName}}</div>
                     </div>
                 </div>
             </div>
             <div class="content">
                 <PostTextContent v-if="post.content && post.content.trim()!=''" :content="post.content"/>
-                <RefPost v-if="post.type==='SHARE'" v-on:openPost="$router.push('/')" :post="post.originalPost" :refAuthorName="post.ref_author_username"/>
+                <RefPost v-if="post.type==='SHARE'" :post="post.originalPost" :refAuthorName="post.ref_author_username"/>
             </div>
             <div class="post-stats">
                 <div class="likes">{{post.likes}} Likes</div>
@@ -42,7 +44,7 @@
                     <div class="label">Comments</div>
                 </div>
                <div class="comments">
-                   <Comment v-for="(comment,i) in comments" :key="i" :comment="comment"/>
+                   <Comment v-for="(comment,i) in comments" :key="i" v-on:commentdelete="deleteComment" :comment="comment"/>
                </div>
             </div>
         </div>
@@ -78,6 +80,7 @@ import menuOptionsIcon from "./svg/menu_option";
 import RefPost from "./RefPost";
 import PostTextContent from "./PostTextContent";
 import Comment from "./Comment";
+import Axios from 'axios';
 
 export default {
   name:"Post",
@@ -170,12 +173,40 @@ export default {
           this.$emit("update",post);
       },
       onPostShare(post){
-          console.log("shitty",post);
         this.$emit("share",post);
       },
       share:function(){
         this.openEditor({post:{...this.post},callback:this.onPostShare,type:"SHARE"});
       },
+     deleteComment(id){
+       Axios.post("/post/uncomment",{postId:this.post.id,commentId:id}).then(()=>{
+         let index=this.comments.findIndex(c=>c.comment_id===id);
+         if(index!=-1){
+           this.comments.splice(index,1);
+           this.post.comments--;
+         }
+       }).catch(()=>{
+         //
+       })
+     },
+      unfollow(){
+          this.rungl_loader();
+          Axios.post("/users/unfollow",{userId:this.post.author}).then(()=>{
+           this.post.unfollowd=true;
+           this.stopgl_loader();             
+          }).catch(()=>{
+              this.stopgl_loader();
+          })
+      },
+      follow(){
+          this.rungl_loader();
+          Axios.post("/users/follow",{userId:this.post.author}).then(()=>{
+           this.post.unfollowd=true;
+           this.stopgl_loader();             
+          }).catch(()=>{
+              this.stopgl_loader();
+          })
+      }
   }
 }
 
@@ -267,13 +298,13 @@ export default {
      position: absolute;
      top:100%;
      right: 100%;
+     min-width:150px;
      background: white;
      filter: drop-shadow(1px 1px 5px rgba(117, 115, 115, 0.472));
-     transform-origin: top right;
  }
 
   .option{
-   padding: 0.3em 1em;
+   padding:10px;
    background: rgb(255, 250, 250);
   }
 

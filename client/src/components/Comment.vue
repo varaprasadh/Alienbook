@@ -12,7 +12,7 @@
                 <div class="date">{{new Date(comment.timestamp).toLocaleDateString()}}</div>
                 <template v-if="comment.author_id==user.id">
                     <div class="dot"></div>
-                    <div class="action delete" @click="$emit('delete',this.comment.id)">delete</div>
+                    <div class="action delete" @click="$emit('commentdelete',comment.comment_id)">delete</div>
                 </template>
             </div>
         </div>
@@ -24,12 +24,15 @@
 import { mapState } from 'vuex'
 export default {
    name:"comment",
-   props:['comment'],
+   props:['comment','onCommentDelete'],
    components:{
       
    },
    computed:{
        ...mapState(['user'])
+   },
+   methods:{
+      
    }
 }
 </script>

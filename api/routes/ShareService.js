@@ -6,12 +6,15 @@ const Post = require("../models/Post");
 
 const {createPost,formatPost} =require("./helper/createPost");
 const getPost=require("./helper/getPost");
-// const NotificationService=require("./NotificationService");
+const NotificationService=require("./NotificationService");
 
 
 Router.post("/share",(req,res)=>{
     const userid=req.user.id;
-    const {postid,username,content=" "}=req.body;
+    //@TODO
+    //GET USERID INSTEAD OF USERNAME
+
+    const {postid,username,owner,content=" "}=req.body;
     createPost({
         author: userid,
         refId:postid,
@@ -19,6 +22,7 @@ Router.post("/share",(req,res)=>{
         content: content,
         type:"SHARE",
     }).then(post=>{
+        // NotificationService.createNotification({postId:postid,initiator:userid,owner:owner,type:"SHARE"})
         getPost(post.id,userid).then(post=>{
             res.status(200).json({
                 post:post

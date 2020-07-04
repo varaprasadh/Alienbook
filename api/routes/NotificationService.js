@@ -57,8 +57,15 @@ const createNotification = ({
   
   const undoNotification=({type,postId,ref_id,initiator,owner})=>{
      if(type==="LIKE" || type==="COMMENT"){
+         let query={};
+         if(type==="LIKE"){
+             query={postId,type}
+         }else{
+             query={ref_id,type}
+         }
          return new Promise((resolve,reject)=>{
-            Notification.findOneAndDelete({ref_id,type}).then(()=>{
+            Notification.findOneAndDelete(query).then(()=>{
+                console.log("undone",type);
                 resolve("done");
             }).catch(err=>reject(err));
      })
@@ -78,14 +85,16 @@ const createNotification = ({
            Notification.findOneAndDelete({
                initiator,
                owner,
-               type:"FOLLOW"
+               type
            }).then(()=>{
+               console.log("undone follow");
                resolve("done");
            }).catch(err=>reject(err));
          })
      }
    }
  
+
   const getNotifications=(userid,skip=0)=>{
       return new Promise((resolve,reject)=>{
        Notification.aggregate([{
@@ -125,7 +134,8 @@ module.exports = {
     createNotification,
     getNotifications,
     markasRead,
-    removeNotification
+    removeNotification,
+    undoNotification
 };
 
 

@@ -31,8 +31,11 @@ export default {
    padding: 0px;
    margin: 0px;
    font-family:sans-serif;
-    background: rgb(237, 239, 241);
+   background: rgb(237, 239, 241);
+   -webkit-tap-highlight-color: transparent;
+   
  }
+
  .svg-icon {
   width: 1em;
   height: 1em;
