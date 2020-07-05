@@ -28,15 +28,15 @@ export default {
     PostEditor
    },
    methods:{
-    ...mapMutations(['setUser','runLoader','stopLoader'])
+    ...mapMutations(['setuser','runLoader','stopLoader'])
    },
    mounted(){
      Axios.get("/users/profile").then(({data})=>{
-       this.setUser(data.data);
+       this.setuser(data.data);
      }).catch(err=>{
         console.log(err);
         localStorage.clear();
-        this.$router.replace("/");
+        this.$router.replace("/login");
     })
    }    
 }

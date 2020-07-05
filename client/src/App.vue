@@ -21,7 +21,7 @@ export default {
     ...mapState(['appLoadingState'])
   },
   created(){
-     this.loadUserInfo();  
+    //  this.loadUserInfo();  
   }
 }
 </script>

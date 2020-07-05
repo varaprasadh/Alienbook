@@ -62,6 +62,8 @@ const router = new VueRouter({
   mode:"history",
   routes:[
     // {path:"/welcome",component:LandingPage,exact:true},
+    {path:"/login",redirect:"/auth/switch/siginin"},
+    {path:"/signup",redirect:"/auth/switch/signup"},
     {path:"/auth/switch/:type",component:Auth },
     {path:"/resetpassword",component:ResetPassword},
     {path:"/signup/createuserame",component:UsernameView},

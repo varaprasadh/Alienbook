@@ -129,6 +129,8 @@ export default {
   
     if (['login','signup'].indexOf(type)!=-1){
          this.tab=type;
+    }else{
+      this.tab="login"
     }
   },
   methods: {

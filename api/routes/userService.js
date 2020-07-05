@@ -11,16 +11,23 @@ const LIMIT=20;
 Router.get("/",(req,res)=>{
   const skip=parseInt(req.query.skip) || 0;
   const current_user_id=req.user.id;
-  console.log("debug",req.user);
   User.aggregate([
-      {
-       $match:{
-            id: {
-                $ne: current_user_id
-            }
-       }
-      },
-
+     {
+         $match:{
+             $and:[
+                 {
+                    id: {
+                        $ne: current_user_id
+                    }
+                 },
+                 {
+                    id: {
+                        $nin: [current_user_id, "$followers"]
+                    }
+                 }
+             ]
+         }
+     },
       {
         $project:{
             username:1,

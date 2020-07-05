@@ -12,7 +12,7 @@
           <div class="setting" @click="$router.push(`/profile/${user.username}`)">Profile</div>
           <div class="setting" @click="profileEditor=true">Edit Profile</div>
           <div class="setting" @click="changePassword=true">Change Password</div>
-          <div class="setting warning">Logout</div>
+          <div class="setting warning" @click="logout">Logout</div>
         </div>
       </div>
     </div>
@@ -118,6 +118,7 @@ export default {
    },
    methods:{
       ...mapMutations(['rungl_loader',"stopgl_loader",'setuser']),
+      ...mapMutations({clearStore:state=>state.logout}),
       submit(){
         if(this.usernameValid && this.fullnameValid){
           this.rungl_loader();
@@ -176,6 +177,11 @@ export default {
         this.oldPassword="";
         this.newPassword="";
         this.confirmPassword="";
+      },
+      logout(){
+        localStorage.clear();
+        this.clearStore();
+        this.$router.replace("/login");
       }
    },
    computed:{
