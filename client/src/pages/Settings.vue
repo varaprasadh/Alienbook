@@ -116,6 +116,10 @@ export default {
        }
      })
    },
+   mounted(){
+     this.username.value=this.user.username;
+     this.fullName.value=this.user.fullName;
+   },
    methods:{
       ...mapMutations(['rungl_loader',"stopgl_loader",'setuser']),
       ...mapMutations({clearStore:state=>state.logout}),
@@ -124,23 +128,11 @@ export default {
           this.rungl_loader();
           let data={username:this.username.value,fullName:this.fullName.value};
           Axios.post("/users/profile",data).then(({data})=>{
-             this.username.notAvailable=false;
-             this.profileEditor=false;
-             this.$notify({
-                group: 'foo',
-                title: 'SUCCESS',
-                type:"success",
-                text: 'your profile has been updated'
-              });
+            this.username.notAvailable=false;
+            this.profileEditor=false;
             this.setuser(data.profile);
             this.stopgl_loader();
           }).catch(()=>{
-               this.$notify({
-                group: 'foo',
-                type:"error",
-                title: 'ERROR',
-                text: 'username may already exists!'
-              });
             this.stopgl_loader();
             this.username.notAvailable=true;
           })
@@ -153,22 +145,10 @@ export default {
               let data={current_password:this.oldPassword,new_password:this.newPassword}
               Axios.post("/users/profile/changepwd",data).then(({data})=>{
                 console.log(data);
-                this.$notify({
-                  group: 'foo',
-                  title: 'SUCCESS',
-                  type:"success",
-                  text: 'password has been updated'
-                });
                 this.stopgl_loader();
                 this.resetPasswordForm();
                 this.changePassword=false;
               }).catch(()=>{
-                this.$notify({
-                    group: 'foo',
-                    type:"error",
-                    title: 'ERROR',
-                    text: 'invalid password'
-                });
                 this.stopgl_loader();
               })
         }    

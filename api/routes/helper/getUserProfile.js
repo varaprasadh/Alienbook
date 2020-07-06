@@ -1,6 +1,7 @@
 const User = require("../../models/User");
 
- const getUserProfile=(username)=>{
+ const getUserProfile=(username,current_user_id)=>{
+       console.log("debug",current_user_id);
        return new Promise((resolve,reject)=>{
             User.aggregate([{
                     $match: {
@@ -31,6 +32,12 @@ const User = require("../../models/User");
                         },
                         posts: {
                             $size: "$posts"
+                        },
+                        amIFollowing:{
+                            $in:[current_user_id,"$followers"]
+                        },
+                        isSelf:{
+                            $eq:[current_user_id,"$id"]
                         }
                     }
                 }

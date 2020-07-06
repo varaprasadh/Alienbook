@@ -2,7 +2,8 @@
   <section class="profile">
     <div class="section-title">Profile</div>
     <div class="container user-card">
-      <ProfileCard :user='user'/>
+      <ProfileCard v-if="user" :user='user'/>
+      <div v-else><LoadBar/></div>
     </div>
     <div class="container user-posts">
       <Post v-on:share="onShare($event)" v-on:delete="deletePost" v-for="(post,i) in posts" :key="i" :post="post"/>
@@ -13,17 +14,18 @@
 <script>
 import ProfileCard from "../components/ProfileCard";
 import Post from "../components/Post";
-
+import LoadBar from "../components/BottomLoadBar"
 import { mapMutations } from 'vuex'
 import Axios from 'axios'
 export default {
   name:"profile",
   components:{
     ProfileCard,
-    Post
+    Post,
+    LoadBar
   },
   data:()=>({
-    user:{},
+    user:null,
     posts:[]
   }),
   methods:{

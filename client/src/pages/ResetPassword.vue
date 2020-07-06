@@ -1,5 +1,6 @@
 <template>
   <section>
+      <PlainNav/>
       <div class="container">
           <div class="form-wrapper">         
           <div class="form" v-if="state==1">
@@ -7,10 +8,14 @@
                   <label for="username">username</label>
                   <input type="text" v-model="username">
                   <div class="error">{{ !isUsernameValid?errors.username:""}}</div>
+                  <div class="error">{{ usernameError?errors.usernameError:""}}</div>
               </div>
               <div class="actions">
-                  <div></div>
-                  <button :disabled="!isUsernameValid" :class="['next',{active:isUsernameValid}]"  @click="generateOTP">next</button>
+                  <button class="cancel" @click="$router.replace('/login')">cancel</button>
+                  <button :disabled="!isUsernameValid || loading" :class="['next',{active:isUsernameValid}]"  @click="generateOTP">
+                      <span v-if="loading">verifying</span>
+                      <span v-else>next</span>
+                  </button>
               </div>
           </div>
           <div class="form" v-if="state==2">
@@ -21,10 +26,11 @@
               <div class="input-wrapper">
                   <input type="text" v-model="otp">
                    <div class="error">{{ !isOTPValid?errors.otp:""}}</div>
+                   <div class="error" v-if="otpError">invalid otp</div>
               </div>
               <div class="actions">
                   <button class="back" @click="openUsernameForm">back</button>
-                  <button :disabled="!isOTPValid" :class="['next',{active:isOTPValid}]" @click="validateOTP">next</button>
+                  <button :disabled="!isOTPValid || loading" :class="['next',{active:isOTPValid}]" @click="validateOTP">next</button>
               </div>
           </div>
           <div class="form" v-if="state==3">
@@ -40,7 +46,10 @@
               </div>
               <div class="actions">
                   <button class="back" @click="openUsernameForm">back</button>
-                  <button :class="['next',{active:isPasswordValid&&isConfirmPasswordValid}]"  @click="resetPassword">next</button>
+                  <button :class="['next',{active:isPasswordValid&&isConfirmPasswordValid}]" :disabled="loading || !isPasswordValid&&isConfirmPasswordValid" @click="resetPassword">
+                      <span v-if="loading">resetting</span>
+                      <span v-else>Finish</span>
+                  </button>
               </div>
           </div>
          </div>
@@ -51,10 +60,12 @@
 <script>
 import {mapMutations} from "vuex"
 import Axios from 'axios';
+import PlainNav from "../components/PlainNav";
+
 export default {
   name:"ResetPassword",
   components:{
-
+    PlainNav
   },
   data:()=>({
       state:1,
@@ -63,6 +74,9 @@ export default {
       generatedOTP:"",
       password:"",
       confirm_password:"",
+      otpError:false,
+      usernameError:false,
+      loading:false,
       rules:{
           username:/^[a-zA-Z0-9._]{4,}$/,
           password:/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
@@ -72,7 +86,8 @@ export default {
           username:"minimum 4 characters and only a-z,A-Z,_ are allowed",
           password:"should be minimum eight characters, at least one letter and one number",
           otp:"otp contains digits only",
-          confirm_password:"password doesn't match"
+          confirm_password:"password doesn't match",
+          usernameError:"username does'nt exist"
       }
   }),
   computed:{
@@ -99,33 +114,32 @@ export default {
         this.confirm_password=""
     },
     generateOTP(){
-        this.runLoader();
+        this.loading=true;
         Axios.post("/auth/reset",{username:this.username}).then(({data})=>{
-            if(data.success==true){
-                this.otpHash=data.otpHash;
-                this.state++;
-            }
-            this.stopLoader();
+            this.otpHash=data.otpHash;
+            this.state++;
+            this.usernameError=false;
+            this.loading=false;
         }).catch((err)=>{
-            //show toast
-            this.stopLoader();
+            this.usernameError=true;
+            this.loading=false;
             console.log(err);
         })
     },
     validateOTP(){
-        this.runLoader();
-        Axios.post("/auth/reset/verifyOTP",{otp:this.otp,otpHash:this.otpHash}).then(({data})=>{
-            if(data.success==true){
-              this.state++;
-            }
-            this.stopLoader();
+        this.loading=true;
+        Axios.post("/auth/reset/verifyOTP",{otp:this.otp,otpHash:this.otpHash}).then(()=>{
+            this.state++;
+            this.otpError=false;
+            this.loading=false;
         }).catch(err=>{
             console.log(err);
-            this.stopLoader();
-        })
+            this.otpError=true;
+            this.loading=false;
+            })
     },
     resetPassword(){
-       this.runLoader();
+       
        if(this.password!==this.confirm_password){
            return;
        }
@@ -135,31 +149,33 @@ export default {
            otp:this.otp,
            password:this.password
        }
-       Axios.post("/auth/reset/updatePassword",payload).then(({data})=>{
-           if(data.success==true){
-              alert("password updted success");
+       this.loading=true;
+       Axios.post("/auth/reset/updatePassword",payload).then(()=>{
+              this.loading=false;
               this.$router.replace("/");
-           }
-           this.stopLoader();
        }).catch(err=>{
            console.log(err);
-           this.stopLoader();
-       })
+         this.loading=false;
+        })
     }
+  },
+  watch:{
+      otp(){
+          this.otpError=false;
+      }
   }
 }
 </script>
 
 <style scoped>
 .container{
-    min-height: 100vh;
+    height: 100%;
     display: flex;
-    /* align-items: center; */
     flex-direction: column;
 }
 .form-wrapper{
     display: flex;
-    flex:1;
+    margin-top: 2rem;
     align-items: center;
     justify-content: center;
 }
@@ -168,6 +184,10 @@ export default {
     flex-direction: column;
     font-size: 1.2em;
     margin: 10px 0px;
+}
+.input-wrapper label{
+    color: rgb(53, 52, 52);
+    padding: 5px 0px;
 }
 .form{
    background:white;
@@ -198,15 +218,18 @@ export default {
       color: white;
       padding: 0.3em 1em;
       font-size: 1.2em;
-      border-radius: 10px;
+      border-radius: 2px;
       font-weight: bold;
       cursor: pointer;
   }
   button.back{
-     background: rgb(35, 189, 130);
+     background: rgb(13, 36, 114);
+  }
+  button.cancel{
+     background: rgb(211, 56, 9);
   }
   button.next.active{
-       background: rgb(35, 189, 130);
+       background: rgb(4, 43, 105);
   }
   button:hover{
       filter: brightness(0.8);

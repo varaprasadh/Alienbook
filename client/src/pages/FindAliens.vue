@@ -50,6 +50,9 @@ export default {
    }
      this.getAliens();
    },
+   destroyed(){
+      window.removeEventListener('scroll',()=>{})
+   },
   methods:{
       ...mapMutations(['runLoader','stopLoader']),
       getAliens(){

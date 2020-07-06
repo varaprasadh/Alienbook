@@ -22,7 +22,31 @@ const validateUser=(req,res,next)=>{
     };
     next();
 }
-Router.post('/signup', OAuthSigupHelper,registerUser, validateUser, (req, res) => {
+const verifyOTP = async (req, res, next) => {
+    const {
+        otpHash,
+        otp
+    } = req.body;
+    let isValid = false;
+    try {
+        isValid = await bcrypt.compare(otp, otpHash);
+    } catch (err) {
+        return res.status(400).json({
+            success: false,
+            error: "something went wrong,try again later"
+        });
+    }
+    console.log("otp from cleint is", otp, isValid);
+    if (!isValid) {
+        return res.status(400).json({
+            success: false,
+            error: "wrong OTP"
+        })
+    }
+    next();
+}
+
+Router.post('/signup', verifyOTP,OAuthSigupHelper, registerUser, validateUser, (req, res) => {
     // console.log(req.user);
     const {user}=req;
     token=getWebToken(user);
@@ -65,6 +89,7 @@ Router.post("/reset",(req,res)=>{
         try{
             mail_transporter_status=await transporter.sendMail(options)
         }catch(err){
+            console.error(err);
             return res.status(400).json({
                 success:false,
                 error:"something went wrong,try again later"
@@ -83,26 +108,8 @@ Router.post("/reset",(req,res)=>{
   })
 });
 
-const verifyOTP=async (req,res,next)=>{
-    const {otpHash,otp}=req.body;
-    let isValid=false;
-    try{
-         isValid = await bcrypt.compare(otp, otpHash);
-    }catch(err){
-       return res.status(400).json({
-           success:false,
-           error:"something went wrong,try again later"
-       });
-    }
-    console.log("otp from cleint is",otp,isValid);
-    if(!isValid){
-        return res.status(400).json({
-            success:false,
-            error:"wrong OTP"
-        })
-    }
-   next();
-}
+
+
 Router.post("/reset/verifyOTP",verifyOTP,(req,res)=>{
     res.json({
         success:true
@@ -130,5 +137,47 @@ function generateOTP() {
     }
     return OTP;
 }
-
+const verifyEmail=async (req,res,next)=>{
+ const {email}=req.body;
+  let user=await User.findOne({email});
+  if(user){
+      return res.status(400).json({
+        error:"email is already in use"
+      })
+  }
+  next();
+}
+Router.post("/getOTP", verifyEmail,async(req, res) => {
+    const {email}=req.body;
+    
+    if(!email) throw new Error("email required");
+    const otp = generateOTP();
+    console.log("new otp is: ", otp);
+    let options = {
+        from: process.env.APP_EMAIL,
+        to: email, // list of receivers
+        subject: "OTP for AlienBook registration", // Subject line
+        text: `here is your otp : ${otp} \n do not share this with anyone`, // plain text body
+        html: `<b>here is the otp</b> <br/>
+                     <h1>${otp}</h1>
+                   <b>dont share this with anyone!</b>`, // html body
+    }
+    // send mail with defined transport object
+    let mail_transporter_status;
+    try {
+        mail_transporter_status = await transporter.sendMail(options)
+    } catch (err) {
+        console.error(err);
+        return res.status(400).json({
+            success: false,
+            error: "something went wrong,try again later"
+        });
+    }
+    const otpHash = await bcrypt.hash(otp, 10);
+    res.status(200).json(
+        {
+            success: true,
+            otpHash: otpHash
+        });
+})
 module.exports=Router;

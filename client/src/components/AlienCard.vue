@@ -13,10 +13,12 @@
             <div v-if="btnLoadingState"> 
                 <div class="btn-loader">wait</div>
             </div>
-            <div v-if="alien.isIam"></div>
             <div v-else>
-                <button v-if="alien.amIFollowing" class="btn following" @click="unfollow">Unfollow</button>
-                <button v-else class="btn notFollwing" @click="follow">Follow</button>
+              <div v-if="alien.isIam"></div>
+              <div v-else>
+                  <button v-if="alien.amIFollowing" class="btn following" @click="unfollow">Unfollow</button>
+                  <button v-else class="btn notFollwing" @click="follow">Follow</button>
+              </div>
             </div>
         </div>
     </div>

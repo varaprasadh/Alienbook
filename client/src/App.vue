@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <notifications group="foo" />
     <app-loader v-if="appLoadingState"/>
     <router-view></router-view>
   </div>

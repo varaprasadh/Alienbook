@@ -6,6 +6,8 @@ const Post = require("../models/Post");
 const {createPost,formatPost} =require("./helper/createPost");
 const getPost = require("./helper/getPost");
 
+const retrieveUserInfo=require("./middlewares/attachUserInfo");
+
 //add the post
 Router.post('/create',(req, res) => {
     let author=req.user.id;
@@ -62,17 +64,7 @@ Router.post("/delete",(req,res)=>{
     })
 })
 
-const retrieveUserInfo=(req,res,next)=>{
-    User.findOne({id:req.user.id}).then(user=>{
-        if(!user) throw new Error("user doenst exist");
-        req.user.info=user;
-        next();
-    }).catch(err=>{
-        res.status(404).json({
-            message:"user doesnt exist"
-        });
-    })
-}
+
 
 
 //returns the all posts that user following

@@ -10,21 +10,22 @@ const editorInitialState = {
     type: "NORMAL",
     content:" "
 }
+const appState = {
+    user: null,
+    feed: [],
+    appLoadingState: false,
+    gl_h_loader: false,
+    editorOpen: false,
+    editorAuxData: editorInitialState,
+    notifications: []
+}
 
 
 import axios from 'axios';
 import Axios from 'axios';
 
  const store = new Vuex.Store({
-    state:{
-      user:null,
-      feed: [],
-      appLoadingState: false,
-      gl_h_loader:false,
-      editorOpen:false,
-      editorAuxData: editorInitialState,
-      notifications:[]
-    },
+    state: appState,
     getters:{
      getUnreadNotifCount(state,){
          return state.notifications.reduce((sum,notif)=>sum+(notif.read==false?1:0),0)
@@ -134,7 +135,7 @@ import Axios from 'axios';
         state.gl_h_loader = false;
         },
         logout(state){
-            state.user=null;
+            state=appState
         },
         openEditor(state, data={}) {
             let {post={content:" "},callback=()=>{},type="NORMAL",content=""}=data;

@@ -6,12 +6,17 @@
             </div>
             <div class="meta">
                 <div class="info">
-                <div class="username">{{user.username}}</div>
-                <div class="fullname">{{user.fullName}}</div>
-                <div class="generated-slogan">became an alien on <span class="date">{{new Date(user.createdAt).toLocaleDateString()}}</span></div>
+                  <div class="username">{{user.username}}</div>
+                  <div class="fullname">{{user.fullName}}</div>
+                  <div class="generated-slogan">became an alien on <span class="date">{{new Date(user.createdAt).toLocaleDateString()}}</span></div>
+                  <div class="controls" v-if="!user.isSelf">
+                    <div class="btn unfollow" v-if="user.amIFollowing" @click="unfollow">unfollow</div>
+                    <div class="btn follow" v-else @click="follow">Follow</div>
+                  </div>
                 </div>
             </div>
         </div>
+        <div class="devider"></div>
         <div class="activity-info">
             <router-link class="activity followers" :to="'/profile/'+user.username+'/followers'">
                 <div class="count">{{user.followers}}</div>
@@ -30,9 +35,33 @@
 </template>
 
 <script>
+import Axios from 'axios';
+import { mapMutations } from 'vuex';
 export default {
   name:"profile-card",
-  props:['user']
+  props:['user'],
+  methods:{
+    ...mapMutations(['rungl_loader','stopgl_loader']),
+      follow(){
+        this.rungl_loader();
+        Axios.post("/users/follow",{userId:this.user.id}).then(()=>{
+          this.user.amIFollowing=true
+        }).catch(()=>{
+        }).finally(()=>{
+          this.stopgl_loader();
+        })
+      },
+      unfollow(){
+        this.rungl_loader();
+         Axios.post("/users/unfollow",{userId:this.user.id}).then(()=>{
+          this.user.amIFollowing=false;
+        }).catch(()=>{
+
+        }).finally(()=>{
+          this.stopgl_loader();
+        })
+      }
+  }
 }
 </script>
 
@@ -41,8 +70,20 @@ export default {
    padding: 10px;
    background: white;
  }
+  .profile-card .image{
+    padding: 10px;
+    border-radius: 50%;
+    background: rgb(227, 227, 228);
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid rgb(173, 173, 173);
+  }
  .profile-card .image img{
-   width: 100px;
+   width:90px;
+   /* width: 100%; */
  }
  .profile-main{
    display: flex;
@@ -83,5 +124,30 @@ export default {
  }
  .generated-slogan .date{
    font-weight: bold;
+ }
+ .devider{
+   height: 2px;
+   background: rgb(216, 215, 215);
+   margin: 5px 20px;
+ }
+ .controls{
+   display: flex;
+ }
+ .controls .btn{
+   flex: 1;
+   background: blue;
+   color:white;
+   text-align: center;
+   font-size: 1.2rem;
+   padding: 5px;
+   margin: 5px 0px;
+   border-radius: 5px;
+   cursor: pointer;
+ }
+ .controls .btn.follow{
+  
+ }
+ .controls .btn.unfollow{
+    background: rgb(245, 92, 92);
  }
 </style>

@@ -1,14 +1,14 @@
 const Router = require('express').Router();
 const User = require("../models/User");
 const bcrypt=require('bcrypt');
-const retrieveUserInfo=require("./mdl_attachuserinfo");
+const attachUserInfo = require("./middlewares/attachUserInfo");
 const getUserProfile = require("./helper/getUserProfile");
 const LIMIT=20;
 
 
 //getting users 
 //excluding current user
-Router.get("/",(req,res)=>{
+Router.get("/", attachUserInfo,(req, res) => {
   const skip=parseInt(req.query.skip) || 0;
   const current_user_id=req.user.id;
   User.aggregate([
@@ -22,7 +22,7 @@ Router.get("/",(req,res)=>{
                  },
                  {
                     id: {
-                        $nin: [current_user_id, "$followers"]
+                        $nin: req.user.info.following
                     }
                  }
              ]
@@ -57,9 +57,10 @@ Router.get("/",(req,res)=>{
 
 
 // get user info for single user
-Router.get("/profile/:username?", retrieveUserInfo, (req, res) => {
+Router.get("/profile/:username?", attachUserInfo, (req, res) => {
     const username=req.params.username || req.user.info.username;
-    getUserProfile(username).then(userprofile=>{
+     const userid = req.user.id;
+    getUserProfile(username, userid).then(userprofile => {
         res.status(200).json({
             data:userprofile
         })
@@ -75,7 +76,7 @@ Router.post("/profile",(req,res)=>{
     const userid=req.user.id;
     const {fullName,username}=req.body;
     User.findOneAndUpdate({id:userid},{fullName,username}).then((status)=>{
-       getUserProfile(username).then(user=>{
+       getUserProfile(username, userid).then(user => {
            res.status(200).json({
             profile:user
         })

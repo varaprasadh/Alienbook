@@ -40,10 +40,6 @@ axios.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 axios.interceptors.response.use((response) => {
-   
-    if (response.status === 401) {
-         //redirect to login screen
-    }
     return response;
 }, (error) => {
   console.log(error.response.status);
