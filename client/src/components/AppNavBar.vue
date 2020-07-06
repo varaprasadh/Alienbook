@@ -9,7 +9,7 @@
                    </router-link>
                </div>
            </div>
-           <div class="nav-group">
+           <div class="nav-group sm-bottom">
                <div class="nav-item write-post" @click="openEditor({})">
                    <div class="icon">
                     <svg class="svg-icon" viewBox="0 0 20 20"><path fill="none" d="M13.388,9.624h-3.011v-3.01c0-0.208-0.168-0.377-0.376-0.377S9.624,6.405,9.624,6.613v3.01H6.613c-0.208,0-0.376,0.168-0.376,0.376s0.168,0.376,0.376,0.376h3.011v3.01c0,0.208,0.168,0.378,0.376,0.378s0.376-0.17,0.376-0.378v-3.01h3.011c0.207,0,0.377-0.168,0.377-0.376S13.595,9.624,13.388,9.624z M10,1.344c-4.781,0-8.656,3.875-8.656,8.656c0,4.781,3.875,8.656,8.656,8.656c4.781,0,8.656-3.875,8.656-8.656C18.656,5.219,14.781,1.344,10,1.344z M10,17.903c-4.365,0-7.904-3.538-7.904-7.903S5.635,2.096,10,2.096S17.903,5.635,17.903,10S14.365,17.903,10,17.903z"></path></svg>
@@ -29,7 +29,7 @@
                    </div>
                    </router-link>
                </div>
-               <div class="nav-item notifycations">
+               <div class="nav-item notifications">
                   <router-link class="nav-link" to="/notifications">
                     <div class="icon">
                         <div class="badge" v-if="getUnreadNotifCount>0">{{getUnreadNotifCount}}</div>
@@ -183,5 +183,49 @@ a{
 }
 .menu-item svg path{
     fill: black;
+}
+@media screen and (max-width:600px) {
+  .sm-bottom{
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    right: 0px;
+    left: 0px;
+    z-index: 99;
+    background: black;
+    display: flex;
+    justify-content: space-around;
+  }
+  .sm-bottom .nav-item{
+    flex: 1;
+  }
+  .sm-bottom .nav-item.home{
+    order: 1;
+  }
+  .sm-bottom .nav-item.write-post svg path{
+    fill: black;
+  }
+  .sm-bottom .nav-item.write-post{
+    order: 3;
+    background: rgb(45, 245, 168);
+    border-radius: 50%;
+    max-width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: translateY(-10px);
+    border: 2px solid black;
+  }
+  .sm-bottom .nav-item.Aliens{
+    order: 2;
+  }
+
+  .sm-bottom .nav-item.settings{
+     order: 5
+  }
+  .sm-bottom .nav-item.notifications{
+     order: 4;
+  }
 }
 </style>

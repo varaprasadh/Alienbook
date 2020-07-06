@@ -82,6 +82,7 @@ export default {
   .container{
    max-width: 600px;
    margin:1rem auto;
+   padding: 1rem;
  }
 
  .editor{
@@ -121,13 +122,13 @@ export default {
   filter: drop-shadow(1px 1px 1px rgb(88, 87, 87));
 }
 .action.cancel{
-  background: tomato;
+  color: rgb(255, 67, 34);
 }
 .action.post{
   background: rgb(10, 100, 173);
 }
 .action.post.disable,.action.update.disable{
-  background: rgb(111, 112, 112);
+  background: rgb(159, 165, 165);
 }
 .action.update{
   background: rgb(26, 179, 107);

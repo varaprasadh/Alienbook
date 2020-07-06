@@ -78,4 +78,9 @@ export default {
 .cyan{
   background: rgb(4, 100, 100);
 }
+@media screen and (max-width:600px) {
+ body{
+   padding-bottom: 80px;
+ }
+}
 </style>

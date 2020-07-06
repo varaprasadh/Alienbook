@@ -94,7 +94,6 @@ export default {
     display: flex;
     align-items: center;
     cursor: pointer;
-    /* filter: drop-shadow(1px 1px 2px rgb(165, 164, 164)); */
 }
 .notification.unread{
     background: rgb(225, 233, 231);
@@ -137,7 +136,7 @@ export default {
 .options{
     background: white;
     position: absolute;
-    box-shadow: 1px 1px 3px rgb(182, 182, 182);
+    /* box-shadow: 1px 1px 3px rgb(182, 182, 182); */
     width: 150px;
     right: 100%;
 }

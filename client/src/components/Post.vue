@@ -1,6 +1,6 @@
 <template>
     <div class="post-wrapper">
-        <div class="card">
+        <div class="card" v-click-outside="()=>showCommentBox=false">
             <div class="meta">
                 <div class="meta-post-info">
                     <div class="author-img">
@@ -51,7 +51,7 @@
         <div class="share-options-wrapper">
            
         </div>
-        <div class="comment-box-wrapper" v-if="showCommentBox" v-click-outside="()=>showCommentBox=false">
+        <div class="comment-box-wrapper" v-if="showCommentBox">
             <div class="comment-box">
                 <div class="inputbox">
                     <input type="text" placeholder="start typing..." @keyup.enter="sendComment" v-model="comment" class="comment">
@@ -346,7 +346,7 @@ export default {
     background: rgb(255, 255, 255);
     margin: 5px 0px;
     padding: 0.5em;
-    filter: drop-shadow(1px 1px 10px rgb(216, 213, 213));
+    /* box-shadow: 1px 1px 10px rgb(216, 213, 213); */
  }
  .comment-box .inputbox{
    flex: 1;
