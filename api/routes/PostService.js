@@ -267,7 +267,7 @@ Router.get("/post/:id",(req,res)=>{
             post:post
         });
     }).catch(err=>{
-        res.status(400).json({
+        res.status(404).json({
             error:err.message
         })
     })

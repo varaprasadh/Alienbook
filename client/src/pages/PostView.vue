@@ -1,7 +1,7 @@
 <template>
   <section class="post-view-wrapper">
     <div class="container">
-       <Post v-if="post" :post="post" v-on:comment="addToComments($event)" :preventOnComment="true"/>
+       <Post v-if="post" v-on:delete="onDeletePost" :post="post" v-on:comment="addToComments($event)" :preventOnComment="true"/>
        <div class="comments">
          <div class="label">comments</div>
          <Comment v-for="(cmt,i) in comments" v-on:commentdelete="deleteComment($event)" :key="i" :comment="cmt"/>
@@ -92,9 +92,11 @@ export default {
        }).catch(()=>{
          //
        })
-     }
+     },
+      onDeletePost(){
+       window.history.length > 2?this.$router.go(-1):this.$router.push("/");
+      }
   },
-
 }
 
 </script>

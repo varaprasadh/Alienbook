@@ -46,6 +46,9 @@ axios.interceptors.response.use((response) => {
         window.localStorage.clear();
         router.replace("/auth/switch/login");
     }
+    if(error.response.status===404){
+        router.replace("/error");
+    }
     if (error.response && error.response.data) {
         return Promise.reject(error.response.data);
     }
