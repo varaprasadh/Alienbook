@@ -124,7 +124,7 @@ const createNotification = ({
                    notification_id: "$id"
                }
            }
-       ]).skip(skip).limit(20).then(notifications=>{
+       ]).sort({timestamp:-1}).skip(skip).limit(20).then(notifications=>{
            resolve(notifications);
        }).catch(err=>reject(err))
       })

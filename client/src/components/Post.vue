@@ -1,6 +1,6 @@
 <template>
     <div class="post-wrapper">
-        <div class="card" v-click-outside="()=>showCommentBox=false">
+        <div class="card">
             <div class="meta">
                 <div class="meta-post-info">
                     <div class="author-img">

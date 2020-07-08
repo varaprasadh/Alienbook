@@ -153,7 +153,7 @@ Router.get("/",retrieveUserInfo,(req, res) => {
             }
         }
     }
-    ]).skip(skip).limit(20).then(records => {
+    ]).sort({createdAt:-1}).skip(skip).limit(20).then(records => {
         res.status(200).json({
             posts: records,
             completed: records.length < 20

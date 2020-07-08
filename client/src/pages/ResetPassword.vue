@@ -169,7 +169,6 @@ export default {
 
 <style scoped>
 .container{
-    height: 100%;
     display: flex;
     flex-direction: column;
 }
@@ -194,7 +193,7 @@ export default {
    border-radius: 5px;
    padding: 10px;
    width: 300px;
-   filter: drop-shadow(1px 1px 10px rgb(184, 181, 181))
+   filter: drop-shadow(1px 1px 2px rgb(184, 181, 181))
   }
   input {
       font-size: 1em;

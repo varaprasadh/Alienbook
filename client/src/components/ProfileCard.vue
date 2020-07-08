@@ -8,7 +8,7 @@
                 <div class="info">
                   <div class="username">{{user.username}}</div>
                   <div class="fullname">{{user.fullName}}</div>
-                  <div class="generated-slogan">became an alien on <span class="date">{{new Date(user.createdAt).toLocaleDateString()}}</span></div>
+                  <div class="generated-slogan">joined on <span class="date">{{new Date(user.createdAt).toLocaleDateString()}}</span></div>
                   <div class="controls" v-if="!user.isSelf">
                     <div class="btn unfollow" v-if="user.amIFollowing" @click="unfollow">unfollow</div>
                     <div class="btn follow" v-else @click="follow">Follow</div>
@@ -89,6 +89,7 @@ export default {
    display: flex;
    align-items: center;
  }
+ 
  .profile-card .meta{
    margin-left: 1rem;
    display: flex;
@@ -132,6 +133,7 @@ export default {
  }
  .controls{
    display: flex;
+   margin-top: auto;
  }
  .controls .btn{
    flex: 1;

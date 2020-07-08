@@ -1,11 +1,6 @@
 <template>
   <section class="settings">
     <div>
-      <Header label="Settings">
-        <div class="backbutton" @click="$router.replace('/')">
-            <div class="icon">Back</div>
-        </div>
-      </Header>
       <GLHLoader/>
       <div class="container">
         <div class="settings-wrapper">
@@ -83,7 +78,6 @@
 </template>
 
 <script>
-import Header from "../components/Header";
 import { mapMutations, mapState } from 'vuex';
 import Axios from 'axios';
 import GLHLoader from "../components/GLHLoader";
@@ -91,7 +85,7 @@ import GLHLoader from "../components/GLHLoader";
 export default {
    name:"settings",
    components:{
-     Header,GLHLoader
+     GLHLoader
    },
    data(){
      return ({
@@ -196,9 +190,6 @@ export default {
 
 <style scoped>
  .settings{
-   position: absolute;
-   width: 100%;
-   height: 100%;
    display: flex;
    flex-direction: column;
  }

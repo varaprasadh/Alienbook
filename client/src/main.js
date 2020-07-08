@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import App from './App.vue'
 import VueRouter from 'vue-router'
-import VueNotifications from 'vue-notification'
 import vClickOutside from 'v-click-outside'
 
 
@@ -99,6 +98,11 @@ const router = new VueRouter({
         name:"following",
         component: FindAliens
       },
+      {
+        path: "/settings",
+        name: "settings",
+        component: Settings
+      },
        {
         path:"profile/:username?",
         name:"profile",
@@ -107,15 +111,9 @@ const router = new VueRouter({
       },
     ]
     },
-    {
-      path:"/settings",
-      name:"settings",
-      component:Settings
-    },
     {path:"*",component:Error},
   ],
 })
-Vue.use(VueNotifications);
 Vue.use(vClickOutside);
 
 

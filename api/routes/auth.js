@@ -45,8 +45,34 @@ const verifyOTP = async (req, res, next) => {
     }
     next();
 }
+const verifyEmail=async (req,res,next)=>{
+ const {email}=req.body;
+  let user=await User.findOne({email});
+  if(user){
+      return res.status(400).json({
+        error:"email is already in use"
+      })
+  }
+  next();
+}
+const verifyUsername=async (req,res,next)=>{
+ const {username}=req.body;
+  let user=await User.findOne({username});
+  if(user){
+      return res.status(400).json({
+        error:"username is already in use"
+      })
+  }
+  next();
+}
+Router.post("/checkusername", verifyUsername,(req, res) => {
+    res.status(200).json({
+        available:true
+    })
+})
 
-Router.post('/signup', verifyOTP,OAuthSigupHelper, registerUser, validateUser, (req, res) => {
+
+Router.post('/signup',verifyEmail,verifyUsername,verifyOTP,OAuthSigupHelper, registerUser, validateUser, (req, res) => {
     // console.log(req.user);
     const {user}=req;
     token=getWebToken(user);
@@ -137,17 +163,9 @@ function generateOTP() {
     }
     return OTP;
 }
-const verifyEmail=async (req,res,next)=>{
- const {email}=req.body;
-  let user=await User.findOne({email});
-  if(user){
-      return res.status(400).json({
-        error:"email is already in use"
-      })
-  }
-  next();
-}
-Router.post("/getOTP", verifyEmail,async(req, res) => {
+
+
+Router.post("/getOTP", verifyEmail,verifyUsername,async(req, res) => {
     const {email}=req.body;
     
     if(!email) throw new Error("email required");

@@ -14,7 +14,7 @@ Router.post("/share",(req,res)=>{
     //@TODO
     //GET USERID INSTEAD OF USERNAME
 
-    const {postid,username,owner,content=" "}=req.body;
+    const {postid,username,owner,content="\t"}=req.body;
     createPost({
         author: userid,
         refId:postid,
@@ -26,7 +26,7 @@ Router.post("/share",(req,res)=>{
         getPost(post.id,userid).then(post=>{
             res.status(200).json({
                 post:post
-            });
+            }); 
         }).catch(err=>{
             throw new Error(err);
         })
@@ -36,8 +36,6 @@ Router.post("/share",(req,res)=>{
         })
     })
 });
-
-
 
 
 module.exports=Router;

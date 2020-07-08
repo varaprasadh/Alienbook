@@ -4,38 +4,34 @@
     <div class="auth-container">
       <div class="form-container">
         <transition name="form" :duration="{ enter:500, leave: 500 }" mode="out-in">
-          <div key="signup" v-if="tab=='signup'" class="signup">
+          <div key="signup" v-if="tab=='signup'" class="form-signup">
             <form  @submit.prevent="signup" action="#" ref="form" v-if="signupStage==1">
               <div class="form-title">
                 <div class="title">SIGNUP</div>
               </div>
               <div class="form-field">
-                <label for="username">Email</label>
-                <input type="email" name="email" id="email" v-model="email" />
-                <div class="error">{{ !rules.email.test(email)?errors.email:""}}</div>
+                <input type="email" placeholder="email" name="email" id="email" v-model="email" />
+                <div class="error">{{ !rules.email.test(email)&&email.length?errors.email:""}}</div>
                 <div class="error">{{ emailError?errors.emailError:""}}</div>
               </div>
               <div class="form-field">
-                <label for="username">Full Name</label>
-                <input type="text" name="fullName" id="fullName" v-model="fullName" />
-                <div class="error">{{ !rules.fullName.test(fullName)?errors.fullName:""}}</div>
+                <input type="text" placeholder="full name" name="fullName" id="fullName" v-model="fullName" />
+                <div class="error">{{ !rules.fullName.test(fullName) && fullName.length?errors.fullName:""}}</div>
               </div>
               <div class="form-field">
-                <label for="username">Username</label>
-                <input type="text" name="username" id="username" v-model="username" />
-                <div class="error">{{ !rules.username.test(username)?errors.username:""}}</div>
+                <input type="text" placeholder="username" name="username" id="username" v-model="username" />
+                <div class="error">{{ !rules.username.test(username) && username.length?errors.username:""}}</div>
+                <div class="error" v-if="!usernameAvailable">username is not available</div>
               </div>
               <div class="form-field">
-                <label for="password">Password</label>
-                <input type="text" name="password" id="password" v-model="password" />
-                <div class="error">{{ !rules.password.test(password)?errors.password:""}}</div>
+                <input type="password" name="password" placeholder="password" id="password" v-model="password" />
+                <div class="error">{{ !rules.password.test(password) && password.length?errors.password:""}}</div>
               </div>
               <div class="form-field">
-                <label for="c_password">Confirm Password</label>
-                <input type="text" name="c_password" id="c_password" v-model="confirm_password" />
+                <input type="password" name="c_password" placeholder="confirm password" id="c_password" v-model="confirm_password" />
                 <div
                   class="error"
-                >{{password!==confirm_password||password===""?errors.confirm_password:""}}</div>
+                >{{(password!==confirm_password||password==="") && confirm_password.length ?errors.confirm_password:""}}</div>
               </div>
               <div class="form-controls">
                 <div class="button-link" @click="toggleTab">already have an account?</div>
@@ -93,9 +89,6 @@
               <div class="center title">OR SIGN IN WITH</div>
               <!-- <div class="center">SIGN IN WITH</div> -->
               <div class="form-field flex social-sign-in">
-                <div class="button google">
-                  <a href="http://localhost:3000/auth/linkedin/">Google</a>
-                </div>
                 <div class="button linkedin">
                   <a href="http://localhost:3000/auth/linkedin/">Linkedin</a>
                 </div>
@@ -126,6 +119,7 @@ export default {
     confirm_password: "",
     otp:"",
     emailError:false,
+    usernameAvailable:true,
     otpError:false,
     rules: {
       email:/^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -158,9 +152,6 @@ export default {
   },
   methods: {
     ...mapMutations(['runLoader','stopLoader']),
-    log() {
-      console.log(this.security_question);
-    },
     login() {
       if (!this.isFormValid()) {
         return;
@@ -187,7 +178,7 @@ export default {
 
      //request otp
       this.loading=true;
-      axios.post("/auth/getOTP",{email:this.email}).then(({data})=>{
+      axios.post("/auth/getOTP",{email:this.email,username:this.username}).then(({data})=>{
         this.otpHash=data.otpHash;
         this.signupStage=2;
         this.loading=false;
@@ -254,6 +245,20 @@ export default {
     },
     otp(){
       this.otpError=false;
+    },
+    username(){
+      // car timeout variable
+      const self=this;
+      clearTimeout(this.timeout);
+      this.timeout = setTimeout(function () {
+         axios.post("/auth/checkusername",{username:self.username}).then(({data})=>{
+           console.log(data);
+           self.usernameAvailable=true;
+         }).catch(()=>{
+           self.usernameAvailable=false;
+         })
+      }, 1000);
+
     }
   },
   beforeRouteEnter(to,from,next){
@@ -282,14 +287,14 @@ section{
   display: flex;
   flex: 1;
   justify-content: center;
+  max-width: 450px;
 }
-.form-container .signup{
+.form-container .form-signup{
   background: white;
   padding: 1rem;
+  flex: 1;
 }
 form {
-  max-width: 400px;
-  /* background: white; */
   flex: 1;
 }
 .form-wrapper{
@@ -342,11 +347,15 @@ select {
   margin: 10px;
 }
 .form-controls .button{
-  padding: 5px 1em;
+  padding:5px 10px;
   background: rgb(47, 47, 150);
   cursor: pointer;
   color: white;
   transition: all 0.3s ease;
+  text-align: center;
+}
+.form-container .button.signup{
+  margin-left: 20px;
 }
 .form-controls .button.back{
   background: rgb(246, 57, 57);
@@ -366,9 +375,7 @@ select {
 .form-controls .button.login {
   background: rgb(145, 146, 145);
 }
-.form-controls .button.signup {
-  /* background: rgb(98, 97, 97); */
-}
+
 .form-controls .button:hover {
   filter: brightness(0.8);
 }
@@ -433,7 +440,7 @@ a{
   text-decoration: none;
 }
 .forgot-link a{
-  color: blue;
+  color: rgb(192, 17, 70);
 }
 .forgot-link a:hover{
   text-decoration: underline;

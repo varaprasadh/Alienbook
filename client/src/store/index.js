@@ -90,6 +90,7 @@ import Axios from 'axios';
             Axios.post("/post/share",data).then(({data})=>{
                 //call the callback
                 //push the post to feed
+                commit("setNewFeed", [data.post]);
                 callback(data.post);
                 commit("stopgl_loader")
             }).catch(err=>{

@@ -6,6 +6,9 @@
          <div v-if="loading">
            <BottomLoadingBar/>
          </div>
+         <div class="notifications-fallback" v-if="notifications.length==0">
+           <div class="card">no nofications!</div>
+         </div>
       </div>
     </div>
   </section>
@@ -69,5 +72,12 @@ export default {
    max-width: 600px;
    margin:1rem auto;
  }
-
+.notifications-fallback{
+  text-align: center;
+  margin: 10px;
+}
+.notifications-fallback .card{
+  padding: 1em;
+  background: white;
+}
 </style>
