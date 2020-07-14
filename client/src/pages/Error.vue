@@ -26,7 +26,9 @@ export default {
 
 <style scoped>
  .container{
-   height: 100vh;
+   position: absolute;
+   width: 100%;
+   height: 100%;
    background:linear-gradient(45deg,black,rgb(43, 42, 42));
    display: flex;
    flex-direction: column;

@@ -213,10 +213,12 @@ a{
   }
   .sm-bottom .nav-item.write-post{
     order: 3;
-    background: rgb(45, 245, 168);
+    background: rgb(255, 255, 255);
     border-radius: 50%;
-    max-width: 50px;
+    width: 50px;
     height: 50px;
+    max-width: 50px;
+    padding: 10px;
     display: flex;
     justify-content: center;
     align-items: center;

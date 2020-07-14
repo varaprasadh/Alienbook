@@ -102,7 +102,8 @@ Router.get("/",retrieveUserInfo,(req, res) => {
             preserveNullAndEmptyArrays: true,
             path: "$sharedContent"
         }
-    }, {
+    }, 
+    {
         $lookup: {
             "from": "users",
             "localField": "sharedContent.author",
@@ -115,7 +116,19 @@ Router.get("/",retrieveUserInfo,(req, res) => {
             preserveNullAndEmptyArrays: true
         }
     },
-
+    {
+        $lookup: {
+            "from": "users",
+            "localField": "ref_author",
+            "foreignField": "id",
+            "as": "ref_author"
+        }
+    }, {
+        $unwind: {
+            path: "$ref_author",
+            preserveNullAndEmptyArrays: true
+        }
+    },
     {
         $project: {
             id: 1,
@@ -135,7 +148,7 @@ Router.get("/",retrieveUserInfo,(req, res) => {
                 $in:[current_user_id,"$likes.user_id"]
             },
             authorName: "$authorData.username",
-            ref_author_username:1,
+            ref_author_username: "$ref_author.username",
             originalPost: {
                 $cond: {
                     if: {

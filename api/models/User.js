@@ -2,15 +2,15 @@ const mongoose =require('mongoose');
 
 const Notification =require("../models/Notification");
 
-
-
 const User=new mongoose.Schema({
     id:{
         required:true,
         type:String
     },
-     thirdPartyAuthId:{
-         type:String
+     open_id:{
+         type:String,
+         required:true,
+         unique:true
      },
      username:{
          required:true,
@@ -22,14 +22,6 @@ const User=new mongoose.Schema({
          type:String
      },
      bio:{
-         type:String
-     },
-     email:{
-         required:true,
-         type:String
-     },
-     password:{
-         required:true,
          type:String
      },
      Role:{

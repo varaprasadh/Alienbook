@@ -7,6 +7,9 @@
     </div>
     <div class="container user-posts">
       <Post v-on:share="onShare($event)" v-on:delete="deletePost" v-for="(post,i) in posts" :key="i" :post="post"/>
+      <div class="fallback card" v-if="posts.length<=0">
+        <div class="text">no posts!</div>
+      </div>
     </div>
   </section>
 </template>
@@ -15,7 +18,8 @@
 import ProfileCard from "../components/ProfileCard";
 import Post from "../components/Post";
 import LoadBar from "../components/BottomLoadBar"
-import { mapMutations } from 'vuex'
+import { mapMutations } from 'vuex';
+
 import Axios from 'axios'
 export default {
   name:"profile",
@@ -92,5 +96,9 @@ export default {
    max-width: 600px;
    margin:1rem auto;
  }
- 
+ .fallback.card{
+   text-align: center;
+   padding: 1em;
+   background: white;
+ }
 </style>

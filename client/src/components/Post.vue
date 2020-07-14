@@ -14,7 +14,7 @@
                             </span>
                             <span v-else> shared a post</span>
                         </div>
-                        <div class="pub-date">{{new Date(post.createdAt).toLocaleDateString()}}</div>
+                        <div class="pub-date">{{publishDate}}</div>
                     </div>
                 </div>
                 <div class="options" @click="showOptions=!showOptions" v-click-outside="()=>showOptions=false">
@@ -72,7 +72,7 @@
 </template>
 
 <script>
-
+import moment from "moment";
 import axios from "axios";
 import { mapState, mapMutations, } from 'vuex';
 import avatarSVG from "./svg/user_avatar";
@@ -107,7 +107,8 @@ export default {
   },
  computed:{
     ...mapState({
-        userid:state=>state.user.id
+        userid:state=>state.user.id,
+        publishDate(){return moment(this.post.createdAt).fromNow()}
     }),
  },
   methods:{

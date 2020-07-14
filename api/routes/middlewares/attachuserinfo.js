@@ -1,5 +1,5 @@
 
-const User=require("../models/User");
+const User=require("../../models/User");
 
 const retrieveUserInfo = (req, res, next) => {
     User.findOne({

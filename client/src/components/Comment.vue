@@ -9,7 +9,7 @@
             <div class="info">
                 <div class="author-name">{{comment.authorName}}</div>
                 <div class="dot"></div>
-                <div class="date">{{new Date(comment.timestamp).toLocaleDateString()}}</div>
+                <div class="date">{{date}}</div>
                 <template v-if="comment.author_id==user.id">
                     <div class="dot"></div>
                     <div class="action delete" @click="$emit('commentdelete',comment.comment_id)">delete</div>
@@ -21,7 +21,9 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState } from 'vuex';
+import moment from "moment";
+
 export default {
    name:"comment",
    props:['comment','onCommentDelete'],
@@ -29,7 +31,8 @@ export default {
       
    },
    computed:{
-       ...mapState(['user'])
+       ...mapState(['user']),
+       date(){return moment(this.comment.timestamp).fromNow()}
    },
    methods:{
       
@@ -95,6 +98,8 @@ export default {
 .action.delete{
     color: red;
     cursor: pointer;
+    margin-left: auto;
+    padding: 0px 10px;
 }
 .action.delete:hover{
     text-decoration: underline;

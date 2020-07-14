@@ -41,7 +41,19 @@ const getPost = (postid, current_user_id) => {
                     preserveNullAndEmptyArrays: true
                 }
             },
-
+            {
+                $lookup: {
+                    "from": "users",
+                    "localField": "ref_author",
+                    "foreignField": "id",
+                    "as": "ref_author"
+                }
+            }, {
+                $unwind: {
+                    path: "$ref_author",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
             {
                 $project: {
                     id: 1,
@@ -58,7 +70,7 @@ const getPost = (postid, current_user_id) => {
                     author: 1,
                     createdAt: 1,
                     authorName: "$authorData.username",
-                    ref_author_username: 1,
+                    ref_author_username: "$ref_author.username",
                     liked: {
                         $in: [current_user_id, "$likes.user_id"]
                     },

@@ -5,6 +5,9 @@
        <div class="comments">
          <div class="label">comments</div>
          <Comment v-for="(cmt,i) in comments" v-on:commentdelete="deleteComment($event)" :key="i" :comment="cmt"/>
+         <div class="fallback card" v-if="comments.length<=0">
+           <div>be the first to comment</div>
+         </div>
        </div>
     </div>
   </section>
@@ -110,4 +113,10 @@ export default {
      font-weight: bold;
      margin: 10px;
  }
+  .fallback.card{
+   text-align: center;
+   padding: 1em;
+   background: white;
+ }
+ 
 </style>

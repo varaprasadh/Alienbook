@@ -5,7 +5,9 @@
       <GLHLoader/>
     </div>
     <div class="utils">
-       <PostEditor/>
+      <transition name="fade" appear>
+        <PostEditor/>
+      </transition>
     </div>
     <router-view></router-view>
   </section>

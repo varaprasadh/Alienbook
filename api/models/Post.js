@@ -11,8 +11,6 @@ const Post=new mongoose.Schema({
     },
     content:{
         type:String,
-        required:true,
-        default:""
     },
     author:{
         type:String,
@@ -34,7 +32,7 @@ const Post=new mongoose.Schema({
         type:String,
         default:"NORMAL"
     },
-    ref_author_username:{
+    ref_author:{
         type:String,
     },
     // tags:{

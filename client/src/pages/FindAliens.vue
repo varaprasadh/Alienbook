@@ -1,10 +1,12 @@
 <template>
   <section class="aliens">
-     <div class="section-heading">Aliens</div>
      <div class="alien-list">
        <div class="alien-container" v-for="(alien,i) in aliens" :key="i">
-             <AlienCard :alien="alien"/>
+          <AlienCard :alien="alien"/>
        </div>
+        <div class="fallback card" v-if="aliens.length<=0 && !loading">
+          <div>there is no aliens to follow!</div>
+        </div>
         <BottomLoadBar v-if="loading"/>
      </div>
   </section>
@@ -33,7 +35,6 @@ export default {
       ...mapState(['state'])
   },
   mounted(){
-    
     const route_path=this.$route.path;
     if(route_path.match(/^\/profile\/((?:[^/]+?))\/following(?:\/(?=$))?$/i)){
       this.path=`/users/following/${this.$route.params.username}`
@@ -78,16 +79,16 @@ export default {
 
 <style scoped>
 .aliens{
-    background: rgb(231, 228, 228);
     flex: 1;
-}
-.section-heading{
-  font-weight: bold;
-  font-size: 2rem;
-  margin: 1rem;
 }
 .alien-list{
   max-width: 600px;
   margin: 10px auto;
 }
+ .fallback.card{
+   text-align: center;
+   padding: 1em;
+   background: white;
+ }
+
 </style>
