@@ -1,6 +1,5 @@
 <template>
   <section class="profile">
-    <div class="section-title">Profile</div>
     <div class="container user-card">
       <ProfileCard v-if="user" :user='user'/>
       <div v-else><LoadBar/></div>
@@ -86,13 +85,7 @@ export default {
   .profile{
     flex: 1;
   }
- .section-title{
-   margin: 1rem;
-   font-weight: bold;
-   font-size: 2rem;
- }
 .container{
-   /* background: rgb(255, 255, 255); */
    max-width: 600px;
    margin:1rem auto;
  }

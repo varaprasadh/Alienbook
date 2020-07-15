@@ -6,7 +6,6 @@ import vClickOutside from 'v-click-outside'
 
 import LandingPage from "./pages/LandingPage";
 import Auth from "./pages/Auth.vue";
-import Error from "./pages/Error.vue";
 import Home from "./pages/Home.vue";
 
 
@@ -25,7 +24,7 @@ import Profile from "./pages/Profile.vue";
 import Settings from "./pages/Settings.vue";
 import FindAliens from "./pages/FindAliens.vue";
 import Notifications from "./pages/Notifications.vue";
-import Policy from "./pages/Policy.vue";
+
 
 axios.defaults.baseURL = 'http://localhost:3000';
 
@@ -112,11 +111,14 @@ const router = new VueRouter({
        {
         path:"/policy",
         name:"policy",
-        component: Policy,
+        component: () => import( /* webpackChunkName: "policy" */ "./pages/Policy.vue"),
       },
     ]
     },
-    {path:"*",component:Error},
+    {
+      path: "*",
+      component: () => import( /* webpackChunkName: "error" */ "./pages/Error.vue")
+    },
   ],
 })
 Vue.use(vClickOutside);

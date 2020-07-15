@@ -131,6 +131,9 @@ export default {
 .action.cancel{
   color: rgb(255, 67, 34);
 }
+.action.cancel:hover{
+  filter: none;
+}
 .action.post{
   background: rgb(10, 100, 173);
 }

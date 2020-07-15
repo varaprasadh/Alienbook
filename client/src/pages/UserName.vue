@@ -15,7 +15,7 @@
             </div>
             <div class="error" v-if="!usernamevalid && username.length">username should only have A-Z,a-z,0-9,_</div>
         </div>
-        <div :class="['button',{active:usernamevalid && !this.unameExists}]" @click="signup">Finish</div>
+        <div :class="['button',{active:usernamevalid && !this.unameExists && !this.unameloader}]" @click="signup">Finish</div>
       </div>
   </section>
 </template>
@@ -24,7 +24,6 @@
 import Axios from 'axios';
 import { mapMutations } from 'vuex';
 import PlainNav from "../components/PlainNav";
-// import debounce from "../utils/debounce"
 import loadash from "lodash";
 
 export default {
@@ -47,7 +46,7 @@ export default {
    methods:{
        ...mapMutations(['runLoader','stopLoader']),
        signup(){
-           if(!this.usernamevalid || this.unameExists){
+           if(!this.usernamevalid || this.unameExists || this.unameloader){
                return;
            }
            let newuser={...this.userobj,username:this.username}
@@ -140,7 +139,7 @@ export default {
      border-radius: 3px;
  }
  .button.active{
-     background: rgb(0, 168, 0);
+     background: rgb(30, 32, 167);
  }
   .button:hover{
       filter: brightness(0.8);

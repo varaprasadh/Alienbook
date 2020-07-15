@@ -2,28 +2,30 @@
   <section>
     <PlainNav/>
     <div class="auth-container">
-      <div class="auth-card">
-        <div class="auth-header">
-           <span class="text">login with</span>
+      <transition name="slide" appear>
+        <div class="auth-card">
+          <div class="auth-header">
+            <span class="text">login with</span>
+          </div>
+          <div class="auth-options">
+            <div class="auth-option-wrapper">
+              <a :href="`${baseURL}/auth/facebook`" class="auth-option facebook">
+                facebook
+              </a>
+            </div>
+            <div class="auth-option-wrapper">
+              <a :href="`${baseURL}/auth/google`" class="auth-option google">
+                google
+              </a>
+            </div>
+            <div class="auth-option-wrapper">
+              <a :href="`${baseURL}/auth/linkedin`" class="auth-option linkedin">
+                linkedin
+              </a>
+            </div>
+          </div>
         </div>
-        <div class="auth-options">
-          <div class="auth-option-wrapper">
-            <a :href="`${baseURL}/auth/facebook`" class="auth-option facebook">
-              facebook
-            </a>
-          </div>
-          <div class="auth-option-wrapper">
-            <a :href="`${baseURL}/auth/google`" class="auth-option google">
-              google
-            </a>
-          </div>
-          <div class="auth-option-wrapper">
-            <a :href="`${baseURL}/auth/linkedin`" class="auth-option linkedin">
-              linkedin
-            </a>
-          </div>
-        </div>
-      </div>
+      </transition>
     </div>
   </section>
 </template>
@@ -149,5 +151,11 @@ section{
 .auth-option.linkedin{
   background: #0e76a8;
 }
-
+.slide-enter-active, .slide-leave-active{
+  transition: all 300ms ease-in-out;
+}
+.slide-enter, .slide-leave-to{
+  opacity: 0;
+  transform: translateY(200px);
+}
 </style>

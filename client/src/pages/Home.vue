@@ -1,6 +1,6 @@
 <template>
   <section class="home">
-    <div class="app-nav-wrappe">
+    <div class="app-nav-wrapper">
       <AppNavBar/>
       <GLHLoader/>
     </div>
@@ -51,9 +51,10 @@ export default {
   flex-direction: column;
   /* position: relative; */
 }
-.app-nav-wrappe{
+.app-nav-wrapper{
   position: sticky;
   top:0px;
+  z-index: 99;
 }
 .utils{
   position: absolute;

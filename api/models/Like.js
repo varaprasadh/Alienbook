@@ -6,6 +6,7 @@ const Like = new mongoose.Schema({
         required:true
     },
     user_id: String,
+    type:String,
     timestamp:{
         type: Date,
         required:true,

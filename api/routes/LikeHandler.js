@@ -18,7 +18,9 @@ Router.post("/like",(req,res)=>{
     Post.findOne({id:postId,"likes.user_id":{$nin:[userId]}}).then((post)=>{
        if(!post){
            throw new Error("already liked the post");
+           //update the reaction type
        }
+
        post.likes.addToSet(like);
        post.save().then(()=>{
             NotificationService.createNotification({
@@ -64,6 +66,50 @@ Router.post("/dislike",(req,res)=>{
     })
 });
 
-
+Router.get("/likes/:postId",(req,res)=>{
+  const postId=req.params.postId;
+  const skip=req.query.skip || 0;
+  Post.aggregate([{
+          $match: {
+              id: postId
+          }
+      }, {
+          $unwind: {
+              path: "$likes",
+              "preserveNullAndEmptyArrays": true
+          }
+      },
+      {
+          $lookup: {
+              from: "users",
+              as: "userData",
+              localField: "likes.user_id",
+              foreignField: "id"
+          }
+      },
+      {
+          $unwind: {
+              path: "$userData",
+              "preserveNullAndEmptyArrays": true
+          }
+      },
+      {
+          $project:{
+              username: "$userData.username",
+              timestamp:"$likes.timestamp",
+              type:"$likes.type"
+          }
+      }
+  ]).skip(skip).limit(20).then(likes=>{
+      res.status(200).json({
+          likes,
+          completed:likes.length<20
+      })
+  }).catch(err=>{
+      res.status(400).json({
+          error:err.message
+      })
+  })
+})
 
 module.exports=Router;
