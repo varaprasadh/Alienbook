@@ -64,16 +64,15 @@
             </div>
         </div>
         <div class="actions">
-            <div :class="['action' ,'like',{active:post.liked}]" @click="like" @mouseenter="showReactions=true" @mouseleave="showReactions=false">
+            <div :class="['action' ,'like']" @click="like" @mouseenter="openReactions" @mouseleave="closeReactions">
               <div class="reactions-wrapper">
                 <transition name="reactions" appear>
-                    <Reactions v-if="showReactions"/>
+                    <Reactions v-on:react="updateReaction" v-if="showReactions"/>
                 </transition>
               </div>
               <div class="icon">
-                <Like :liked="post.liked"/>  
-              </div>    
-              <div class="text">Like</div>
+                <Like :like="post.like"/>  
+              </div>  
              </div>
             <div class="action comment"  @click="showCommentBox=!showCommentBox">
                <div class="icon">
@@ -104,7 +103,7 @@ import RefPost from "./RefPost";
 import PostTextContent from "./PostTextContent";
 import Comment from "./Comment";
 import Axios from 'axios';
-import Like from "./svg/Like"
+import Like from "./Like"
 import CommentIcon from "./svg/comment";
 import ShareIcon from "./svg/share";
 import LikeViewer from "./LikeViewer";
@@ -132,7 +131,8 @@ export default {
         commentSkipOffest:0,
         showShareOptions:true,
         showLikes:false,
-        showReactions:false
+        showReactions:false,
+        reactionTimer:null
      }
   },
   mounted(){
@@ -147,10 +147,11 @@ export default {
       ...mapMutations(['rungl_loader','stopgl_loader','openEditor']),
       like:function(){
           //if not liked  the post
+         this.closeReactions();
          if(!this.post.liked){
-           axios.post("/post/like",{postId:this.post.id}).then(()=>{
+           axios.post("/post/like",{postId:this.post.id,type:"LIKE"}).then(({data:{like}})=>{
                    this.post.liked=true;
-                   this.liked=true;
+                   this.post.like=like;
                    this.post.likes++;
            }).catch(()=>{
                //do nothing
@@ -159,11 +160,24 @@ export default {
            axios.post("/post/dislike",{postId:this.post.id}).then(()=>{
                    this.post.liked=false;
                    this.liked=false;
+                   this.post.like=null;
                    this.post.likes--;
            }).catch(()=>{
                //do nothing
            })
          }
+      },
+      updateReaction(type){
+        console.log(type);
+        //update the like type
+        axios.post("/post/like",{postId:this.post.id,type}).then(({data:{like}})=>{
+            this.post.liked=true;
+            this.liked=true;
+            this.post.like=like,
+            this.post.likes=like.likes;
+        }).catch(()=>{
+            //reset the values;
+        })
       },
       sendComment(){
          if(this.comment.trim()===""){
@@ -239,6 +253,16 @@ export default {
           }).catch(()=>{
               this.stopgl_loader();
           })
+      },
+      openReactions(){
+          clearTimeout(this.clearTimeout);
+          this.reactionTimer=setTimeout(()=>{
+              this.showReactions=true;
+          },300);
+      },
+      closeReactions(){
+          clearTimeout(this.reactionTimer);
+          this.showReactions=false;
       }
   }
 }

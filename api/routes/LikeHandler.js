@@ -6,19 +6,83 @@ const Like =require("../models/Like");
 const Post = require("../models/Post");
 const NotificationService=require("./NotificationService");
 
+const formatedLike=(postid,userid)=>{
+    return new Promise((resole,reject)=>{
+        Post.aggregate([{
+                $match: {
+                    id: postid
+                }
+            }, {
+                $addFields: {
+                    like: {
+                        $filter: {
+                            input: "$likes",
+                            cond: {
+                                $eq: ["$$this.user_id", userid]
+                            }
+                        }
+                    }
+                }
+            }, {
+                $unwind: "$like"
+            },
+             {
+                 $project: {
+                     like: 1,
+                     likes:{
+                         $size:"$likes"
+                     }
+                 }
+             }
+
+        ]).limit(1).then(([likeAsChild])=>{
+            if (!likeAsChild || !likeAsChild.like) throw new Error("not liked yet");
+            resole({
+                ...likeAsChild.like,
+                likes: likeAsChild.likes
+            });
+        }).catch(err=>{
+            reject(err);
+        })
+    })
+}
+
 
 Router.post("/like",(req,res)=>{
-    let {postId}=req.body;
+    let {postId,type}=req.body;
     let userId = req.user.id;
     const likeId = uuid();
     const like=new Like({
         user_id:userId,
-        id:likeId
+        id:likeId,
+        type
     });
     Post.findOne({id:postId,"likes.user_id":{$nin:[userId]}}).then((post)=>{
        if(!post){
-           throw new Error("already liked the post");
            //update the reaction type
+          return Post.findOneAndUpdate({
+                   id: postId,
+                   "likes.user_id": userId
+               }, 
+               {
+                   $set: {
+                       "likes.$.type": type
+                   }
+               }).then(() => {
+               return formatedLike(postId,userId)
+               .then((like)=>{
+                   res.status(200).json({
+                       like
+                   })
+               })
+               .catch(err=>{
+                   console.log("debuf",err);
+                   res.status(400).json({
+                       error: err.message
+                   })
+               });
+           })
+           //undo the prev notifications and send updated one
        }
 
        post.likes.addToSet(like);
@@ -30,13 +94,19 @@ Router.post("/like",(req,res)=>{
                 postId: postId,
                 ref_id:likeId
             })
-            res.status(200).json({
-                message: "liked the post"
-            });
-            console.log(post);
-          
+            return formatedLike(postId, userId)
+                .then((like) => {
+                    res.status(200).json({
+                        like
+                    })
+                })
+                .catch(err => {
+                    console.log("debuf", err);
+                    res.status(400).json({
+                        error: err.message
+                    })
+                });
         }).catch(err=>{
-           console.log(err);
            throw new Error("cant like the post");
        })
     

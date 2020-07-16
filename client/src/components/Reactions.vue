@@ -1,21 +1,21 @@
 <template>
   <div class="reactions" @click.stop ref="reactions">
-    <div class="reaction" data-type="like"  @click="animate">
+    <div class="reaction" data-type="like"  @click="event=>animate(event,'LIKE')">
         <img src="../assets/reactions/like.svg"  alt="like" >
     </div>
-    <div class="reaction" data-type="love"  @click="animate">
+    <div class="reaction" data-type="love"  @click="event=>animate(event,'LOVE')">
         <img src="../assets/reactions/love.svg"  alt="love" >
     </div>
-    <div class="reaction" data-type="care" @click="animate">
+    <div class="reaction" data-type="care" @click="event=>animate(event,'CARE')">
         <img src="../assets/reactions/care.svg"  alt="care" >
     </div>
-    <div class="reaction" data-type="haha"  @click="animate">
+    <div class="reaction" data-type="haha"  @click="event=>animate(event,'HAHA')">
         <img src="../assets/reactions/haha.svg"  alt="haha" >
     </div>
-    <div class="reaction" data-type="wow"  @click="animate">
+    <div class="reaction" data-type="wow"  @click="event=>animate(event,'WOW')">
         <img src="../assets/reactions/wow.svg"  alt="wow" >
     </div>
-    <div class="reaction" data-type="angry"  @click="animate">
+    <div class="reaction" data-type="angry"  @click="event=>animate(event,'ANGRY')">
         <img src="../assets/reactions/angry.svg"  alt="angry" >
     </div>
   </div>
@@ -25,13 +25,10 @@
 export default {
   name:"reactions",
   methods:{
-      animate(e){
-          e.target.classList.add('thrown');
-          this.$refs.reactions.classList.add("hide");
-          setTimeout(()=>{
-              this.$emit('react');
-              console.log(e);
-          })
+      animate(e,type){          
+        e.target.classList.add('thrown');
+        this.$refs.reactions.classList.add("hide");
+        this.$emit('react',type);
       }
   }
 }
@@ -95,7 +92,7 @@ export default {
   transform: scale(1.2);
 }
 .thrown{
-    animation: throw 700ms cubic-bezier(0.215, 0.610, 0.355, 1) 1;
+    animation: throw 500ms cubic-bezier(0.23, 1, 0.320, 1) 1;
     animation-fill-mode: forwards;
 }
 @keyframes throw{

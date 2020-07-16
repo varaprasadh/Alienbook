@@ -54,6 +54,23 @@ const getPost = (postid, current_user_id) => {
                     preserveNullAndEmptyArrays: true
                 }
             },
+        {
+            $addFields: {
+                like: {
+                    $filter: {
+                        input: "$likes",
+                        cond: {
+                            $eq: ["$$this.user_id", current_user_id]
+                        }
+                    }
+                }
+            }
+        }, {
+            $unwind: {
+                path: "$like",
+                preserveNullAndEmptyArrays: true
+            }
+        },
             {
                 $project: {
                     id: 1,
@@ -64,6 +81,7 @@ const getPost = (postid, current_user_id) => {
                     comments: {
                         $size: "$comments"
                     },
+                    like:1,
                     refId: 1,
                     ref_author_username: 1,
                     type: 1,
