@@ -33,7 +33,6 @@
          </div>
       </template>
       </transition-group>
-   <!-- <div class="text">Like</div> -->
 </template>
 
 <script>

@@ -6,9 +6,14 @@
                <div class="text">likes</div>
                <div class="close-btn" @click="$emit('onclose')">x</div>
             </div>
-            <LikeInfo v-for="i in Array(10)" :key="i"/>
-            <LikeInfo v-for="i in Array(10)" :key="i"/>
-            <LikeInfo v-for="i in Array(10)" :key="i"/>
+            <LikeInfo v-for="(reaction,i) in reactions" :reaction="reaction" :key="400+i" />
+            <div class="loader" v-if="loading">
+              <HorizontalLoader/>
+            </div>
+            <div class="observer-target" ref="obsverTarget"></div>
+            <div class="fallback card" v-if="reactions.length<=0 && !loading">
+              <div class="text">be the first one to like!</div>
+            </div>
          </div>
      </div>
   </div>
@@ -16,12 +21,51 @@
 
 <script>
 import LikeInfo from "./LikeInfo";
+import Axios from 'axios';
+import HorizontalLoader from "./BottomLoadBar";
 
 export default {
   name:"likeViewer",
   props:['postid'],
   components:{
-      LikeInfo
+      LikeInfo,HorizontalLoader
+  },
+  data(){
+    return({
+      reactions:[],
+      skip:0,
+      completed:false,
+      loading:false,
+      observer:null
+    })
+  },
+  created(){
+    this.loadReactions();
+  },
+  mounted(){
+    this.observer=new IntersectionObserver(([entry])=>{
+         if(entry.isIntersecting){
+           this.loadReactions();
+         }
+    },{threshold:1});
+    this.observer.observe(this.$refs.obsverTarget);
+  },
+  methods:{
+    loadReactions(){
+      if(this.loading || this.completed){
+        return;
+      }
+      this.loading=true;
+      Axios.get(`/post/likes/${this.postid}`,{params:{skip:this.skip}}).then(({data})=>{
+        this.reactions.push(...data.likes);
+        this.completed=data.completed;
+        this.skip+=20;
+      }).catch(err=>{
+        console.log(err);
+      }).finally(()=>{
+        this.loading=false;
+      })
+    }
   }
 }
 </script>
@@ -43,6 +87,14 @@ export default {
     to{
          background: rgba(34, 34, 34, 0.657);
     }
+}
+.pad{
+  height: 500px;
+  background: blue;
+}
+.observer-target{
+  height: 10px;
+  margin-bottom: 10px;
 }
 .container-wrapper{
   flex: 1;
@@ -82,5 +134,9 @@ export default {
   opacity: 0;
   transform: translateY(200px);
 }
-
+.fallback.card{
+  padding: 1em;
+  border: 1px solid rgb(192, 192, 192);
+  margin:10px;
+}
 </style>

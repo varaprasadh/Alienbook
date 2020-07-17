@@ -7,15 +7,20 @@
                 <svg class="comment" v-if="notification.type==='COMMENT'" id="Capa_1" viewBox="0 0 511.096 511.096" width="512" xmlns="http://www.w3.org/2000/svg"><g id="Speech_Bubble_48_"><g><path d="m74.414 480.548h-36.214l25.607-25.607c13.807-13.807 22.429-31.765 24.747-51.246-59.127-38.802-88.554-95.014-88.554-153.944 0-108.719 99.923-219.203 256.414-219.203 165.785 0 254.682 101.666 254.682 209.678 0 108.724-89.836 210.322-254.682 210.322-28.877 0-59.01-3.855-85.913-10.928-25.467 26.121-59.973 40.928-96.087 40.928z"/></g></g></svg>
                 <svg class="share" v-if="notification.type==='SHARE'" viewBox="0 -22 512 511"  xmlns="http://www.w3.org/2000/svg"><path d="m512 233.820312-212.777344-233.320312v139.203125h-45.238281c-140.273437 0-253.984375 113.710937-253.984375 253.984375v73.769531l20.09375-22.019531c68.316406-74.851562 164.980469-117.5 266.324219-117.5h12.804687v139.203125zm0 0"/></svg>
                 <svg class="follow" v-if="notification.type==='FOLLOW'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M497 80.333h-65.334V15c0-8.284-6.716-15-15-15s-15 6.716-15 15v65.333h-65.332c-8.284 0-15 6.716-15 15s6.716 15 15 15h65.332v65.334c0 8.284 6.716 15 15 15s15-6.716 15-15v-65.334H497c8.284 0 15-6.716 15-15s-6.716-15-15-15zM175.666 321.334C78.804 321.334 0 400.138 0 497c0 8.284 6.716 15 15 15h321.334c8.284 0 15-6.716 15-15 0-96.862-78.805-175.666-175.668-175.666zM175.666 64.267c-52.566 0-95.332 42.767-95.332 95.334s42.766 95.333 95.332 95.333c52.567 0 95.334-42.766 95.334-95.333s-42.767-95.334-95.334-95.334z"/></svg>
+                <svg id="Capa_1" v-if="notification.type==='MESSAGE'" viewBox="0 0 512.004 512.004" width="512" xmlns="http://www.w3.org/2000/svg"><g><path d="m511.35 52.881-122 400c-3.044 9.919-14.974 13.828-23.29 7.67-7.717-5.727-203.749-151.217-214.37-159.1l-142.1-54.96c-5.79-2.24-9.6-7.81-9.59-14.02.01-6.21 3.85-11.77 9.65-13.98l482-184c5.824-2.232 12.488-.626 16.67 4.17 3.37 3.87 4.55 9.24 3.03 14.22z" fill="#94dfda"/><path d="m511.35 52.881-122 400c-3.044 9.919-14.974 13.828-23.29 7.67l-190.05-141.05 332.31-280.84c3.37 3.87 4.55 9.24 3.03 14.22z" fill="#61a7c5"/><path d="m507.89 58.821-271.49 286.4-63 125.03c-3.16 6.246-10.188 9.453-16.87 7.84-6.76-1.6-11.53-7.64-11.53-14.59v-175.3c0-4.86 2.35-9.41 6.31-12.23l337-239.69c6.29-4.48 14.95-3.45 20.01 2.38 5.07 5.83 4.88 14.56-.43 20.16z" fill="#eef4ff"/><path d="m507.89 58.821-271.49 286.4-63 125.03c-3.16 6.246-10.188 9.453-16.87 7.84-6.76-1.6-11.53-7.64-11.53-14.59l31.01-144 332.31-280.84c5.07 5.83 4.88 14.56-.43 20.16z" fill="#d9e6fc"/></g></svg>
             </div>
             <div class="content">
                 <div v-if="notification.type==='LIKE'"><span class="from">{{notification.from}}</span> liked your post</div>
                 <div v-if="notification.type==='COMMENT'"><span class="from">{{notification.from}}</span> commented on your post</div>
                 <div v-if="notification.type==='SHARE'"><span class="from">{{notification.from}}</span> shared your post</div>
                 <div v-if="notification.type==='FOLLOW'"><span class="from">{{notification.from}}</span> started following you!</div>
+                <div v-if="notification.type==='MESSAGE'"><span class="from">{{notification.from}}</span> sent a quick message</div>
                 <div class="meta">
                     <div class="time-ago">{{date}}</div>
                     <div class="dot"></div>
+                </div>
+                <div v-if="notification.type==='MESSAGE'" class="message-container">
+                    <div class="text">{{notification.content}}</div>
                 </div>
             </div>
         </div>
@@ -98,10 +103,10 @@ export default {
     margin: 5px;
     display: flex;
     align-items: center;
-    cursor: pointer;
 }
 .notification-content{
     display: flex;
+    cursor: pointer;
 }
 .notification.unread{
     background: rgb(225, 233, 231);
@@ -168,5 +173,14 @@ export default {
     height: 7px;
     border-radius:50%;
     background: rgb(170, 169, 169);
+}
+.message-container{
+    border: 1px solid black;
+    padding: 10px;
+    border-radius: 2px;
+    box-shadow: 1px 1px 5px rgb(231, 231, 231);
+    box-sizing: border-box;
+    word-break: break-all;
+    max-width: 350px;
 }
 </style>

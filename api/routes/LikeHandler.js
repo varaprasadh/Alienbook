@@ -138,7 +138,7 @@ Router.post("/dislike",(req,res)=>{
 
 Router.get("/likes/:postId",(req,res)=>{
   const postId=req.params.postId;
-  const skip=req.query.skip || 0;
+  const skip= parseInt(req.query.skip) || 0;
   Post.aggregate([{
           $match: {
               id: postId
@@ -160,7 +160,6 @@ Router.get("/likes/:postId",(req,res)=>{
       {
           $unwind: {
               path: "$userData",
-              "preserveNullAndEmptyArrays": true
           }
       },
       {

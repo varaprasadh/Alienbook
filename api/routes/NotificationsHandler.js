@@ -41,6 +41,22 @@ Router.post("/remove",(req,res)=>{
         })
     })
 })
+Router.post("/message",(req,res)=>{
+    const userid=req.user.id;
+    const {to,content}=req.body;
+    console.log("debug",to,content);
+    NotificationService.createNotification({type:"MESSAGE",owner:to,initiator:userid,content})
+    res.status(200).json({
+        message: "message will be send to the user"
+    });
 
+    // then(()=>{
+        
+    // }).catch(err=>{
+    //     res.status(400).json({
+    //         error:err.message
+    //     })
+    // })
+})
 
 module.exports = Router;

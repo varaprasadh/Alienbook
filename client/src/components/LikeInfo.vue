@@ -2,21 +2,35 @@
   <div class="likeinfo-wrapper">
     <div class="wrapper">
         <div class="reaction">
-            <img src="../assets/like.svg" alt="">
+            <img v-if="reaction.type==='LIKE'" src="../assets/reactions/like.svg"  alt="like" >
+            <img v-if="reaction.type==='LOVE'" src="../assets/reactions/love.svg"  alt="love" >
+            <img v-if="reaction.type==='CARE'" src="../assets/reactions/care.svg"  alt="care" >
+            <img v-if="reaction.type==='HAHA'" src="../assets/reactions/haha.svg"  alt="haha" >
+            <img v-if="reaction.type==='WOW'" src="../assets/reactions/wow.svg"   alt="wow" >
+            <img v-if="reaction.type==='ANGRY'" src="../assets/reactions/angry.svg" alt="angry" >
         </div>
         <div class="info">
-            <div class="username">varaprasadh</div>
+            <div class="username">{{reaction.username}}</div>
         </div>
-        <div class="time">2 hours ago</div>
+        <div class="time">{{time}}</div>
     </div>
     <div class="devider"></div>
   </div>
 </template>
 
 <script>
+import moment from 'moment';
+
 export default {
-  name:"likeInfo"
+  name:"likeInfo",
+  props:['reaction'],
+  computed:{
+      time(){
+          return moment(this.reaction.timestamp).fromNow();
+      }
+  }
 }
+
 </script>
 
 <style scoped>

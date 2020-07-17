@@ -8,7 +8,7 @@
                     </div>
                     <div class="info" @click.stop="$router.push({name:'postview',params:{postid:post.id}})">
                         <div class="post-head-info" >
-                            <span class="author-name" @click.stop="$router.push({name:'profile',params:{username:post.authorName}})">{{post.authorName}}</span>
+                            <span class="author-name">{{post.authorName}}</span>
                             <span class="shared-meta" v-if="post.type==='SHARE'">
                                 shared <span class="author-name">{{post.ref_author_username}}'s post</span>
                             </span>
@@ -22,6 +22,7 @@
                         <menuOptionsIcon/>
                     </div>
                     <div class="options-container"  v-if="showOptions">
+                        <div class="option" @click="$router.push({name:'profile',params:{username:post.authorName}})">view profile</div>
                         <div class="option" @click="deletePost" v-if="userid===post.author">Delete</div>
                         <div class="option" @click="edit" v-if="userid===post.author">Edit</div>
                         <div class="option" @click="unfollow" v-if="!post.unfollowd && userid!==post.author">unfollow {{post.authorName}}</div>
@@ -124,7 +125,6 @@ export default {
         showCommentBox:false,
         comment:"",
         commentLoadingSpinner:false,
-        liked:this.post.liked,
         comments:[],
         completed:false,
         commentsLoading:false,
@@ -132,7 +132,8 @@ export default {
         showShareOptions:true,
         showLikes:false,
         showReactions:false,
-        reactionTimer:null
+        reactionTimer:null,
+        prevReaction:null
      }
   },
   mounted(){
@@ -149,17 +150,10 @@ export default {
           //if not liked  the post
          this.closeReactions();
          if(!this.post.liked){
-           axios.post("/post/like",{postId:this.post.id,type:"LIKE"}).then(({data:{like}})=>{
-                   this.post.liked=true;
-                   this.post.like=like;
-                   this.post.likes++;
-           }).catch(()=>{
-               //do nothing
-           })
+               this.updateReaction("LIKE");
          }else{
            axios.post("/post/dislike",{postId:this.post.id}).then(()=>{
                    this.post.liked=false;
-                   this.liked=false;
                    this.post.like=null;
                    this.post.likes--;
            }).catch(()=>{
@@ -170,13 +164,15 @@ export default {
       updateReaction(type){
         console.log(type);
         //update the like type
+        this.prevReaction=this.post.like;
+        this.post.like={type};
+         this.post.likes++;
         axios.post("/post/like",{postId:this.post.id,type}).then(({data:{like}})=>{
             this.post.liked=true;
-            this.liked=true;
-            this.post.like=like,
             this.post.likes=like.likes;
         }).catch(()=>{
             //reset the values;
+            this.post.like=this.prevReaction;
         })
       },
       sendComment(){

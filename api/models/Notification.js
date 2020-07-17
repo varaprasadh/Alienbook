@@ -20,6 +20,9 @@ const Notification = mongoose.Schema({
     ref_id:{ //comment id || like id || null 
         type:String,
     },
+    content:{
+        type:String
+    },
     owner:{
         type:String,
         required:true

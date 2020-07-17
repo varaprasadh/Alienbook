@@ -13,6 +13,7 @@
             </div>
         </div>
         <div class="controls" v-if="!user.isSelf">
+          <div class="btn message" @click="openMessenger">quick message</div>
           <div class="btn unfollow" v-if="user.amIFollowing" @click="unfollow">unfollow</div>
           <div class="btn follow" v-else @click="follow">Follow</div>
         </div>
@@ -31,6 +32,14 @@
                 <div class="label">Posts</div>
             </div>
         </div>
+        <div class="message-prompt" v-if="quickMessagePrompt">
+             <div class="form">
+               <div class="input-wrapper">
+                 <input type="text" class="message-input" placeholder="write your message">
+               </div>
+               <div class="btn submit">send</div>
+             </div>
+        </div>
     </div>
 </template>
 
@@ -44,6 +53,14 @@ export default {
   props:['user'],
   computed:{
     joined(){return moment(this.user.createdAt).fromNow()}
+  },
+  data(){
+    return ({
+      quickMessagePrompt:false
+    })
+  },
+  created(){
+ 
   },
   methods:{
     ...mapMutations(['rungl_loader','stopgl_loader']),
@@ -65,6 +82,17 @@ export default {
         }).finally(()=>{
           this.stopgl_loader();
         })
+      },
+      openMessenger(){
+        this.quickMessagePrompt=true;
+        
+      },
+      sendMessage(){
+          Axios.post("/notifications/message",{to:this.user.id,content:"hey, i wann thank you"}).then(({data})=>{
+            console.log(data);
+          }).catch(err=>{
+            console.log(err);
+            })
       }
   }
 }
@@ -148,10 +176,42 @@ export default {
    cursor: pointer;
    max-width: 200px;
  }
- .controls .btn.follow{
-  
+ .controls .btn.message{
+   margin-right: 10px;
  }
  .controls .btn.unfollow{
     background: rgb(245, 92, 92);
  }
+
+ .message-prompt{
+   position: absolute;
+   height: 100%;
+   top:0px;
+   width: 100%;
+   background: rgba(50, 50, 51, 0.596);
+   z-index: 99;
+   left: 0px;
+   display: flex;
+   align-items: center;
+ }
+.form{
+  background: white;
+  padding: 1em;
+  margin: 0px auto;
+  border-radius: 5px;
+}
+.message-prompt input{
+  border: none;
+  outline: none;
+  background: rgb(231, 231, 231);
+  padding: 5px 10px;
+  font-size: 1.2em;
+}
+.message-prompt .btn{
+  font-size: 1.3em;
+  text-align: end;
+  color: rgb(0, 0, 153);
+  padding: 5px 10px 0px;
+  cursor: pointer;
+}
 </style>

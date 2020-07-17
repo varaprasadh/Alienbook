@@ -43,6 +43,7 @@ export default {
       }
     },
     mounted(){
+      this.skip=this.feed.length;
       window.onscroll=()=>{
         let isbottomVisible=document.documentElement.scrollTop+window.innerHeight===document.documentElement.offsetHeight;
         if(isbottomVisible){
@@ -61,8 +62,7 @@ export default {
          this.setFeedPosts(data.posts);
          this.completed=data.completed;
          this.skip+=20;
-         this.loading=false;
-        }).catch(()=>{
+        }).catch(()=>{}).finally(()=>{
           this.loading=false;
         })
       },
