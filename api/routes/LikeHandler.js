@@ -82,7 +82,7 @@ Router.post("/like",(req,res)=>{
                    })
                });
            })
-           //undo the prev notifications and send updated one
+           //update the notification
        }
 
        post.likes.addToSet(like);

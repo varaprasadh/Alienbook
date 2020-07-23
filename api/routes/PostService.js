@@ -236,6 +236,19 @@ Router.get("/:username",(req, res) => {
                preserveNullAndEmptyArrays: true
            }
        },
+        {
+            $lookup: {
+                "from": "users",
+                "localField": "ref_author",
+                "foreignField": "id",
+                "as": "ref_author"
+            }
+        }, {
+            $unwind: {
+                path: "$ref_author",
+                preserveNullAndEmptyArrays: true
+            }
+        },
      {
          $addFields: {
              like: {
@@ -265,15 +278,14 @@ Router.get("/:username",(req, res) => {
                },
                like:1,
                refId: 1,
-               ref_author_username: 1,
                type: 1,
                author: 1,
                createdAt: 1,
                authorName: "$authorData.username",
+               ref_author_username: "$ref_author.username",
                 liked: {
                     $in: [current_user_id, "$likes.user_id"]
                 },
-                ref_author_username:1,
                 originalPost: {
                    $cond: {
                        if: {
