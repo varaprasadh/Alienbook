@@ -61,6 +61,7 @@ section{
   background: rgb(208, 208, 216);
   display: flex;
   flex-direction: column;
+  background: linear-gradient(45deg,rgb(219, 219, 226),rgb(202, 201, 199));
 }
 .auth-container{
   display: flex;
@@ -73,12 +74,13 @@ section{
   margin: 1em;
   max-width: 400px;
   filter:drop-shadow(2px 2px 5px rgb(179, 176, 176));
+  border-radius: 2px;  
 }
 .auth-header{
   text-align: center;
   font-weight: bold;
   font-size: 1.5em;
-  color: rgb(33, 33, 34);
+  color:rgb(68, 68, 70);
   margin-bottom: 1em;
 }
 .auth-header .text{
@@ -118,25 +120,6 @@ section{
   cursor: pointer;
   position: relative;
   overflow: hidden;
-}
-.auth-option::before{
-  display: block;
-  content: "";
-  top:0px;
-  left:0px;
-  width: 100%;
-  height:100%;
-  background:black;
-  position: absolute;
-  transition: transform 300ms linear;
-  transform-origin: left;
-  transform: scaleX(0);
- 
-}
-.auth-option:hover::before{
- transform: scaleX(1);
- transform-origin: right;
- z-index: -1;
 }
 
 .auth-option:hover{

@@ -66,13 +66,8 @@ export default {
        fullName:{
          value:"",
          error:"full name can't be empty"
-       },
-       oldPassword:"",
-       newPassword:"",
-       confirmPassword:"",
-       rules:{
-         password: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
        }
+
      })
    },
    mounted(){

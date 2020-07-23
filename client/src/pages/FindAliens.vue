@@ -51,6 +51,7 @@ export default {
    }
      this.getAliens();
    },
+   
    destroyed(){
       window.removeEventListener('scroll',()=>{})
    },

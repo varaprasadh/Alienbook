@@ -32,14 +32,7 @@
                 <div class="label">Posts</div>
             </div>
         </div>
-        <div class="message-prompt" v-if="quickMessagePrompt">
-             <div class="form">
-               <div class="input-wrapper">
-                 <input type="text" class="message-input" placeholder="write your message">
-               </div>
-               <div class="btn submit">send</div>
-             </div>
-        </div>
+        <QuickMessagePrompt  v-if="quickMessagePrompt"  v-on:message="sendMessage" v-on:cancel="quickMessagePrompt=false"/>
     </div>
 </template>
 
@@ -47,16 +40,19 @@
 import Axios from 'axios';
 import { mapMutations } from 'vuex';
 import moment from "moment";
-
+import QuickMessagePrompt from "./QuickMessagePrompt";
 export default {
   name:"profile-card",
   props:['user'],
+  components:{
+    QuickMessagePrompt
+  },
   computed:{
-    joined(){return moment(this.user.createdAt).fromNow()}
+    joined(){return moment(this.user.createdAt).fromNow()},
   },
   data(){
     return ({
-      quickMessagePrompt:false
+      quickMessagePrompt:false,
     })
   },
   created(){
@@ -87,12 +83,14 @@ export default {
         this.quickMessagePrompt=true;
         
       },
-      sendMessage(){
-          Axios.post("/notifications/message",{to:this.user.id,content:"hey, i wann thank you"}).then(({data})=>{
-            console.log(data);
-          }).catch(err=>{
-            console.log(err);
-            })
+      sendMessage(text){
+        this.quickMessagePrompt=false;
+        Axios.post("/notifications/message",{to:this.user.id,content:text}).then(({data})=>{
+          console.log(data);
+          //show custom toast;
+        }).catch(err=>{
+          console.log(err);
+        })
       }
   }
 }
@@ -182,36 +180,4 @@ export default {
  .controls .btn.unfollow{
     background: rgb(245, 92, 92);
  }
-
- .message-prompt{
-   position: absolute;
-   height: 100%;
-   top:0px;
-   width: 100%;
-   background: rgba(50, 50, 51, 0.596);
-   z-index: 99;
-   left: 0px;
-   display: flex;
-   align-items: center;
- }
-.form{
-  background: white;
-  padding: 1em;
-  margin: 0px auto;
-  border-radius: 5px;
-}
-.message-prompt input{
-  border: none;
-  outline: none;
-  background: rgb(231, 231, 231);
-  padding: 5px 10px;
-  font-size: 1.2em;
-}
-.message-prompt .btn{
-  font-size: 1.3em;
-  text-align: end;
-  color: rgb(0, 0, 153);
-  padding: 5px 10px 0px;
-  cursor: pointer;
-}
 </style>

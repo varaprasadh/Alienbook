@@ -57,6 +57,13 @@ axios.interceptors.response.use((response) => {
 
 const router = new VueRouter({
   mode:"history",
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return false;
+    }
+  },
   routes:[
     {path:"/welcome",component:LandingPage,exact:true},
     {path:"/login",component:Auth},
@@ -70,12 +77,6 @@ const router = new VueRouter({
         path:"/",
         name:"feed",
         component: Feed
-      },
-       {
-        path:"/post/:postid",
-        name:"postview",
-        component: PostView,
-        props:true
       },
        {
         path:"aliens",
@@ -102,18 +103,24 @@ const router = new VueRouter({
         name: "settings",
         component: Settings
       },
-       {
-        path:"profile/:username?",
-        name:"profile",
-        component: Profile,
-        props:true
-      },
-       {
-        path:"/policy",
-        name:"policy",
-        component: () => import( /* webpackChunkName: "policy" */ "./pages/Policy.vue"),
-      },
     ]
+    },
+    {
+      path: "/profile/:username?",
+      name: "profile",
+      component: Profile,
+      props: true
+    },
+    {
+      path: "/policy",
+      name: "policy",
+      component: () => import( /* webpackChunkName: "policy" */ "./pages/Policy.vue"),
+    },
+    {
+      path: "/post/:postid",
+      name: "postview",
+      component: PostView,
+      props: true
     },
     {
       path: "*",

@@ -67,7 +67,7 @@
         <div class="actions">
             <div :class="['action' ,'like']" @click="like" @mouseenter="openReactions" @mouseleave="closeReactions">
               <div class="reactions-wrapper">
-                <transition name="reactions" appear>
+                <transition name="reactions">
                     <Reactions v-on:react="updateReaction" v-if="showReactions"/>
                 </transition>
               </div>

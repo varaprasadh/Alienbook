@@ -32,6 +32,7 @@ export default {
          completed:false,
          loading:false,
          skip:0,
+         scrollY:0,
       })
     },
     computed:{
@@ -43,6 +44,7 @@ export default {
       }
     },
     mounted(){
+      console.log("lskfnls",this.scrollY);
       this.skip=this.feed.length;
       window.onscroll=()=>{
         let isbottomVisible=document.documentElement.scrollTop+window.innerHeight===document.documentElement.offsetHeight;
@@ -51,6 +53,11 @@ export default {
         }
       }
     },
+    beforeRouteLeave(to,from,next){
+      this.scrollY=window.scrollY;
+      next();
+    },
+
     methods:{
       ...mapMutations(['setFeedPosts','rungl_loader','stopgl_loader','openEditor','removeFromFeed']),
       loadFeed(){
@@ -66,7 +73,6 @@ export default {
           this.loading=false;
         })
       },
-      
     }
 }
 </script>

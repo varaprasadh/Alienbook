@@ -24,6 +24,7 @@ const appState = {
 import axios from 'axios';
 import Axios from 'axios';
 
+
  const store = new Vuex.Store({
     state: appState,
     getters:{
