@@ -11,7 +11,6 @@ const createPost = (postData) => {
       id:uuid(),
       ...postData
   });
-
    return new Promise((resolve,reject)=>{
         post.save().then(post=>{
             resolve(post);
@@ -28,9 +27,6 @@ const formatPost = post =>{
         comments: post._doc.comments.length,
     }
 };
-
-
-
 
 module.exports = {
     createPost,

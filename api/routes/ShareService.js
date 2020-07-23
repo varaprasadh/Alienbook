@@ -13,12 +13,13 @@ Router.post("/share",(req,res)=>{
     const userid=req.user.id;
     //@TODO
     //GET USERID INSTEAD OF USERNAME
-
+     console.log(req.body);
+     console.log("currid",userid);
     const {postid,username,owner,content="\t"}=req.body;
     createPost({
         author: userid,
         refId:postid,
-        ref_author_username:username, 
+        ref_author: owner,
         content: content,
         type:"SHARE",
     }).then(post=>{

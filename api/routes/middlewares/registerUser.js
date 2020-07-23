@@ -1,16 +1,14 @@
-const User = require('../models/User');
+const User = require("../../models/User");
 const uuid = require('uuid').v1;
 const registerUser=(req,res,next)=>{
-  const {email,fullName,username,password,security_question,security_answer,thirdPartyAuthId} = req.body;
+  const {fullName,username,open_id} = req.body;
    User.findOne({username}).then(user=>{
        if(user) throw new Error('username exists');
        const newUser=new User({
            id:uuid(),
-           email,
            fullName,
            username,
-           password,
-           thirdPartyAuthId
+           open_id
        });
        return newUser.save().then(user => {
            req.user=user;

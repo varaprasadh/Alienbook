@@ -68,11 +68,22 @@ export default {
   background: white;
   margin: 10px;
   padding: 10px;
-  /* font-size: 1.2em; */
+}
+.alien-card .image{
+  border: 2px solid rgb(187, 187, 187);
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 5px;
+  margin-right: 10px;
+  background: rgb(246, 246, 246);
 }
 .alien-card .image img{
-  height:75px;
   margin: 10px;
+  width: 50px;
 }
 .alien-card .meta .username{
   font-size: 1.3em;

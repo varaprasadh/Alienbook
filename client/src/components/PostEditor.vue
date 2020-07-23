@@ -1,29 +1,29 @@
 <template>
   <section class="wrapper" v-if="editorOpen">
     <div class="container">
-      <div class="editor">
-        <div class="editor-container">
-          <label>write a post</label>
-          <textarea class="post-textarea" type="text" v-model="editorAuxData.content" placeholder="start typing..."></textarea>
-          <div class="post-preview">
-            <div v-if="type==='SHARE'">
-              <div class=""></div>
-              <div v-if="editorAuxData.post.type==='SHARE'">
-                    <RefPost  :post="editorAuxData.post.originalPost"/>
-              </div>
-              <div v-else>
-                     <RefPost :post="editorAuxData.post"/>
+        <div class="editor">
+          <div class="editor-container">
+            <label>write a post</label>
+            <textarea class="post-textarea" type="text" v-model="editorAuxData.content" placeholder="start typing..."></textarea>
+            <div class="post-preview">
+              <div v-if="type==='SHARE'">
+                <div class=""></div>
+                <div v-if="editorAuxData.post.type==='SHARE'">
+                      <RefPost  :post="editorAuxData.post.originalPost"/>
+                </div>
+                <div v-else>
+                      <RefPost :post="editorAuxData.post"/>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="actions">
-            <div class="action cancel" @click="closeEditor">Cancel</div>
-            <div :class="['action','post',{disable:disableButton}]" @click="post" v-if="type==='NORMAL'">Publish</div>
-            <div class="action update" @click="update" v-if="type==='EDIT'">Update</div>
-            <div :class="['action','share',{disable:disableButton}]" @click="share" v-if="type==='SHARE'">Share</div>
+            <div class="actions">
+              <div class="action cancel" @click="closeEditor">Cancel</div>
+              <div :class="['action','post',{disable:disableButton}]" @click="post" v-if="type==='NORMAL'">Publish</div>
+              <div class="action update" @click="update" v-if="type==='EDIT'">Update</div>
+              <div :class="['action','share',{disable:disableButton}]" @click="share" v-if="type==='SHARE'">Share</div>
+            </div>
           </div>
         </div>
-      </div>
     </div>
   </section>
 </template>
@@ -74,11 +74,18 @@ export default {
     position: fixed;
     width: 100%;
     padding-top:80px;
-    background: rgba(0, 0, 0, 0.76);
     height: 100%;
     box-sizing: border-box;
     z-index: 99;
+    animation: animateBg 500ms linear 1 300ms;
+    animation-fill-mode: forwards;
   }
+  @keyframes animateBg{
+    to{
+      background: rgba(37, 37, 37, 0.781);
+    }
+  }
+
   .container{
    max-width: 600px;
    margin:1rem auto;
@@ -124,6 +131,9 @@ export default {
 .action.cancel{
   color: rgb(255, 67, 34);
 }
+.action.cancel:hover{
+  filter: none;
+}
 .action.post{
   background: rgb(10, 100, 173);
 }
@@ -137,4 +147,11 @@ export default {
   background: rgb(31, 48, 196);
 }
 
+.fade-enter-active, .fade-leave-active{
+  transition: all .5s;
+}
+.fade-enter, .fade-leave-to{
+  opacity: 0;
+  transform: translateY(-1000px);
+}
 </style>

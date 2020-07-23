@@ -102,7 +102,8 @@ Router.get("/",retrieveUserInfo,(req, res) => {
             preserveNullAndEmptyArrays: true,
             path: "$sharedContent"
         }
-    }, {
+    }, 
+    {
         $lookup: {
             "from": "users",
             "localField": "sharedContent.author",
@@ -115,7 +116,36 @@ Router.get("/",retrieveUserInfo,(req, res) => {
             preserveNullAndEmptyArrays: true
         }
     },
-
+    {
+        $lookup: {
+            "from": "users",
+            "localField": "ref_author",
+            "foreignField": "id",
+            "as": "ref_author"
+        }
+    }, {
+        $unwind: {
+            path: "$ref_author",
+            preserveNullAndEmptyArrays: true
+        }
+    },
+     {
+         $addFields: {
+             like: {
+                 $filter: {
+                     input: "$likes",
+                     cond: {
+                         $eq: ["$$this.user_id", current_user_id]
+                     }
+                 }
+             }
+         }
+     }, {
+         $unwind:{
+             path:"$like",
+             preserveNullAndEmptyArrays:true
+         }
+     },
     {
         $project: {
             id: 1,
@@ -126,6 +156,7 @@ Router.get("/",retrieveUserInfo,(req, res) => {
             comments: {
                 $size: "$comments"
             },
+            like:1,
             refId: 1,
             ref_author_username: 1,
             type: 1,
@@ -135,7 +166,7 @@ Router.get("/",retrieveUserInfo,(req, res) => {
                 $in:[current_user_id,"$likes.user_id"]
             },
             authorName: "$authorData.username",
-            ref_author_username:1,
+            ref_author_username: "$ref_author.username",
             originalPost: {
                 $cond: {
                     if: {
@@ -150,7 +181,8 @@ Router.get("/",retrieveUserInfo,(req, res) => {
                     },
                     else: null
                 }
-            }
+            },
+
         }
     }
     ]).sort({createdAt:-1}).skip(skip).limit(20).then(records => {
@@ -204,7 +236,36 @@ Router.get("/:username",(req, res) => {
                preserveNullAndEmptyArrays: true
            }
        },
-
+        {
+            $lookup: {
+                "from": "users",
+                "localField": "ref_author",
+                "foreignField": "id",
+                "as": "ref_author"
+            }
+        }, {
+            $unwind: {
+                path: "$ref_author",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+     {
+         $addFields: {
+             like: {
+                 $filter: {
+                     input: "$likes",
+                     cond: {
+                         $eq: ["$$this.user_id", current_user_id]
+                     }
+                 }
+             }
+         }
+     }, {
+         $unwind: {
+             path: "$like",
+             preserveNullAndEmptyArrays: true
+         }
+     },
        {
            $project: {
                id: 1,
@@ -215,16 +276,16 @@ Router.get("/:username",(req, res) => {
                comments: {
                    $size: "$comments"
                },
+               like:1,
                refId: 1,
-               ref_author_username: 1,
                type: 1,
                author: 1,
                createdAt: 1,
                authorName: "$authorData.username",
+               ref_author_username: "$ref_author.username",
                 liked: {
                     $in: [current_user_id, "$likes.user_id"]
                 },
-                ref_author_username:1,
                 originalPost: {
                    $cond: {
                        if: {

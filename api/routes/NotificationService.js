@@ -16,7 +16,8 @@ const createNotification = ({
         initiator,
         postId = "",
         ref_id,
-        owner
+        owner,
+        content=""
     }) => {
         let notification=new Notification({
             type,
@@ -24,13 +25,14 @@ const createNotification = ({
             postId,
             ref_id,
             owner,
+            content,
             id:uuid()
         });
         if (owner === initiator) {
             console.log("cant");
             return;
         }
-       notification.save().then(()=>{
+       return notification.save().then(()=>{
            //push notificagtion thing
            console.log("added notification");
        })
@@ -121,6 +123,7 @@ const createNotification = ({
                    ref_id: 1,
                    postId: 1,
                    read: 1,
+                   content:1,
                    notification_id: "$id"
                }
            }

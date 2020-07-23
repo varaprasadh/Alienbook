@@ -6,12 +6,13 @@
         <div class="settings-wrapper">
           <div class="setting" @click="$router.push(`/profile/${user.username}`)">Profile</div>
           <div class="setting" @click="profileEditor=true">Edit Profile</div>
-          <div class="setting" @click="changePassword=true">Change Password</div>
+          <div class="setting" @click="$router.push('/policy')">Privacy Policy</div>
           <div class="setting warning" @click="logout">Logout</div>
         </div>
       </div>
     </div>
     <!-- edit profile form -->
+    <transition name="fade" appear>
     <div class="bg-overlay-wrapper" v-if="profileEditor || changePassword || logoutDailogue">
       <form class="card editprofile"  v-if="profileEditor" ref="editprofileform">
         <div class="form-label">Edit Profile</div>
@@ -35,44 +36,8 @@
           <div class="action save" @click="submit">Save</div>
         </div>
       </form>
-      <form class="card change-password" v-if="changePassword" ref="changepasswordform">
-        <div class="form-label">Change Password</div>
-        <div class="input-wrapper">
-          <label for="oldPassword">Old Password</label>
-          <div class="input">
-            <input type="password"  id="fullname" v-model="oldPassword"/>
-            <div class="eye"></div>
-          </div>
-          <div class="errors" v-if="!isoldPasswordValid">
-            <div class="error">should be minimum eight characters, at least one letter and one number</div>
-          </div>
-        </div>
-        <div class="input-wrapper">
-          <label for="newPassword">New Password</label>
-          <div class="input">
-            <input type="password"  id="newPassword" v-model="newPassword"/>
-            <div class="eye"></div>
-          </div>
-          <div class="errors" v-if="!isnewPasswordValid">
-            <div class="error">should be minimum eight characters, at least one letter and one number</div>
-          </div>
-        </div>
-        <div class="input-wrapper">
-          <label for="confirmPassword">Confirm Password</label>
-          <div class="input">
-            <input type="password"  id="confirmPassword" v-model="confirmPassword"/>
-            <div class="eye"></div>
-          </div>
-          <div class="errors" v-if="!isconfirmPasswordValid">
-            <div class="error">password does'nt match!</div>
-          </div>
-        </div>
-        <div class="actions">
-          <div class="action cancel" @click="changePassword=false">Cancel</div>
-          <div class="action save" @click="savePassword">Save</div>
-        </div>
-      </form>
     </div>
+    </transition>
 
   </section>
 </template>
@@ -101,13 +66,8 @@ export default {
        fullName:{
          value:"",
          error:"full name can't be empty"
-       },
-       oldPassword:"",
-       newPassword:"",
-       confirmPassword:"",
-       rules:{
-         password: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
        }
+
      })
    },
    mounted(){
@@ -225,11 +185,19 @@ export default {
   position: absolute;
   height: 100%;
   width: 100%;
-  background: rgba(0, 0, 0, 0.445);
+  top:0px;
   display: flex;
   justify-content: center;
   align-items: center;
+  animation: animateBg 500ms linear 1 400ms;
+  animation-fill-mode: forwards;
 }
+  @keyframes animateBg{
+    to{
+      background: rgba(37, 37, 37, 0.781);
+    }
+  }
+
 .card{
   background: white;
   padding: 1rem;
@@ -271,16 +239,7 @@ export default {
 .input-wrapper .input input{
   flex: 1;
 }
-.input-wrapper .input .eye{
-  height: 15px;
-  width: 15px;
-  /* background: rgb(117, 159, 236); */
-  border-radius: 50%;
-  cursor: pointer;
-}
-.input-wrapper .input .eye:hover{
-  background: red;
-}
+
 .actions .action:hover{
   transform: rotate(-5deg);
 }
@@ -299,4 +258,13 @@ export default {
   text-align: center;
   font-weight: bold;
 }
+
+.fade-enter-active, .fade-leave-active{
+  transition: all .5s;
+}
+.fade-enter, .fade-leave-to{
+  opacity: 0;
+  transform: translateY(-1000px);
+}
+
 </style>

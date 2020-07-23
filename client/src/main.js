@@ -4,11 +4,9 @@ import VueRouter from 'vue-router'
 import vClickOutside from 'v-click-outside'
 
 
-// import LandingPage from "./pages/LandingPage";
+import LandingPage from "./pages/LandingPage";
 import Auth from "./pages/Auth.vue";
-import Error from "./pages/Error.vue";
 import Home from "./pages/Home.vue";
-import ResetPassword from "./pages/ResetPassword.vue";
 
 
 import store from "./store"
@@ -27,6 +25,7 @@ import Settings from "./pages/Settings.vue";
 import FindAliens from "./pages/FindAliens.vue";
 import Notifications from "./pages/Notifications.vue";
 
+
 axios.defaults.baseURL = 'http://localhost:3000';
 
 Vue.use(VueRouter);
@@ -44,7 +43,7 @@ axios.interceptors.response.use((response) => {
   console.log(error.response.status);
     if(error.response.status===401){
         window.localStorage.clear();
-        router.replace("/auth/switch/login");
+        router.replace("/login");
     }
     if(error.response.status===404){
         router.replace("/error");
@@ -58,12 +57,16 @@ axios.interceptors.response.use((response) => {
 
 const router = new VueRouter({
   mode:"history",
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return false;
+    }
+  },
   routes:[
-    // {path:"/welcome",component:LandingPage,exact:true},
-    {path:"/login",redirect:"/auth/switch/siginin"},
-    {path:"/signup",redirect:"/auth/switch/signup"},
-    {path:"/auth/switch/:type",component:Auth },
-    {path:"/resetpassword",component:ResetPassword},
+    {path:"/welcome",component:LandingPage,exact:true},
+    {path:"/login",component:Auth},
     {path:"/signup/createuserame",component:UsernameView},
     {path:"/signin/saveToken",component:saveToken},
     {path:"/",
@@ -74,12 +77,6 @@ const router = new VueRouter({
         path:"/",
         name:"feed",
         component: Feed
-      },
-       {
-        path:"/post/:postid",
-        name:"postview",
-        component: PostView,
-        props:true
       },
        {
         path:"aliens",
@@ -106,15 +103,29 @@ const router = new VueRouter({
         name: "settings",
         component: Settings
       },
-       {
-        path:"profile/:username?",
-        name:"profile",
-        component: Profile,
-        props:true
-      },
     ]
     },
-    {path:"*",component:Error},
+    {
+      path: "/profile/:username?",
+      name: "profile",
+      component: Profile,
+      props: true
+    },
+    {
+      path: "/policy",
+      name: "policy",
+      component: () => import( /* webpackChunkName: "policy" */ "./pages/Policy.vue"),
+    },
+    {
+      path: "/post/:postid",
+      name: "postview",
+      component: PostView,
+      props: true
+    },
+    {
+      path: "*",
+      component: () => import( /* webpackChunkName: "error" */ "./pages/Error.vue")
+    },
   ],
 })
 Vue.use(vClickOutside);

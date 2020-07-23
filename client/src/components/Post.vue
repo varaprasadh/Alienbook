@@ -8,13 +8,13 @@
                     </div>
                     <div class="info" @click.stop="$router.push({name:'postview',params:{postid:post.id}})">
                         <div class="post-head-info" >
-                            <span class="author-name" @click.stop="$router.push({name:'profile',params:{username:post.authorName}})">{{post.authorName}}</span>
+                            <span class="author-name">{{post.authorName}}</span>
                             <span class="shared-meta" v-if="post.type==='SHARE'">
                                 shared <span class="author-name">{{post.ref_author_username}}'s post</span>
                             </span>
                             <span v-else> shared a post</span>
                         </div>
-                        <div class="pub-date">{{new Date(post.createdAt).toLocaleDateString()}}</div>
+                        <div class="pub-date">{{publishDate}}</div>
                     </div>
                 </div>
                 <div class="options" @click="showOptions=!showOptions" v-click-outside="()=>showOptions=false">
@@ -22,6 +22,7 @@
                         <menuOptionsIcon/>
                     </div>
                     <div class="options-container"  v-if="showOptions">
+                        <div class="option" @click="$router.push({name:'profile',params:{username:post.authorName}})">view profile</div>
                         <div class="option" @click="deletePost" v-if="userid===post.author">Delete</div>
                         <div class="option" @click="edit" v-if="userid===post.author">Edit</div>
                         <div class="option" @click="unfollow" v-if="!post.unfollowd && userid!==post.author">unfollow {{post.authorName}}</div>
@@ -34,8 +35,8 @@
                 <RefPost v-if="post.type==='SHARE'" :post="post.originalPost" :refAuthorName="post.ref_author_username"/>
             </div>
             <div class="post-stats">
-                <div class="likes">{{post.likes}} Likes</div>
-                <div class="comments">{{post.comments}} Comments</div>
+                <div class="likes" @click="showLikes=true">{{post.likes}} Likes</div>
+                <div class="comments" @click="$router.push({name:'postview',params:{postid:post.id}})">{{post.comments}} Comments</div>
             </div>
             
             <div class="last-comment-wrapper" v-if="comments.length>0">
@@ -64,15 +65,37 @@
             </div>
         </div>
         <div class="actions">
-            <div :class="['action' ,'like',{active:post.liked}]" @click="like">Like </div>
-            <div class="action comment"  @click="showCommentBox=true">Comment</div>
-            <div class="action share" @click="share">Share</div>
+            <div :class="['action' ,'like']" @click="like" @mouseenter="openReactions" @mouseleave="closeReactions">
+              <div class="reactions-wrapper">
+                <transition name="reactions">
+                    <Reactions v-on:react="updateReaction" v-if="showReactions"/>
+                </transition>
+              </div>
+              <div class="icon">
+                <Like :like="post.like"/>  
+              </div>  
+             </div>
+            <div class="action comment"  @click="showCommentBox=!showCommentBox">
+               <div class="icon">
+                  <CommentIcon/>
+                </div> 
+               <div class="text">Comment</div>
+            </div>
+            <div class="action share" @click="share">
+                <div class="icon">
+                    <ShareIcon/>
+                </div>
+                <div class="text">Share</div>
+            </div>
         </div>
+        <transition name="likes">
+           <LikeViewer v-on:onclose="showLikes=false" :postid="post.id" v-if="showLikes"/>
+        </transition>
     </div>
 </template>
 
 <script>
-
+import moment from "moment";
 import axios from "axios";
 import { mapState, mapMutations, } from 'vuex';
 import avatarSVG from "./svg/user_avatar";
@@ -81,12 +104,19 @@ import RefPost from "./RefPost";
 import PostTextContent from "./PostTextContent";
 import Comment from "./Comment";
 import Axios from 'axios';
+import Like from "./Like"
+import CommentIcon from "./svg/comment";
+import ShareIcon from "./svg/share";
+import LikeViewer from "./LikeViewer";
+import Reactions from "./Reactions";
 
 export default {
   name:"Post",
   components:{
       menuOptionsIcon,
-      avatarSVG,RefPost,PostTextContent,Comment
+      avatarSVG,RefPost,PostTextContent,Comment,Like,
+      CommentIcon,ShareIcon,LikeViewer,
+      Reactions
   },
   props:["post",'preventOnComment'],
   data(){
@@ -95,42 +125,55 @@ export default {
         showCommentBox:false,
         comment:"",
         commentLoadingSpinner:false,
-        liked:this.post.liked,
         comments:[],
         completed:false,
         commentsLoading:false,
         commentSkipOffest:0,
-        showShareOptions:true
+        showShareOptions:true,
+        showLikes:false,
+        showReactions:false,
+        reactionTimer:null,
+        prevReaction:null
      }
   },
   mounted(){
   },
  computed:{
     ...mapState({
-        userid:state=>state.user.id
+        userid:state=>state.user.id,
+        publishDate(){return moment(this.post.createdAt).fromNow()}
     }),
  },
   methods:{
       ...mapMutations(['rungl_loader','stopgl_loader','openEditor']),
       like:function(){
           //if not liked  the post
+         this.closeReactions();
          if(!this.post.liked){
-           axios.post("/post/like",{postId:this.post.id}).then(()=>{
-                   this.post.liked=true;
-                   this.liked=true;
-                   this.post.likes++;
-           }).catch(()=>{
-               //do nothing
-           })
+               this.updateReaction("LIKE");
          }else{
            axios.post("/post/dislike",{postId:this.post.id}).then(()=>{
                    this.post.liked=false;
-                   this.liked=false;
+                   this.post.like=null;
                    this.post.likes--;
            }).catch(()=>{
                //do nothing
            })
          }
+      },
+      updateReaction(type){
+        console.log(type);
+        //update the like type
+        this.prevReaction=this.post.like;
+        this.post.like={type};
+         this.post.likes++;
+        axios.post("/post/like",{postId:this.post.id,type}).then(({data:{like}})=>{
+            this.post.liked=true;
+            this.post.likes=like.likes;
+        }).catch(()=>{
+            //reset the values;
+            this.post.like=this.prevReaction;
+        })
       },
       sendComment(){
          if(this.comment.trim()===""){
@@ -206,6 +249,16 @@ export default {
           }).catch(()=>{
               this.stopgl_loader();
           })
+      },
+      openReactions(){
+          clearTimeout(this.clearTimeout);
+          this.reactionTimer=setTimeout(()=>{
+              this.showReactions=true;
+          },300);
+      },
+      closeReactions(){
+          clearTimeout(this.reactionTimer);
+          this.showReactions=false;
       }
   }
 }
@@ -277,16 +330,7 @@ export default {
      margin: 0.5em 0em;
      box-shadow: 1px 1px 10px rgba(200, 197, 197, 0.541);
  }
- .action{
-     flex: 1;
-     display: flex;
-     justify-content: center;
-     padding: 1em;
-     background: rgb(255, 255, 255);
-     cursor: pointer;
-     font-weight: bold;
-     color: rgb(61, 59, 59);
- }
+
  .options{
      transition: all 200ms linear;
      cursor: pointer;
@@ -295,12 +339,12 @@ export default {
      align-items: center;
  }
  .options-container{
-     position: absolute;
+     position: absolute; 
      top:100%;
      right: 100%;
      min-width:150px;
      background: white;
-     filter: drop-shadow(1px 1px 5px rgba(117, 115, 115, 0.472));
+     box-shadow:1px 1px 5px rgba(117, 115, 115, 0.472);
  }
 
   .option{
@@ -327,6 +371,10 @@ export default {
      margin-top: 10px;
      font-weight: bold;
  }
+ .post-stats > div:hover{
+     cursor: pointer;
+     text-decoration: underline;
+ }
 
  .last-comment{
      display: flex;
@@ -346,7 +394,6 @@ export default {
     background: rgb(255, 255, 255);
     margin: 5px 0px;
     padding: 0.5em;
-    /* box-shadow: 1px 1px 10px rgb(216, 213, 213); */
  }
  .comment-box .inputbox{
    flex: 1;
@@ -375,12 +422,30 @@ export default {
      transform: rotate(45deg);
  }
 
- .action:hover{
-     transition: all 300ms cubic-bezier(0.895, 0.03, 0.685, 0.22);
+ .action{
+     flex: 1;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     padding: 10px 1em;
+     background: rgb(255, 255, 255);
+     cursor: pointer;
+     font-weight: bold;
+     color: rgb(61, 59, 59);
  }
- .action.like:hover, .action.like.active{
-     background: rgb(137, 137, 228);
-     color: white;
+
+ .action.like.active{
+     font-weight: bold;
+     color: blue;
+ }
+
+ .action .icon{
+    margin: 0px 5px;
+    display: flex;
+    align-items: center;
+ }
+ .action .icon svg{
+     width: 30px;
  }
  .devider{
      height: 2px;
@@ -391,6 +456,12 @@ export default {
      font-weight: bold;
      margin: 10px;
  }
-
-
+ .action.like{
+     position: relative;
+ }
+ .reactions-wrapper{
+   position: absolute;
+   bottom: 100%;
+   left: 10px;
+}
 </style>

@@ -24,6 +24,7 @@ const appState = {
 import axios from 'axios';
 import Axios from 'axios';
 
+
  const store = new Vuex.Store({
     state: appState,
     getters:{
@@ -77,16 +78,20 @@ import Axios from 'axios';
             commit("closeEditor");
             const {content,post,callback}=payload;
             //if its a normal post
-            let postid,username
+            let postid,username,owner
             if(post.type==='NORMAL'){
-              postid=post.id,
-              username = post.authorName
+              postid=post.id;
+              username = post.authorName;
+              owner=post.author;
             }else{
                 //if its already shared one,then use orginalpost data
-                postid = post.originalPost.id,
-                username = post.originalPost.authorName
+                postid = post.originalPost.id;
+                username = post.originalPost.authorName;
+                owner = post.originalPost.author;
             }
-            let data={content,postid,username};
+            
+
+            let data={content,postid,username,owner};
             Axios.post("/post/share",data).then(({data})=>{
                 //call the callback
                 //push the post to feed

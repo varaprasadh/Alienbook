@@ -8,13 +8,14 @@
                 <div class="info">
                   <div class="username">{{user.username}}</div>
                   <div class="fullname">{{user.fullName}}</div>
-                  <div class="generated-slogan">joined on <span class="date">{{new Date(user.createdAt).toLocaleDateString()}}</span></div>
-                  <div class="controls" v-if="!user.isSelf">
-                    <div class="btn unfollow" v-if="user.amIFollowing" @click="unfollow">unfollow</div>
-                    <div class="btn follow" v-else @click="follow">Follow</div>
-                  </div>
+                  <div class="generated-slogan">joined on <span class="date">{{joined}}</span></div>
                 </div>
             </div>
+        </div>
+        <div class="controls" v-if="!user.isSelf">
+          <div class="btn message" @click="openMessenger">quick message</div>
+          <div class="btn unfollow" v-if="user.amIFollowing" @click="unfollow">unfollow</div>
+          <div class="btn follow" v-else @click="follow">Follow</div>
         </div>
         <div class="devider"></div>
         <div class="activity-info">
@@ -31,15 +32,32 @@
                 <div class="label">Posts</div>
             </div>
         </div>
+        <QuickMessagePrompt  v-if="quickMessagePrompt"  v-on:message="sendMessage" v-on:cancel="quickMessagePrompt=false"/>
     </div>
 </template>
 
 <script>
 import Axios from 'axios';
 import { mapMutations } from 'vuex';
+import moment from "moment";
+import QuickMessagePrompt from "./QuickMessagePrompt";
 export default {
   name:"profile-card",
   props:['user'],
+  components:{
+    QuickMessagePrompt
+  },
+  computed:{
+    joined(){return moment(this.user.createdAt).fromNow()},
+  },
+  data(){
+    return ({
+      quickMessagePrompt:false,
+    })
+  },
+  created(){
+ 
+  },
   methods:{
     ...mapMutations(['rungl_loader','stopgl_loader']),
       follow(){
@@ -60,6 +78,19 @@ export default {
         }).finally(()=>{
           this.stopgl_loader();
         })
+      },
+      openMessenger(){
+        this.quickMessagePrompt=true;
+        
+      },
+      sendMessage(text){
+        this.quickMessagePrompt=false;
+        Axios.post("/notifications/message",{to:this.user.id,content:text}).then(({data})=>{
+          console.log(data);
+          //show custom toast;
+        }).catch(err=>{
+          console.log(err);
+        })
       }
   }
 }
@@ -74,16 +105,15 @@ export default {
     padding: 10px;
     border-radius: 50%;
     background: rgb(227, 227, 228);
-    width: 100px;
-    height: 100px;
+    width: 70px;
+    height: 70px;
     display: flex;
     justify-content: center;
     align-items: center;
     border: 2px solid rgb(173, 173, 173);
   }
  .profile-card .image img{
-   width:90px;
-   /* width: 100%; */
+   width:60px;
  }
  .profile-main{
    display: flex;
@@ -123,9 +153,6 @@ export default {
    font-size: 1.2em;
    color: rgb(46, 43, 43);
  }
- .generated-slogan .date{
-   font-weight: bold;
- }
  .devider{
    height: 2px;
    background: rgb(216, 215, 215);
@@ -133,7 +160,7 @@ export default {
  }
  .controls{
    display: flex;
-   margin-top: auto;
+   justify-content: center;
  }
  .controls .btn{
    flex: 1;
@@ -145,9 +172,10 @@ export default {
    margin: 5px 0px;
    border-radius: 5px;
    cursor: pointer;
+   max-width: 200px;
  }
- .controls .btn.follow{
-  
+ .controls .btn.message{
+   margin-right: 10px;
  }
  .controls .btn.unfollow{
     background: rgb(245, 92, 92);

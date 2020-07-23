@@ -52,10 +52,6 @@ Router.get("/", attachUserInfo,(req, res) => {
 });
 
 
-
-
-
-
 // get user info for single user
 Router.get("/profile/:username?", attachUserInfo, (req, res) => {
     const username=req.params.username || req.user.info.username;

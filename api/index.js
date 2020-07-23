@@ -9,7 +9,7 @@ const dotEnv=require('dotenv');
 
 const verifyAndAttachUser = require("./routes/verifyAndAttachUser");
 
-const attachUserInfo=require("./routes/mdl_attachuserinfo");
+const attachUserInfo=require("./routes/middlewares/attachuserinfo");
 
 const userService =require("./routes/userService");
 const shareService=require("./routes/ShareService");
@@ -17,10 +17,14 @@ const saveService = require("./routes/saveService");
 
 
 const  LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
+const FacebookStrategy=require('passport-facebook').Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+
 const passport=require('passport');
 const User=require("./models/User");
 const FollowManager =require("./routes/FollowManager");
 const NotificationHandler=require("./routes/NotificationsHandler");
+const {oauth}=require("./routes/middlewares/oauth");
 
 const getWebToken=require("./routes/helper/createJWT");
 
@@ -63,43 +67,42 @@ passport.deserializeUser((user, cb) => {
 passport.use(new LinkedInStrategy({
     clientID: process.env.LINKEDIN_CLIENT_ID,
     clientSecret: process.env.LINKEDIN_SECRET,
-    callbackURL: "http://localhost:3000/auth/linkedin/callback/",
+    callbackURL: process.env.LINKEDIN_CALLBACK,
     scope: ['r_emailaddress', 'r_liteprofile'],
     
 },(accessToken,refreshToken,profile,done)=>{
    done(null,profile);
 }));
+
+passport.use(new FacebookStrategy({
+        clientID: process.env.FACEBOOK_APP_ID,
+        clientSecret: process.env.FACEBOOK_APP_SECRET,
+        callbackURL: process.env.FACEBOOK_CALLBACK,
+    },
+    function (accessToken, refreshToken, profile, done) {
+     done(null,profile) 
+    }
+));
+passport.use(new GoogleStrategy({
+                clientID: process.env.GOOGLE_APP_ID,
+                clientSecret: process.env.GOOGLE_SECRET,
+                callbackURL: process.env.GOOGLE_CALLBACK,
+                scope:["profile"]
+            }, (_, __, profile, done) => {
+                    done(null, profile);
+            }))
+
 app.use(passport.initialize());
 
 
 app.get('/auth/linkedin',passport.authenticate('linkedin'));
-  
+app.get('/auth/facebook',passport.authenticate('facebook'));
+app.get('/auth/google',passport.authenticate('google'));
 
 
-app.get('/auth/linkedin/callback', passport.authenticate('linkedin'),(req,res)=>{
-    //the auth data available in req.user
-    let boardinguser=req.user;
-    let thirdPartyAuthId = boardinguser.id;
-   
-    User.findOne({thirdPartyAuthId}).then(user=>{
-        if(user){
-            //take him to processing page to generate jwt
-         let encodedToken = encodeURIComponent(getWebToken(user));
-         res.redirect(`http://localhost:8080/signin/saveToken?token=${encodedToken}`)
-        }else{
-            let tempdata = {
-                id: boardinguser.id,
-                fullName: boardinguser.displayName,
-                email: boardinguser.emails[0].value
-            }
-
-            let encoded = encodeURIComponent(JSON.stringify(tempdata));
-            res.redirect(`http://localhost:8080/signup/createuserame?data=${encoded}`);
-        }
-    }).catch(err=>{
-         res.status(500).end();
-    })
-});
+app.get('/auth/linkedin/callback', passport.authenticate('linkedin'),oauth);
+app.get('/auth/facebook/callback', passport.authenticate('facebook'),oauth);
+app.get('/auth/google/callback', passport.authenticate('google'), oauth);
 
 const PORT=process.env.PORT || 3000;
 app.listen(PORT,()=>{
