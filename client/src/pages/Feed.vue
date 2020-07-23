@@ -44,8 +44,6 @@ export default {
       }
     },
     mounted(){
-      console.log("lskfnls",this.scrollY);
-      this.skip=this.feed.length;
       window.onscroll=()=>{
         let isbottomVisible=document.documentElement.scrollTop+window.innerHeight===document.documentElement.offsetHeight;
         if(isbottomVisible){
@@ -60,19 +58,7 @@ export default {
 
     methods:{
       ...mapMutations(['setFeedPosts','rungl_loader','stopgl_loader','openEditor','removeFromFeed']),
-      loadFeed(){
-        if(this.loading || this.completed){
-          return;
-        }
-        this.loading=true;
-        Axios.get("/posts",{params:{skip:this.skip}}).then(({data})=>{
-         this.setFeedPosts(data.posts);
-         this.completed=data.completed;
-         this.skip+=20;
-        }).catch(()=>{}).finally(()=>{
-          this.loading=false;
-        })
-      },
+
     }
 }
 </script>

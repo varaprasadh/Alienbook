@@ -3,6 +3,10 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 Vue.use(Vuex);
 
+import feedModule from "./feed";
+import notificationsModule from "./notifications";
+
+
 
 const editorInitialState = {
     post: {},
@@ -12,12 +16,10 @@ const editorInitialState = {
 }
 const appState = {
     user: null,
-    feed: [],
     appLoadingState: false,
     gl_h_loader: false,
     editorOpen: false,
     editorAuxData: editorInitialState,
-    notifications: []
 }
 
 
@@ -26,11 +28,12 @@ import Axios from 'axios';
 
 
  const store = new Vuex.Store({
+     modules:{
+         feed:feedModule,
+         notifications: notificationsModule,
+     },
     state: appState,
     getters:{
-     getUnreadNotifCount(state,){
-         return state.notifications.reduce((sum,notif)=>sum+(notif.read==false?1:0),0)
-     }
     },
     actions:{
         loadUserInfo({commit}){
@@ -89,7 +92,6 @@ import Axios from 'axios';
                 username = post.originalPost.authorName;
                 owner = post.originalPost.author;
             }
-            
 
             let data={content,postid,username,owner};
             Axios.post("/post/share",data).then(({data})=>{
@@ -104,27 +106,8 @@ import Axios from 'axios';
        }
     },
     mutations:{
-        setFeedPosts(state, posts) {
-            state.feed.push(...posts);
-        },
-        setNewFeed(state,posts){
-            state.feed.unshift(...posts);
-        },
-        removeFromFeed(state,postId){            
-           const index=state.feed.findIndex(post=>post.id===postId);
-           if(index!=-1){
-              state.feed.splice(index,1);
-           }
-        },
-        setNotifications(state,notifications){
-            state.notifications.push(...notifications)
-        },
-        removeNotification(state,id){
-          let index=state.notifications.findIndex(n=>n.notification_id===id);
-          if(index!=-1){
-              state.notifications.splice(index,1);
-          }
-        },
+
+
         runLoader(state){
             state.appLoadingState=true;
         },
