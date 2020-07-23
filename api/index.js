@@ -31,7 +31,15 @@ const getWebToken=require("./routes/helper/createJWT");
 dotEnv.config();
 
 
-mongoose.connect('mongodb://localhost:27017/intellias', {useNewUrlParser: true,useUnifiedTopology:true});
+mongoose.connect(process.env.MONGO_DB_URL, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true
+}).then(()=>{
+    console.log("db connected");
+}).catch(err=>{
+    console.log(err);
+})
 
 
 const app=express();

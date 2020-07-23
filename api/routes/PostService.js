@@ -8,8 +8,10 @@ const getPost = require("./helper/getPost");
 
 const retrieveUserInfo=require("./middlewares/attachUserInfo");
 
+const contentSanitizer=require("./middlewares/contentSanitizer");
+
 //add the post
-Router.post('/create',(req, res) => {
+Router.post('/create', contentSanitizer,(req, res) => {
     let author=req.user.id;
     const { content} = req.body;
     createPost({author,content}).then(post=>{
@@ -26,7 +28,7 @@ Router.post('/create',(req, res) => {
 });
 
 //update the post 
-Router.post("/update",(req,res)=>{
+Router.post("/update", contentSanitizer,(req, res) => {
      let userId=req.user.id;
       const {content, postid} = req.body; //parse the content extract tags
       Post.findOneAndUpdate({

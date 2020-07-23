@@ -42,6 +42,7 @@ export default {
     }
   },
   mounted(){
+    this.skip=this.notifications.length;
     window.onscroll=()=>{
       let isbottomVisible=document.documentElement.scrollTop+window.innerHeight===document.documentElement.offsetHeight;
       if(isbottomVisible){

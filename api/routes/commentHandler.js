@@ -9,17 +9,19 @@ const Comment=require("../models/Comment");
 const LIMIT=20;
 const NotificationService=require("./NotificationService");
 
+const contentSanitizer = require("./middlewares/contentSanitizer");
+
 //create a comment for the post
-Router.post("/comment",(req,res)=>{
+Router.post("/comment", contentSanitizer,(req, res) => {
   const userId=req.user.id;
-  const {postId,text}=req.body;
+  const {postId,content}=req.body;
   //update comment count on post
   //insert a comment
   const cid = uuid()
   let comment=new Comment({
       id: cid,
       user_id:userId,
-      text:text
+      text:content
   });
   Post.update({id:postId},{$addToSet:{comments:comment}}).then(doc=>{
     Post.aggregate([{

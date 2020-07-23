@@ -14,8 +14,13 @@
         </div>
         <div class="controls" v-if="!user.isSelf">
           <div class="btn message" @click="openMessenger">quick message</div>
-          <div class="btn unfollow" v-if="user.amIFollowing" @click="unfollow">unfollow</div>
-          <div class="btn follow" v-else @click="follow">Follow</div>
+          <template v-if="!fl_loading">
+            <div class="btn unfollow" v-if="user.amIFollowing" @click="unfollow">unfollow</div>
+            <div class="btn follow" v-else @click="follow">Follow</div>
+          </template>
+          <template v-else>
+              <div class="btn loading">wait</div>
+          </template>
         </div>
         <div class="devider"></div>
         <div class="activity-info">
@@ -53,6 +58,7 @@ export default {
   data(){
     return ({
       quickMessagePrompt:false,
+      fl_loading:false
     })
   },
   created(){
@@ -61,22 +67,22 @@ export default {
   methods:{
     ...mapMutations(['rungl_loader','stopgl_loader']),
       follow(){
-        this.rungl_loader();
+        this.fl_loading=true;
         Axios.post("/users/follow",{userId:this.user.id}).then(()=>{
           this.user.amIFollowing=true
         }).catch(()=>{
         }).finally(()=>{
-          this.stopgl_loader();
+           this.fl_loading=false;
         })
       },
       unfollow(){
-        this.rungl_loader();
+         this.fl_loading=true;
          Axios.post("/users/unfollow",{userId:this.user.id}).then(()=>{
           this.user.amIFollowing=false;
         }).catch(()=>{
 
         }).finally(()=>{
-          this.stopgl_loader();
+          this.fl_loading=false;
         })
       },
       openMessenger(){
@@ -179,5 +185,8 @@ export default {
  }
  .controls .btn.unfollow{
     background: rgb(245, 92, 92);
+ }
+ .controls .btn.loading{
+    background: rgb(134, 133, 133);
  }
 </style>

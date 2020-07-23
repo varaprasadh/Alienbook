@@ -183,7 +183,7 @@ export default {
 
          axios.post("/post/comment",{
              postId:this.post.id,
-             text:this.comment
+             content:this.comment
          }).then(({data})=>{
                 this.comment="";
                 this.showCommentBox=false;
