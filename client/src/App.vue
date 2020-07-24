@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import {mapState } from 'vuex';
+import {mapState, mapActions } from 'vuex';
 import AppLoader from "./components/AppLoader.vue";
 export default {
   name: 'App',
@@ -16,6 +16,13 @@ export default {
   computed:{
     ...mapState(['appLoadingState'])
   },
+  methods:{
+      ...mapActions('loadUserInfo')
+  },
+  async beforeRouterEnter(to,from,next){
+    await this.loadUserInfo();
+    next();
+  }
 }
 </script>
 

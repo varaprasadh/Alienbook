@@ -1,0 +1,4 @@
+{
+    "PRODUCTION_API": "https://alienbook.herokuapp.com",
+    "DEV_API" : "http://localhost:3000"
+}

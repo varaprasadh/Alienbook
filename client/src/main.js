@@ -25,8 +25,14 @@ import Settings from "./pages/Settings.vue";
 import FindAliens from "./pages/FindAliens.vue";
 import Notifications from "./pages/Notifications.vue";
 
+import config from "../config.json";
 
-axios.defaults.baseURL = 'http://localhost:3000';
+// if(process.env.MODE==="development"){
+//    axios.defaults.baseURL = config.DEV_API;
+// }else{
+//   axios.defaults.baseURL = config.PRODUCTION_API;
+// }
+ axios.defaults.baseURL = config.DEV_API;
 
 Vue.use(VueRouter);
 
