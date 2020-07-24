@@ -31,12 +31,19 @@ const getWebToken=require("./routes/helper/createJWT");
 dotEnv.config();
 
 
-mongoose.connect(process.env.MONGO_DB_URL, {
+let mongoURL;
+if (process.env.mode == 'production') {
+    mongoURL = process.env.MONGO_DB_URL;
+}else{
+    mongoURL = process.env.MONGO_DEV_URL
+}
+
+mongoose.connect(mongoURL, {
     useNewUrlParser: true,
     useCreateIndex: true,
     useUnifiedTopology: true
 }).then(()=>{
-    console.log("db connected");
+    console.log("db connected", mongoURL);
 }).catch(err=>{
     console.log(err);
 })
@@ -50,7 +57,6 @@ app.set("query parser","extended");
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cors());
-
 
 
 app.use("/auth",Auth);
@@ -103,16 +109,19 @@ passport.use(new GoogleStrategy({
 app.use(passport.initialize());
 
 
-app.get('/auth/linkedin',passport.authenticate('linkedin'));
+
 app.get('/auth/facebook',passport.authenticate('facebook'));
+app.get('/auth/linkedin',passport.authenticate('linkedin'));
 app.get('/auth/google',passport.authenticate('google'));
 
 
-app.get('/auth/linkedin/callback', passport.authenticate('linkedin'),oauth);
 app.get('/auth/facebook/callback', passport.authenticate('facebook'),oauth);
+app.get('/auth/linkedin/callback', passport.authenticate('linkedin'),oauth);
 app.get('/auth/google/callback', passport.authenticate('google'), oauth);
 
+
 const PORT=process.env.PORT || 3000;
-app.listen(PORT,()=>{
+
+app.listen(PORT, () => {
     console.log(`server listeing at port ${PORT}..`);
 })
