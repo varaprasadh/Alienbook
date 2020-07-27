@@ -3,47 +3,57 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 Vue.use(Vuex);
 
+import feedModule from "./feed";
+import notificationsModule from "./notifications";
 
-const editorInitialState = {
-    post: {},
-    callback: null,
-    type: "NORMAL",
-    content:" "
-}
+
+
+
 const appState = {
+<<<<<<< HEAD
+    appLoadingState: false,
+    gl_h_loader: false,
+   
+=======
     user: null,
-    feed: [],
     appLoadingState: false,
     gl_h_loader: false,
     editorOpen: false,
     editorAuxData: editorInitialState,
-    notifications: []
+>>>>>>> 9ad19e7217d632cbbef896d72ebb7d6cc0c3bb0f
 }
 
 
-import axios from 'axios';
-import Axios from 'axios';
+import feedState from "./modules/feed";
+import notificationsState from "./modules/notifications";
+import userState from "./modules/user";
+import editor from "./modules/editor";
+
 
 
  const store = new Vuex.Store({
+     modules:{
+<<<<<<< HEAD
+        feed:feedState,
+        notificationCentre:notificationsState,
+        user:userState,
+        editor:editor
+     },
     state: appState,
     getters:{
-     getUnreadNotifCount(state,){
-         return state.notifications.reduce((sum,notif)=>sum+(notif.read==false?1:0),0)
-     }
+
+=======
+         feed:feedModule,
+         notifications: notificationsModule,
+     },
+    state: appState,
+    getters:{
+>>>>>>> 9ad19e7217d632cbbef896d72ebb7d6cc0c3bb0f
     },
     actions:{
-        loadUserInfo({commit}){
-            commit('runLoader')
-            axios.get("/users/profile").then(({data})=>{
-                commit('setuser',data.data);
-                 commit('stopLoader');
-            }).catch(err=>{
-                commit('stopLoader');
-                commit('logout');
-            })
-        },
 
+<<<<<<< HEAD
+=======
        publishPost({commit},payload){
            console.log(payload);
            const {content} =payload;
@@ -89,47 +99,17 @@ import Axios from 'axios';
                 username = post.originalPost.authorName;
                 owner = post.originalPost.author;
             }
-            
+>>>>>>> 9ad19e7217d632cbbef896d72ebb7d6cc0c3bb0f
 
-            let data={content,postid,username,owner};
-            Axios.post("/post/share",data).then(({data})=>{
-                //call the callback
-                //push the post to feed
-                commit("setNewFeed", [data.post]);
-                callback(data.post);
-                commit("stopgl_loader")
-            }).catch(err=>{
-                commit("stopgl_loader")
-            })
-       }
     },
     mutations:{
-        setFeedPosts(state, posts) {
-            state.feed.push(...posts);
-        },
-        setNewFeed(state,posts){
-            state.feed.unshift(...posts);
-        },
-        removeFromFeed(state,postId){            
-           const index=state.feed.findIndex(post=>post.id===postId);
-           if(index!=-1){
-              state.feed.splice(index,1);
-           }
-        },
-        setNotifications(state,notifications){
-            state.notifications.push(...notifications)
-        },
-        removeNotification(state,id){
-          let index=state.notifications.findIndex(n=>n.notification_id===id);
-          if(index!=-1){
-              state.notifications.splice(index,1);
-          }
-        },
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 9ad19e7217d632cbbef896d72ebb7d6cc0c3bb0f
         runLoader(state){
             state.appLoadingState=true;
-        },
-        setuser(state, user) {
-            state.user=user;
         },
         stopLoader(state){
             state.appLoadingState=false;
@@ -142,20 +122,7 @@ import Axios from 'axios';
         },
         logout(state){
             state=appState
-        },
-        openEditor(state, data={}) {
-            let {post={content:" "},callback=()=>{},type="NORMAL",content=""}=data;
-            console.log("debug",type);
-            if(type==='EDIT'){
-                content=post.content;
-            }
-            state.editorAuxData={post,callback,type,content}
-            state.editorOpen =true;
-        },
-        closeEditor(state){
-            state.editorAuxData = editorInitialState;
-            state.editorOpen=false;
-        },
+        }
     },
 });
 

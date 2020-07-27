@@ -59,6 +59,7 @@ app.use(express.urlencoded({extended:true}));
 app.use(cors());
 
 
+
 app.use("/auth",Auth);
 app.use("/posts", verifyAndAttachUser, attachUserInfo, PostService); 
 app.use("/users", verifyAndAttachUser, userService);
@@ -109,10 +110,9 @@ passport.use(new GoogleStrategy({
 app.use(passport.initialize());
 
 
-
 app.get('/auth/facebook',passport.authenticate('facebook'));
 app.get('/auth/linkedin',passport.authenticate('linkedin'));
-app.get('/auth/google',passport.authenticate('google'));
+app.get('/auth/google',  passport.authenticate('google'));
 
 
 app.get('/auth/facebook/callback', passport.authenticate('facebook'),oauth);

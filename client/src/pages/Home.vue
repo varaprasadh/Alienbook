@@ -21,7 +21,9 @@ import PostEditor from "../components/PostEditor";
 
 
 import Axios from 'axios';
-import { mapMutations } from 'vuex';
+import { mapMutations,createNamespacedHelpers} from 'vuex';
+const {mapMutations:mapUserMutations}= createNamespacedHelpers("user");
+
 export default {
    name:"Home",
    components:{
@@ -30,11 +32,12 @@ export default {
     PostEditor
    },
    methods:{
-    ...mapMutations(['setuser','runLoader','stopLoader'])
+    ...mapMutations(['runLoader','stopLoader']),
+    ...mapUserMutations(['setUser'])
    },
    mounted(){
      Axios.get("/users/profile").then(({data})=>{
-       this.setuser(data.data);
+       this.setUser(data.data);
      }).catch(err=>{
         console.log(err);
         localStorage.clear();

@@ -43,10 +43,11 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from 'vuex';
+import { mapMutations, mapState,createNamespacedHelpers} from 'vuex';
 import Axios from 'axios';
 import GLHLoader from "../components/GLHLoader";
 
+const {mapMutations:mapUserMutations,mapState:mapUserState}=createNamespacedHelpers("user");
 export default {
    name:"settings",
    components:{
@@ -75,7 +76,8 @@ export default {
      this.fullName.value=this.user.fullName;
    },
    methods:{
-      ...mapMutations(['rungl_loader',"stopgl_loader",'setuser']),
+      ...mapMutations(['rungl_loader',"stopgl_loader"]),
+      ...mapUserMutations(['setUser']),
       ...mapMutations({clearStore:state=>state.logout}),
       submit(){
         if(this.usernameValid && this.fullnameValid){
@@ -84,7 +86,7 @@ export default {
           Axios.post("/users/profile",data).then(({data})=>{
             this.username.notAvailable=false;
             this.profileEditor=false;
-            this.setuser(data.profile);
+            this.setUser(data.profile);
             this.stopgl_loader();
           }).catch(()=>{
             this.stopgl_loader();
@@ -119,7 +121,8 @@ export default {
       }
    },
    computed:{
-     ...mapState(['user','appLoadingState']),
+     ...mapState(['appLoadingState']),
+     ...mapUserState(['user']),
      usernameValid(){ 
        return this.username.regex.test(this.username.value);
      },

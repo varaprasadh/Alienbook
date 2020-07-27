@@ -6,8 +6,11 @@
 </template>
 
 <script>
-import {mapState, mapActions } from 'vuex';
+import {mapState } from 'vuex';
 import AppLoader from "./components/AppLoader.vue";
+
+import {createNamespacedHelpers} from 'vuex';
+const {mapActions:mapUserActions}= createNamespacedHelpers("user");
 export default {
   name: 'App',
   components: {
@@ -17,11 +20,10 @@ export default {
     ...mapState(['appLoadingState'])
   },
   methods:{
-      ...mapActions('loadUserInfo')
+      ...mapUserActions(['loadUserInfo']),
   },
-  async beforeRouterEnter(to,from,next){
-    await this.loadUserInfo();
-    next();
+  created(){
+    this.loadUserInfo();
   }
 }
 </script>

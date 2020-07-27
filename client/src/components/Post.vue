@@ -97,7 +97,7 @@
 <script>
 import moment from "moment";
 import axios from "axios";
-import { mapState, mapMutations, } from 'vuex';
+import { mapState, mapMutations, createNamespacedHelpers} from 'vuex';
 import avatarSVG from "./svg/user_avatar";
 import menuOptionsIcon from "./svg/menu_option";
 import RefPost from "./RefPost";
@@ -109,6 +109,8 @@ import CommentIcon from "./svg/comment";
 import ShareIcon from "./svg/share";
 import LikeViewer from "./LikeViewer";
 import Reactions from "./Reactions";
+
+const {mapMutations:mapEditorMutations} =createNamespacedHelpers('editor');
 
 export default {
   name:"Post",
@@ -140,12 +142,13 @@ export default {
   },
  computed:{
     ...mapState({
-        userid:state=>state.user.id,
+        userid:state=>state.user.user.id,
         publishDate(){return moment(this.post.createdAt).fromNow()}
     }),
  },
   methods:{
-      ...mapMutations(['rungl_loader','stopgl_loader','openEditor']),
+      ...mapMutations(['rungl_loader','stopgl_loader']),
+      ...mapEditorMutations(['openEditor']),
       like:function(){
           //if not liked  the post
          this.closeReactions();

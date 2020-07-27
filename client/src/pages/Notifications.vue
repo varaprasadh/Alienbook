@@ -16,9 +16,10 @@
 
 <script>
 import Notification from "../components/Notification";
-import { mapState, mapMutations } from 'vuex';
-import Axios from 'axios';
+import { createNamespacedHelpers } from 'vuex';
 import BottomLoadingBar from "../components/BottomLoadBar";
+
+const {mapState,mapActions} =createNamespacedHelpers('notificationCentre');
 
 export default {
   name:"notifications",
@@ -28,13 +29,13 @@ export default {
   },
   data(){
     return ({
-      loading:false,
-      skip:0,
-      completed:false
     })
   },
   computed:{
-    ...mapState(['notifications'])
+    ...mapState({
+      notifications:state=>state.notifications,
+      loading:state=>state.loading
+    })
   },
   created(){
     if(this.notifications.length<=0){
@@ -51,19 +52,7 @@ export default {
     }
   },
   methods:{
-    ...mapMutations(['setNotifications']),
-    loadNotifications(){
-      if(this.loading || this.completed) return;
-      this.loading=true;
-      Axios.get("/notifications").then(({data})=>{
-        this.setNotifications(data.data);
-        this.loading=false;
-        this.skip+=20;
-        this.completed=data.completed;
-      }).catch(()=>{
-        this.loading=false;
-      });
-    }
+    ...mapActions(['loadNotifications'])
   }
 }
 </script>
