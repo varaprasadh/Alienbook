@@ -21,7 +21,8 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { createNamespacedHelpers } from 'vuex';
+const {mapState:mapUserState}=createNamespacedHelpers("user");
 import moment from "moment";
 
 export default {
@@ -31,7 +32,7 @@ export default {
       
    },
    computed:{
-       ...mapState(['user']),
+       ...mapUserState(['user']),
        date(){return moment(this.comment.timestamp).fromNow()}
    },
    methods:{

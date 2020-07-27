@@ -37,9 +37,11 @@
 
 <script>
 import MenuOptionIcon from "../components/svg/menu_option";
-import { mapMutations } from 'vuex';
+import { mapMutations,createNamespacedHelpers } from 'vuex';
 import Axios from 'axios';
 import moment from 'moment';
+
+const {mapMutations:mapNotificationMutations} =createNamespacedHelpers("notificationCentre");
 
 export default {
  name:"notification",
@@ -58,7 +60,8 @@ export default {
       }
  },
  methods:{
-     ...mapMutations(['rungl_loader','stopgl_loader','removeNotification']),
+     ...mapNotificationMutations(['removeNotification']),
+     ...mapMutations(['rungl_loader','stopgl_loader']),
      markAsRead(){
          this.rungl_loader();
          Axios.post("/notifications/read",{notification_id:this.notification.notification_id}).then(()=>{

@@ -1,5 +1,5 @@
 <template>
-  <pre class='f-content' v-html="parsedContent"></pre>
+  <div class='f-content' v-html="parsedContent"></div>
 </template>
 
 <script>

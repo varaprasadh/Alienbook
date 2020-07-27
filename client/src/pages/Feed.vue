@@ -2,10 +2,11 @@
   <section class="feed">
     <div class="container">
       <div class="feed">
-        <Post v-for="(post,i) in feed" :key="i" :post="post" v-on:delete="removeFromFeed($event)"/>
+        <Post v-for="(post,i) in posts" :key="i" :post="post" v-on:delete="removeFromFeed($event)"/>
+        <IntersectionObserver @intersect="loadFeed"/>
         <BottomLoadBar v-if="loading"/>
       </div>
-      <div class="feed-fallback" v-if="feed.length==0">
+      <div class="feed-fallback" v-if="posts.length==0">
         <div class="card">
           <div>follow few aliens to see their posts!</div>
           <div class="redirect-button" @click="$router.push('/aliens')">find Aliens</div>
@@ -16,63 +17,43 @@
 </template>
 
 <script>
-// import userAvatar from "../components/svg/user_avatar";
-import Axios from "axios";
-import {mapMutations, mapState} from 'vuex';
+
 import Post from "../components/Post";
 import BottomLoadBar from "../components/BottomLoadBar";
+import IntersectionObserver from "../components/utils/IntersectionObserver";
+
+import {createNamespacedHelpers} from 'vuex';
+const {mapState,mapActions} = createNamespacedHelpers("feed");
+
+const {mapActions:mapNotificationActions}= createNamespacedHelpers("notificationCentre");
 
 export default {
     name:"feed",
     components:{
-      Post,BottomLoadBar
+      Post,BottomLoadBar,
+      IntersectionObserver
     },
     data(){
       return ({
-         completed:false,
-         loading:false,
-         skip:0,
-         scrollY:0,
+
       })
     },
     computed:{
-      ...mapState(['feed'])
+      ...mapState({
+        posts:state=>state.posts,
+        loading:state=>state.loading
+      })
     },
     created(){
-      if(this.feed.length<=0){
+      if(this.posts.length<=0){
         this.loadFeed();
+        this.loadNotifications();
       }
     },
-    mounted(){
-      console.log("lskfnls",this.scrollY);
-      this.skip=this.feed.length;
-      window.onscroll=()=>{
-        let isbottomVisible=document.documentElement.scrollTop+window.innerHeight===document.documentElement.offsetHeight;
-        if(isbottomVisible){
-          this.loadFeed();
-        }
-      }
-    },
-    beforeRouteLeave(to,from,next){
-      this.scrollY=window.scrollY;
-      next();
-    },
-
     methods:{
-      ...mapMutations(['setFeedPosts','rungl_loader','stopgl_loader','openEditor','removeFromFeed']),
-      loadFeed(){
-        if(this.loading || this.completed){
-          return;
-        }
-        this.loading=true;
-        Axios.get("/posts",{params:{skip:this.skip}}).then(({data})=>{
-         this.setFeedPosts(data.posts);
-         this.completed=data.completed;
-         this.skip+=20;
-        }).catch(()=>{}).finally(()=>{
-          this.loading=false;
-        })
-      },
+      ...mapActions(['loadFeed']),
+      ...mapNotificationActions(['loadNotifications'])
+
     }
 }
 </script>

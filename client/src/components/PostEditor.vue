@@ -29,8 +29,10 @@
 </template>
 
 <script>
-import { mapState, mapMutations, mapActions } from 'vuex'
+import {createNamespacedHelpers } from 'vuex'
 import RefPost from "./RefPost";
+
+const { mapState, mapMutations, mapActions,}=createNamespacedHelpers('editor');
 
 export default {
    name:"post-editor",
@@ -44,16 +46,16 @@ export default {
           if(this.content.trim()===""){
             return;
           }
-          this.publishPost({...this.editorAuxData});
+          this.publishPost();
         },
         update(){
           if(this.content.trim()===""){
             return;
           }
-          this.updatePost({...this.editorAuxData});
+          this.updatePost();
         },
         share(){
-          this.sharePost({...this.editorAuxData});
+          this.sharePost();
         }
    },
    computed:{

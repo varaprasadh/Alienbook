@@ -51,7 +51,11 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex'
+import { createNamespacedHelpers } from 'vuex'
+
+const {mapGetters:mapNotificationGetters}= createNamespacedHelpers("notificationCentre")
+const {mapState:mapUserState}= createNamespacedHelpers("user")
+const {mapMutations:mapEditorMutations }=createNamespacedHelpers("editor");
 
 export default {
   name:"app-nav",
@@ -59,14 +63,14 @@ export default {
     profileMenu:false
   }),
   computed:{
-    ...mapState(['user']),
-    ...mapGetters(['getUnreadNotifCount']),
+    ...mapUserState(['user']),
+    ...mapNotificationGetters(['getUnreadNotifCount']),
     currentPage(){
       return this.$route.path;
     }
   },
   methods:{
-    ...mapMutations(['openEditor'])
+    ...mapEditorMutations(['openEditor'])
   }
 }
 
