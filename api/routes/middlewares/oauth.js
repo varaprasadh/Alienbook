@@ -1,7 +1,7 @@
 const User=require("../../models/User");
 const getWebToken=require("../helper/createJWT");
 
-//get some solution
+
 const referer="http://localhost:8080";
 
 const oauth=(req,res)=>{
@@ -20,7 +20,6 @@ const oauth=(req,res)=>{
                 open_id: boardinguser.id,
                 fullName: boardinguser.displayName,
             }
-
             let encoded = encodeURIComponent(JSON.stringify(tempdata));
             res.redirect(`${referer}/signup/createuserame?data=${encoded}`);
         }

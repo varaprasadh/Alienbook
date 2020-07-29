@@ -3,10 +3,6 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 Vue.use(Vuex);
 
-import feedModule from "./feed";
-import notificationsModule from "./notifications";
-
-
 
 
 const appState = {
@@ -31,13 +27,6 @@ import editor from "./modules/editor";
         editor:editor
      },
     state: appState,
-    getters:{
-
-    },
-    actions:{
-
-
-    },
     mutations:{
         runLoader(state){
             state.appLoadingState=true;
