@@ -23,7 +23,7 @@ export default {
       ...mapUserActions(['loadUserInfo']),
   },
   created(){
-    this.loadUserInfo();
+    // this.loadUserInfo();
   }
 }
 </script>

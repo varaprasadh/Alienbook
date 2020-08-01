@@ -22,7 +22,7 @@ const Post=new mongoose.Schema({
       default:Date.now
     },
     saved:{
-        type:Array(String)
+        type:[String]
     },
     refId:{
         type:String,
@@ -35,6 +35,11 @@ const Post=new mongoose.Schema({
     ref_author:{
         type:String,
     },
+    images:{
+        type:Array,
+        default:[]
+    },
+
     // tags:{
     //     type:Array(String),
     //     default:[]
@@ -49,11 +54,11 @@ const Post=new mongoose.Schema({
         default:Date.now
     },
     likes:{
-        type:Array(Like.Schema),
+        type:[Like.Schema],
         default:[]
     },
     comments:{
-        type:Array(Comment.Schema),
+        type:[Comment.Schema],
         default:[]
     }
 });

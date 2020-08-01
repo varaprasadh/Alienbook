@@ -32,6 +32,7 @@
             </div>
             <div class="content">
                 <PostTextContent v-if="post.content && post.content.trim()!=''" :content="post.content"/>
+                <PostImages v-if="post.images" :images="post.images"/>  
                 <RefPost v-if="post.type==='SHARE'" :post="post.originalPost" :refAuthorName="post.ref_author_username"/>
             </div>
             <div class="post-stats">
@@ -109,6 +110,7 @@ import CommentIcon from "./svg/comment";
 import ShareIcon from "./svg/share";
 import LikeViewer from "./LikeViewer";
 import Reactions from "./Reactions";
+import PostImages from "./PostImages";
 
 const {mapMutations:mapEditorMutations} =createNamespacedHelpers('editor');
 
@@ -118,7 +120,8 @@ export default {
       menuOptionsIcon,
       avatarSVG,RefPost,PostTextContent,Comment,Like,
       CommentIcon,ShareIcon,LikeViewer,
-      Reactions
+      Reactions,
+      PostImages
   },
   props:["post",'preventOnComment'],
   data(){
@@ -307,6 +310,7 @@ export default {
  .post-head-info:hover{
     text-decoration: underline;
  }
+
 .meta-post-info .author-name{
     font-size:1.1em;
     color: rgb(9, 38, 66);

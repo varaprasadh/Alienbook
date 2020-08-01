@@ -9,12 +9,18 @@ const getPost = require("./helper/getPost");
 const retrieveUserInfo=require("./middlewares/attachUserInfo");
 
 const contentSanitizer=require("./middlewares/contentSanitizer");
+const path=require('path');
+const multer=require("multer")();
+const {uploadImages,uploadProfileImage,deleteImages} =require("./imageService/index");
+
 
 //add the post
-Router.post('/create', contentSanitizer,(req, res) => {
+Router.post('/create', multer.array('images'), uploadImages, contentSanitizer, (req, res) => {
     let author=req.user.id;
     const { content} = req.body;
-    createPost({author,content}).then(post=>{
+    const images=req.filesMeta;
+    console.log(req.files,"oooo");
+    createPost({author,content,images}).then(post=>{
         getPost(post.id, author).then(post => {
             res.status(200).json({
                 post:post
@@ -26,6 +32,12 @@ Router.post('/create', contentSanitizer,(req, res) => {
         })
     })
 });
+
+Router.post("/test", multer.array("images"), uploadImages, (req, res) => {
+  console.log(req.files);
+  res.json(req.filesMeta);
+});
+
 
 //update the post 
 Router.post("/update", contentSanitizer,(req, res) => {
@@ -52,10 +64,15 @@ Router.post("/update", contentSanitizer,(req, res) => {
       })
 }) 
 // delete a post 
-Router.post("/delete",(req,res)=>{
+Router.post("/delete", (req,res)=>{
     const {id} =req.body;
-    Post.findOneAndDelete({id}).then(post => {
+    Post.findOneAndDelete({id}).then(async post => {
         if(!post) throw new Error("post does'nt exist");
+        const images=post.images || [];
+        const public_ids=images.map(meta=>meta.public_id);
+        console.log(post,public_ids);
+        // await deleteImages(public_ids);
+        console.log(post,"test");
         res.status(200).json({
            message:"post deleted!"
         })
@@ -184,7 +201,13 @@ Router.get("/",retrieveUserInfo,(req, res) => {
                     else: null
                 }
             },
-
+            images:{
+                $map:{
+                    input:"$images",
+                    as:"meta",
+                    in:"$$meta.url"
+                }
+            },
         }
     }
     ]).sort({createdAt:-1}).skip(skip).limit(20).then(records => {

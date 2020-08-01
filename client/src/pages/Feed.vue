@@ -2,7 +2,7 @@
   <section class="feed">
     <div class="container">
       <div class="feed">
-        <Post v-for="(post,i) in posts" :key="i" :post="post" v-on:delete="removeFromFeed($event)"/>
+        <Post v-for="(post,i) in posts" :key="i" :post="post" v-on:delete="removeFromPosts($event)"/>
         <IntersectionObserver @intersect="loadFeed"/>
         <BottomLoadBar v-if="loading"/>
       </div>
@@ -23,7 +23,7 @@ import BottomLoadBar from "../components/BottomLoadBar";
 import IntersectionObserver from "../components/utils/IntersectionObserver";
 
 import {createNamespacedHelpers} from 'vuex';
-const {mapState,mapActions} = createNamespacedHelpers("feed");
+const {mapState,mapActions,mapMutations} = createNamespacedHelpers("feed");
 
 const {mapActions:mapNotificationActions}= createNamespacedHelpers("notificationCentre");
 
@@ -52,6 +52,7 @@ export default {
     },
     methods:{
       ...mapActions(['loadFeed']),
+      ...mapMutations(['removeFromPosts']),
       ...mapNotificationActions(['loadNotifications'])
 
     }

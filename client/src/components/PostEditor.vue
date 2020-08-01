@@ -16,6 +16,12 @@
                 </div>
               </div>
             </div>
+            <div class="image-upload-section">
+              <div class="image-preview-list">
+                <ImagePreview v-for="(image,i) in images" :key="i" :image="image" @remove="removeImage(i)"/>
+                <UploadImageButton v-if="images.length<4" @add="addImage"/>
+              </div>
+            </div>
             <div class="actions">
               <div class="action cancel" @click="closeEditor">Cancel</div>
               <div :class="['action','post',{disable:disableButton}]" @click="post" v-if="type==='NORMAL'">Publish</div>
@@ -32,12 +38,15 @@
 import {createNamespacedHelpers } from 'vuex'
 import RefPost from "./RefPost";
 
-const { mapState, mapMutations, mapActions,}=createNamespacedHelpers('editor');
+const { mapState, mapMutations, mapActions,mapGetters}=createNamespacedHelpers('editor');
+
+import ImagePreview from "./PostUploadImagePreview";
+import UploadImageButton from "./UploadImageButton";
 
 export default {
    name:"post-editor",
    components:{
-     RefPost
+     RefPost,ImagePreview,UploadImageButton
    },
    methods:{
         ...mapMutations(['closeEditor']),
@@ -46,7 +55,7 @@ export default {
           if(this.content.trim()===""){
             return;
           }
-          this.publishPost();
+          this.publishPost(); 
         },
         update(){
           if(this.content.trim()===""){
@@ -56,7 +65,8 @@ export default {
         },
         share(){
           this.sharePost();
-        }
+        },
+        ...mapMutations(['addImage','removeImage'])
    },
    computed:{
      ...mapState(['editorOpen','editorAuxData']),
@@ -64,7 +74,8 @@ export default {
        type:({editorAuxData})=>editorAuxData.type || 'NORMAL',
        content:({editorAuxData})=>editorAuxData.content,
        disableButton:({editorAuxData})=>(editorAuxData.type==="NORMAL" || editorAuxData.type==="EDIT") && editorAuxData.content.trim()===""
-      })
+      }),
+    ...mapGetters(['images'])
    }
 }
 
@@ -124,7 +135,7 @@ export default {
   padding: 10px 20px;
   font-weight: bold;
   color: white;
-  border-radius: 5px;
+  border-radius: 2px;
   cursor: pointer;
 }
 .action:hover{
@@ -156,4 +167,11 @@ export default {
   opacity: 0;
   transform: translateY(-1000px);
 }
+
+.image-preview-list{
+  display: flex;
+  background: rgb(195, 233, 248);
+  align-items: center;
+}
+
 </style>
