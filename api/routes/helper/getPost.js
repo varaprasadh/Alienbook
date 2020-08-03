@@ -106,7 +106,14 @@ const getPost = (postid, current_user_id) => {
                             },
                             else: null
                         }
-                    }
+                    },
+                    images: {
+                        $map: {
+                            input: "$images",
+                            as: "meta",
+                            in: "$$meta.url"
+                        }
+                    },
                 }
             }
         ]).limit(1).then(([post]) => {

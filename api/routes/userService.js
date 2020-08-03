@@ -67,7 +67,7 @@ Router.get("/profile/:username?", attachUserInfo, (req, res) => {
     })
 })
 
-
+//updates the profile
 Router.post("/profile",(req,res)=>{
     const userid=req.user.id;
     const {fullName,username}=req.body;
@@ -83,32 +83,6 @@ Router.post("/profile",(req,res)=>{
         })
     })
 });
-Router.post("/profile/changepwd",async (req,res)=>{
-    const userid=req.user.id;
-    const {current_password,new_password}=req.body;
-    User.findOne({id:userid}).then(user=>{
-        if(!user) throw new Error("user not found");
-        // const isPasswordValid=bcrypt.compareSync(current_password,user.password);
-
-
-        const isPasswordValid=current_password===user.password;
-        if(!isPasswordValid){
-            throw new Error("invalid password");
-        }
-        user.password=new_password;
-        user.save().then(()=>{
-            res.status(200).json({
-                message:"password had been updated"
-            })
-        })
-        
-    }).catch(err=>{
-        res.status(400).json({
-            error:err.message
-        })
-    })
-})
-
 
 
 module.exports=Router;

@@ -44,6 +44,9 @@ const deleteImage = (public_id) => {
 const deleteImages = (public_ids) => {
     //for loop the delete image
     return new Promise((resolve,reject)=>{
+        if(public_ids==null || public_ids.length==0){
+            resolve("no public ids provided!");
+        }
        cloudinary.api.delete_resources(public_ids,{invalidate:true})
        .then(result=>{
            console.log(result);

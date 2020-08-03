@@ -2,6 +2,21 @@ const mongoose =require('mongoose');
 
 const Notification =require("../models/Notification");
 
+const pictureSchema=new mongoose.Schema({
+    profile:{
+        type:String,
+        default:null
+    },
+    cover:{
+        type:String,
+        default:null
+    },
+    featured:{
+        type:[String],
+        default:[]
+    }
+})
+
 const User=new mongoose.Schema({
     id:{
         required:true,
@@ -20,6 +35,9 @@ const User=new mongoose.Schema({
      fullName:{
          required:true,
          type:String
+     },
+     pictures:{
+       type: pictureSchema
      },
      bio:{
          type:String

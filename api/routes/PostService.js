@@ -70,9 +70,7 @@ Router.post("/delete", (req,res)=>{
         if(!post) throw new Error("post does'nt exist");
         const images=post.images || [];
         const public_ids=images.map(meta=>meta.public_id);
-        console.log(post,public_ids);
-        // await deleteImages(public_ids);
-        console.log(post,"test");
+        await deleteImages(public_ids);
         res.status(200).json({
            message:"post deleted!"
         })
@@ -325,7 +323,14 @@ Router.get("/:username",(req, res) => {
                        },
                        else: null
                    }
-               }
+               },
+                images: {
+                    $map: {
+                        input: "$images",
+                        as: "meta",
+                        in: "$$meta.url"
+                    }
+                },
            }
        },
         {
