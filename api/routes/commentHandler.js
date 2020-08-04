@@ -12,92 +12,100 @@ const NotificationService=require("./NotificationService");
 const contentSanitizer = require("./middlewares/contentSanitizer");
 
 //create a comment for the post
-Router.post("/comment", contentSanitizer,(req, res) => {
-  const userId=req.user.id;
-  const {postId,content}=req.body;
-  //update comment count on post
-  //insert a comment
-  const cid = uuid()
-  let comment=new Comment({
-      id: cid,
-      user_id:userId,
-      text:content
+
+const getComment=async (comment_id)=>{
+  return await Comment.aggregate([
+            {
+               $match:{
+                 id:comment_id
+               }
+            }, 
+            {
+              $lookup: {
+                from: "users",
+                localField: "user_id",
+                foreignField: "id",
+                as: "author"
+              }
+            }, 
+            {
+              $unwind: "$author"
+            }, 
+            {
+              $project: {
+                content: 1,
+                timestamp:1,
+                comment_id: "$id",
+                post_id: 1,
+                user_id:1,
+                authorName: "$author.username",
+                parent_id: 1,
+                depth:1
+              }
+            }
+  ])
+}
+
+Router.post("/comment",contentSanitizer,async (req,res)=>{
+  const user_id=req.user.id;
+  const {post_id,parent_id,content}=req.body;
+  const comment=new Comment({
+    id:uuid(),
+    user_id,
+    post_id,
+    parent_id,
+    content
   });
-  Post.update({id:postId},{$addToSet:{comments:comment}}).then(doc=>{
-    Post.aggregate([{
-        $match: {
-          id: postId
-        }
-      },
-      {
-        $unwind: {
-          path: "$comments",
-          "preserveNullAndEmptyArrays": true,
-        }
-      },
-      {
-        $match: {
-          "comments.id": cid
-        }
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "comments.user_id",
-          foreignField: "id",
-          as: "authorinfo"
-        }
-      },
-      {
-        $unwind: "$authorinfo"
-      },
-      {
-        $project: {
-          "post_author_id":"$author",
-          content: "$comments.text",
-          timestamp: "$comments.timestamp",
-          comment_id: "$comments.id",
-          post_id: "$id",
-          author_id: "$comments.user_id",
-          authorName: "$authorinfo.username"
-        }
-      }
-    ]).then(([comment])=>{
+  try{
+     let savedComment=await comment.save();
+     let commentResponse=getComment(savedComment.id);
+     res.status(200).json({
+       comment:commentResponse
+     });
+
+  }catch(err){
+    res.status(400).json({
+      error:err.message
+    })
+  }
+})
+
+/*
+
       NotificationService.createNotification({
-        type:"COMMENT",
-        initiator:userId,
+        type: "COMMENT",
+        initiator: userId,
         owner: comment.post_author_id,
-        postId:postId,
+        postId: postId,
         ref_id: comment.comment_id,
       });
-      res.status(200).json({
-        comment
-      })
-    })
-  }).catch(err=>{
-    res.status(400).json({
-      error:err.message
-    })
-  })
-});
-//delete a comment for the post
-Router.post("/uncomment",(req,res)=>{
 
-  const {postId,commentId}=req.body;
-  Post.updateOne({id:postId},{$pull:{comments:{id:commentId}}}).then((doc)=>{
-    if (doc.nModified===0){
-      throw new Error("comment was already deleted");
-    }
-    NotificationService.undoNotification({type:"COMMENT",ref_id:commentId,postId:postId});
+*/
+
+//delete a comment for the post
+Router.post("/uncomment",async (req,res)=>{
+  const {comment_id,post_id}=req.body;
+  try{
+    await Comment.deleteOne({id:comment_id});
+  //  NotificationService.undoNotification({type:"COMMENT",ref_id:comment_id,postId:post_id});
     res.status(200).json({
-      message:"comment deleted"
+      message::"comment has been deleted"
     })
-  }).catch(err=>{
+  }catch(err){
     res.status(400).json({
       error:err.message
     })
-  });
-});
+  }
+
+
+
+Router.get("/comments/:post_id",(req,res)=>{
+ let {post_id}=req.params;
+ let user_id=req.user.id;
+ 
+})
+
+
 
 //return all comments for the post;
 Router.get("/comments/:postId",(req,res)=>{
@@ -115,26 +123,7 @@ Router.get("/comments/:postId",(req,res)=>{
       }
     },
     {
-      $lookup: {
-        from: "users",
-        localField: "comments.user_id",
-        foreignField: "id",
-        as: "authorinfo"
-      }
-    },
-    {
-      $unwind: "$authorinfo"
-    },
-    {
-      $project: {
-        content: "$comments.text",
-        timestamp: "$comments.timestamp",
-        comment_id: "$comments.id",
-        post_id: "$id",
-        author_id: "$comments.user_id",
-        authorName: "$authorinfo.username"
-      }
-    }
+
   ]).skip(skip).limit(LIMIT).then(comments=>{
     res.status(200).json({
       comments,
@@ -146,9 +135,6 @@ Router.get("/comments/:postId",(req,res)=>{
     })
   })
 });
-
-
-
 
 
 module.exports=Router;
