@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const {ObjectId,String} = mongoose.Schema.Types;
-const Like=require("./Reaction");
+const Reaction=require("./Reaction");
 
 const Comment = new mongoose.Schema({
     id:{
@@ -15,9 +15,12 @@ const Comment = new mongoose.Schema({
         type:String,
         required:true
     },
-    parent_id:{
-       type:String,
-       default:null
+    parent:{
+        type:String
+    },
+    parents:{
+        type:[String],
+        default:[]
     },
     content:{
         type:String,
@@ -30,8 +33,7 @@ const Comment = new mongoose.Schema({
     depth:{
         type:Number,
         default:1
-    }
+    },
 })
-
 
 module.exports = new mongoose.model('Comment',Comment);

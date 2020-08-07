@@ -13,6 +13,8 @@ const path=require('path');
 const multer=require("multer")();
 const {uploadImages,uploadProfileImage,deleteImages} =require("./imageService/index");
 
+const Reaction =require("../models/Reaction");
+const Comment=require("../models/Comment");
 
 //add the post
 Router.post('/create', multer.array('images'), uploadImages, contentSanitizer, (req, res) => {
@@ -70,6 +72,8 @@ Router.post("/delete", (req,res)=>{
         if(!post) throw new Error("post does'nt exist");
         const images=post.images || [];
         const public_ids=images.map(meta=>meta.public_id);
+        await Reaction.deleteMany({post_id:id});
+        await Comment.deleteMany({post_id:id});
         await deleteImages(public_ids);
         res.status(200).json({
            message:"post deleted!"
@@ -81,13 +85,16 @@ Router.post("/delete", (req,res)=>{
     })
 })
 
-
+function test(p) {
+    console.log(p);
+    return p;
+  }
 
 
 //returns the all posts that user following
 Router.get("/",retrieveUserInfo,(req, res) => {
 
-    let skip=req.query.skip && parseInt(req.query.skip) || 0;
+    let skip= parseInt(req.query.skip) || 0;
     let current_user_id=req.user.id
     Post.aggregate([
         {  $match:
@@ -98,117 +105,139 @@ Router.get("/",retrieveUserInfo,(req, res) => {
                 ]
             }
         },
-    {
-        $lookup: {
-            "from": "users",
-            "localField": "author",
-            "foreignField": "id",
-            "as": "authorData"
-        }
-    }, {
-        $unwind: "$authorData"
-    }, {
-        $lookup: {
-            "from": "posts",
-            "localField": "refId",
-            "foreignField": "id",
-            "as": "sharedContent"
-        }
-    }, {
-        $unwind: {
-            preserveNullAndEmptyArrays: true,
-            path: "$sharedContent"
-        }
-    }, 
-    {
-        $lookup: {
-            "from": "users",
-            "localField": "sharedContent.author",
-            "foreignField": "id",
-            "as": "prim_author"
-        }
-    }, {
-        $unwind: {
-            path: "$prim_author",
-            preserveNullAndEmptyArrays: true
-        }
-    },
-    {
-        $lookup: {
-            "from": "users",
-            "localField": "ref_author",
-            "foreignField": "id",
-            "as": "ref_author"
-        }
-    }, {
-        $unwind: {
-            path: "$ref_author",
-            preserveNullAndEmptyArrays: true
-        }
-    },
-     {
-         $addFields: {
-             like: {
-                 $filter: {
-                     input: "$likes",
-                     cond: {
-                         $eq: ["$$this.user_id", current_user_id]
-                     }
-                 }
-             }
-         }
-     }, {
-         $unwind:{
-             path:"$like",
-             preserveNullAndEmptyArrays:true
-         }
-     },
-    {
-        $project: {
-            id: 1,
-            content: 1,
-            likes: {
-                $size: "$likes"
-            },
-            comments: {
-                $size: "$comments"
-            },
-            like:1,
-            refId: 1,
-            ref_author_username: 1,
-            type: 1,
-            author: 1,
-            createdAt: 1,
-            liked:{
-                $in:[current_user_id,"$likes.user_id"]
-            },
-            authorName: "$authorData.username",
-            ref_author_username: "$ref_author.username",
-            originalPost: {
-                $cond: {
-                    if: {
-                        $ne: ["$sharedContent", undefined]
-                    },
-                    then: {
-                        content: "$sharedContent.content",
-                        createdAt: "$sharedContent.createdAt",
-                        id: "$sharedContent.id",
-                        author: "$sharedContent.author",
-                        authorName: "$prim_author.username"
-                    },
-                    else: null
+        {
+            $lookup: {
+                "from": "users",
+                "localField": "author",
+                "foreignField": "id",
+                "as": "authorData"
+            }
+        }, 
+        {
+            $unwind: {
+                path:"$authorData",
+                preserveNullAndEmptyArrays: true,
+            },    
+        }, 
+        {
+                $lookup: {
+                    "from": "posts",
+                    "localField": "refId",
+                    "foreignField": "id",
+                    "as": "sharedContent"
+                }
+            }, {
+                $unwind: {
+                    preserveNullAndEmptyArrays: true,
+                    path: "$sharedContent"
+                }
+            }, {
+                $lookup: {
+                    "from": "users",
+                    "localField": "sharedContent.author",
+                    "foreignField": "id",
+                    "as": "prim_author"
+                }
+            }, {
+                $unwind: {
+                    path: "$prim_author",
+                    preserveNullAndEmptyArrays: true
                 }
             },
-            images:{
-                $map:{
-                    input:"$images",
-                    as:"meta",
-                    in:"$$meta.url"
+            {
+                $lookup: {
+                    "from": "users",
+                    "localField": "ref_author",
+                    "foreignField": "id",
+                    "as": "ref_author"
+                }
+            }, {
+                $unwind: {
+                    path: "$ref_author",
+                    preserveNullAndEmptyArrays: true
                 }
             },
-        }
-    }
-    ]).sort({createdAt:-1}).skip(skip).limit(20).then(records => {
+             {
+                $lookup: {
+                    "from": "reactions",
+                    "localField": "id",
+                    "foreignField": "parent",
+                    "as": "reactions"
+                }
+            },
+             {
+                $lookup: {
+                    "from": "comments",
+                    "localField": "id",
+                    "foreignField": "post_id",
+                    "as": "comments"
+                }
+            },
+            {
+                $addFields: {
+                    reaction: {
+                        $filter: {
+                            input: "$reactions",
+                            cond: {
+                                $eq: ["$$this.user_id", current_user_id]
+                            }
+                        }
+                    }
+                }
+            },
+            {
+              $unwind:{
+                  path: "$reaction",
+                  preserveNullAndEmptyArrays: true
+              },
+            },
+            {
+                $project: {
+                    id: 1,
+                    content: 1,
+                    reactions:{
+                        $size:"$reactions"
+                    },
+                    comments:{
+                        $size:"$comments"
+                    },
+                    "reaction.type": 1,
+                    refId: 1,
+                    ref_author_username: 1,
+                    type: 1,
+                    author: 1,
+                    createdAt: 1,
+                    authorName: "$authorData.username",
+                    ref_author_username: "$ref_author.username",
+                    originalPost: {
+                        $cond: {
+                            if: {
+                                $ne: ["$sharedContent", undefined]
+                            },
+                            then: {
+                                content: "$sharedContent.content",
+                                createdAt: "$sharedContent.createdAt",
+                                id: "$sharedContent.id",
+                                author: "$sharedContent.author",
+                                authorName: "$prim_author.username"
+                            },
+                            else: null
+                        }
+                    },
+                    images: {
+                        $map: {
+                            input: "$images",
+                            as: "meta",
+                            in: "$$meta.url"
+                        }
+                    },
+                }
+            }
+        ]).sort({createdAt:-1}).skip(skip).limit(20).then(records => {
+            records.forEach(record=>{
+                record.amIReacted = record.reaction != null;
+                record.reaction = record.reaction || null;
+            })
         res.status(200).json({
             posts: records,
             completed: records.length < 20
@@ -225,120 +254,143 @@ Router.get("/:username",(req, res) => {
     let username=req.params.username;
     let current_user_id = req.user.id;
     Post.aggregate([
-       {
-           $lookup: {
-               "from": "users",
-               "localField": "author",
-               "foreignField": "id",
-               "as": "authorData"
-           }
-       }, {
-           $unwind: "$authorData"
-       }, {
-           $lookup: {
-               "from": "posts",
-               "localField": "refId",
-               "foreignField": "id",
-               "as": "sharedContent"
-           }
-       }, {
-           $unwind: {
-               preserveNullAndEmptyArrays: true,
-               path: "$sharedContent"
-           }
-       }, {
-           $lookup: {
-               "from": "users",
-               "localField": "sharedContent.author",
-               "foreignField": "id",
-               "as": "prim_author"
-           }
-       }, {
-           $unwind: {
-               path: "$prim_author",
-               preserveNullAndEmptyArrays: true
-           }
-       },
         {
             $lookup: {
                 "from": "users",
-                "localField": "ref_author",
+                "localField": "author",
                 "foreignField": "id",
-                "as": "ref_author"
+                "as": "authorData"
             }
-        }, {
-            $unwind: {
-                path: "$ref_author",
-                preserveNullAndEmptyArrays: true
-            }
-        },
-     {
-         $addFields: {
-             like: {
-                 $filter: {
-                     input: "$likes",
-                     cond: {
-                         $eq: ["$$this.user_id", current_user_id]
-                     }
-                 }
-             }
-         }
-     }, {
-         $unwind: {
-             path: "$like",
-             preserveNullAndEmptyArrays: true
-         }
-     },
-       {
-           $project: {
-               id: 1,
-               content: 1,
-               likes: {
-                   $size: "$likes"
-               },
-               comments: {
-                   $size: "$comments"
-               },
-               like:1,
-               refId: 1,
-               type: 1,
-               author: 1,
-               createdAt: 1,
-               authorName: "$authorData.username",
-               ref_author_username: "$ref_author.username",
-                liked: {
-                    $in: [current_user_id, "$likes.user_id"]
-                },
-                originalPost: {
-                   $cond: {
-                       if: {
-                           $ne: ["$sharedContent", undefined]
-                       },
-                       then: {
-                           content: "$sharedContent.content",
-                           createdAt: "$sharedContent.createdAt",
-                           id: "$sharedContent.id",
-                           author: "$sharedContent.author",
-                           authorName: "$prim_author.username"
-                       },
-                       else: null
-                   }
-               },
-                images: {
-                    $map: {
-                        input: "$images",
-                        as: "meta",
-                        in: "$$meta.url"
-                    }
-                },
-           }
-       },
+        }, 
         {
-            "$match": {
-                "authorName":username
+            $unwind: {
+                path:"$authorData",
+                preserveNullAndEmptyArrays: true,
+            },   
+        }, 
+        {
+                $lookup: {
+                    "from": "posts",
+                    "localField": "refId",
+                    "foreignField": "id",
+                    "as": "sharedContent"
+                }
+            }, {
+                $unwind: {
+                    preserveNullAndEmptyArrays: true,
+                    path: "$sharedContent"
+                }
+            }, {
+                $lookup: {
+                    "from": "users",
+                    "localField": "sharedContent.author",
+                    "foreignField": "id",
+                    "as": "prim_author"
+                }
+            }, {
+                $unwind: {
+                    path: "$prim_author",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    "from": "users",
+                    "localField": "ref_author",
+                    "foreignField": "id",
+                    "as": "ref_author"
+                }
+            }, {
+                $unwind: {
+                    path: "$ref_author",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+             {
+                $lookup: {
+                    "from": "reactions",
+                    "localField": "id",
+                    "foreignField": "parent",
+                    "as": "reactions"
+                }
+            },
+           {
+                $lookup: {
+                    "from": "comments",
+                    "localField": "id",
+                    "foreignField": "post_id",
+                    "as": "comments"
+                }
+            }, 
+            {
+                $addFields: {
+                    reaction: {
+                        $filter: {
+                            input: "$reactions",
+                            cond: {
+                                $eq: ["$$this.user_id", current_user_id]
+                            }
+                        }
+                    }
+                }
+            },
+             { $unwind: {
+                  path: "$reaction",
+                  preserveNullAndEmptyArrays: true
+              }
+            },
+            {
+                $project: {
+                    id: 1,
+                    content: 1,
+                    reactions:{
+                        $size:"$reactions"
+                    },
+                    comments:{
+                        $size:"$comments"
+                    },
+                    "reaction.type": 1,
+                    refId: 1,
+                    ref_author_username: 1,
+                    type: 1,
+                    author: 1,
+                    createdAt: 1,
+                    authorName: "$authorData.username",
+                    ref_author_username: "$ref_author.username",
+                    originalPost: {
+                        $cond: {
+                            if: {
+                                $ne: ["$sharedContent", undefined]
+                            },
+                            then: {
+                                content: "$sharedContent.content",
+                                createdAt: "$sharedContent.createdAt",
+                                id: "$sharedContent.id",
+                                author: "$sharedContent.author",
+                                authorName: "$prim_author.username"
+                            },
+                            else: null
+                        }
+                    },
+                    images: {
+                        $map: {
+                            input: "$images",
+                            as: "meta",
+                            in: "$$meta.url"
+                        }
+                    },
+                }
+            },
+            {
+                "$match": {
+                    "authorName": username
+                }
             }
-        }
-        ]).skip(skip).limit(20).then(records => {
+        ]).sort({createdAt:-1}).skip(skip).limit(20).then(records => {
+             records.forEach(record => {
+                 record.amIReacted = record.reaction != null;
+                 record.reaction = record.reaction || null;
+             })
         res.status(200).json({
             posts: records,
             completed: records.length < 20

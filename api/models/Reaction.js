@@ -13,9 +13,13 @@ const Reaction = new mongoose.Schema({
         type:String,
         required:true
     },
-    parent_id:{
+    parent:{
         type:String,
-        default:null
+    },
+    parents:{
+       type:[String],
+       default:[],
+       required:true
     },
     type:{
        type:String,
@@ -23,8 +27,8 @@ const Reaction = new mongoose.Schema({
     },
     timestamp:{
         type: Date,
-        default:Date.now
-    }
+        default:Date.now,
+    },
 });
 
 

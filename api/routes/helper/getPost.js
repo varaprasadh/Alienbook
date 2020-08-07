@@ -7,7 +7,7 @@ const getPost = (postid, current_user_id) => {
                     id: postid
                 }
             },
-            {
+             {
                 $lookup: {
                     "from": "users",
                     "localField": "author",
@@ -15,7 +15,11 @@ const getPost = (postid, current_user_id) => {
                     "as": "authorData"
                 }
             }, {
-                $unwind: "$authorData"
+                $unwind: {
+                  path:"$authorData",
+                  preserveNullAndEmptyArrays: true,
+                },
+               
             }, {
                 $lookup: {
                     "from": "posts",
@@ -54,34 +58,49 @@ const getPost = (postid, current_user_id) => {
                     preserveNullAndEmptyArrays: true
                 }
             },
-        {
-            $addFields: {
-                like: {
-                    $filter: {
-                        input: "$likes",
-                        cond: {
-                            $eq: ["$$this.user_id", current_user_id]
+             {
+                $lookup: {
+                    "from": "reactions",
+                    "localField": "id",
+                    "foreignField": "parent",
+                    "as": "reactions"
+                }
+            },
+             {
+                $lookup: {
+                    "from": "comments",
+                    "localField": "id",
+                    "foreignField": "post_id",
+                    "as": "comments"
+                }
+            },
+            {
+                $addFields: {
+                    reaction: {
+                        $filter: {
+                            input: "$reactions",
+                            cond: {
+                                $eq: ["$$this.user_id", current_user_id]
+                            }
                         }
                     }
                 }
-            }
-        }, {
-            $unwind: {
-                path: "$like",
-                preserveNullAndEmptyArrays: true
-            }
-        },
+            },
+            {
+              $unwind:"$reaction"
+            },
             {
                 $project: {
                     id: 1,
                     content: 1,
-                    likes: {
-                        $size: "$likes"
+                    reactions:{
+                        $size:"$reactions"
                     },
-                    comments: {
-                        $size: "$comments"
+                    
+                    comments:{
+                        $size:"$comments"
                     },
-                    like:1,
+                    "reaction.type": 1,
                     refId: 1,
                     ref_author_username: 1,
                     type: 1,
@@ -89,9 +108,6 @@ const getPost = (postid, current_user_id) => {
                     createdAt: 1,
                     authorName: "$authorData.username",
                     ref_author_username: "$ref_author.username",
-                    liked: {
-                        $in: [current_user_id, "$likes.user_id"]
-                    },
                     originalPost: {
                         $cond: {
                             if: {
