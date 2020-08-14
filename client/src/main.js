@@ -60,7 +60,6 @@ axios.interceptors.response.use((response) => {
     return Promise.reject(error.message);
 });
 
-
 const router = new VueRouter({
   mode:"history",
   scrollBehavior(to, from, savedPosition) {
@@ -76,7 +75,7 @@ const router = new VueRouter({
     {path:"/signup/createuserame",component:UsernameView},
     {path:"/signin/saveToken",component:saveToken},
     {path:"/",
-     component:Home,
+     component: Home,
      exact:true,
      children:[
        {

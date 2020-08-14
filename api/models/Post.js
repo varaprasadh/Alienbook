@@ -35,7 +35,7 @@ const Post=new mongoose.Schema({
         type:String,
     },
     images:{
-        type:[String],
+        type:[Object],
         default:[]
     },
     tags:{

@@ -36,7 +36,7 @@
                 <RefPost v-if="post.type==='SHARE'" :post="post.originalPost" :refAuthorName="post.ref_author_username"/>
             </div>
             <div class="post-stats">
-                <div class="likes" @click="showLikes=true">{{post.likes}} Likes</div>
+                <div class="likes" @click="showLikes=true">{{post.reactions}} Likes</div>
                 <div class="comments" @click="$router.push({name:'postview',params:{postid:post.id}})">{{post.comments}} Comments</div>
             </div>
             
@@ -46,7 +46,11 @@
                     <div class="label">Comments</div>
                 </div>
                <div class="comments">
-                   <Comment v-for="(comment,i) in comments" :key="i" v-on:commentdelete="deleteComment" :comment="comment"/>
+                   <Comment 
+                   v-for="(comment,i) in comments" 
+                   :key="i" 
+                   v-on:delete="removeComment" 
+                   :comment="comment"/>
                </div>
             </div>
         </div>
@@ -58,8 +62,9 @@
                 <div class="inputbox">
                     <input type="text" placeholder="start typing..." @keyup.enter="sendComment" v-model="comment" class="comment">
                 </div>
-                <div :class="['icon', 'send',{spin:commentLoadingSpinner}]" @click="sendComment">
-                    <svg class="svg-icon" viewBox="0 0 20 20">
+                <div :class="['icon', 'send']" @click="sendComment">
+                    <Spinner v-if="sendingReply"/>
+                    <svg v-else class="svg-icon" viewBox="0 0 20 20">
 						<path d="M17.218,2.268L2.477,8.388C2.13,8.535,2.164,9.05,2.542,9.134L9.33,10.67l1.535,6.787c0.083,0.377,0.602,0.415,0.745,0.065l6.123-14.74C17.866,2.46,17.539,2.134,17.218,2.268 M3.92,8.641l11.772-4.89L9.535,9.909L3.92,8.641z M11.358,16.078l-1.268-5.613l6.157-6.157L11.358,16.078z"></path>
 					</svg>
                 </div>
@@ -68,13 +73,12 @@
         <div class="actions">
             <div :class="['action' ,'like']" @click="like" @mouseenter="openReactions" @mouseleave="closeReactions">
               <div class="reactions-wrapper">
-                <transition name="reactions">
                     <Reactions v-on:react="updateReaction" v-if="showReactions"/>
-                </transition>
               </div>
               <div class="icon">
-                <Like :like="post.like"/>  
+                <Like :reaction="post.reaction"/>  
               </div>  
+                <div class="reaction-text" :class="post.reaction && post.reaction.type">{{post.reaction && post.reaction.type || "LIKE"}}</div>
              </div>
             <div class="action comment"  @click="showCommentBox=!showCommentBox">
                <div class="icon">
@@ -90,7 +94,7 @@
             </div>
         </div>
         <transition name="likes">
-           <LikeViewer v-on:onclose="showLikes=false" :postid="post.id" v-if="showLikes"/>
+           <LikeViewer v-on:onclose="showLikes=false" :post_id="post.id" v-if="showLikes"/>
         </transition>
     </div>
 </template>
@@ -105,12 +109,13 @@ import RefPost from "./RefPost";
 import PostTextContent from "./PostTextContent";
 import Comment from "./Comment";
 import Axios from 'axios';
-import Like from "./Like"
+import Like from "./Reaction";
 import CommentIcon from "./svg/comment";
 import ShareIcon from "./svg/share";
 import LikeViewer from "./LikeViewer";
 import Reactions from "./Reactions";
 import PostImages from "./PostImages";
+import Spinner from "./Spinner";
 
 const {mapMutations:mapEditorMutations} =createNamespacedHelpers('editor');
 
@@ -121,7 +126,8 @@ export default {
       avatarSVG,RefPost,PostTextContent,Comment,Like,
       CommentIcon,ShareIcon,LikeViewer,
       Reactions,
-      PostImages
+      PostImages,
+      Spinner
   },
   props:["post",'preventOnComment'],
   data(){
@@ -138,7 +144,8 @@ export default {
         showLikes:false,
         showReactions:false,
         reactionTimer:null,
-        prevReaction:null
+        prevReaction:null,
+        sendingReply:false
      }
   },
   mounted(){
@@ -155,13 +162,13 @@ export default {
       like:function(){
           //if not liked  the post
          this.closeReactions();
-         if(!this.post.liked){
+         if(!this.post.amIReacted){
                this.updateReaction("LIKE");
          }else{
-           axios.post("/post/dislike",{postId:this.post.id}).then(()=>{
-                   this.post.liked=false;
-                   this.post.like=null;
-                   this.post.likes--;
+           axios.post("/post/dislike",{post_id:this.post.id,parent_id:this.post.id}).then(()=>{
+                   this.post.amIReacted=false;
+                   this.post.reaction=null;
+                   this.post.reactions--;
            }).catch(()=>{
                //do nothing
            })
@@ -170,39 +177,40 @@ export default {
       updateReaction(type){
         console.log(type);
         //update the like type
-        this.prevReaction=this.post.like;
-        this.post.like={type};
-         this.post.likes++;
-        axios.post("/post/like",{postId:this.post.id,type}).then(({data:{like}})=>{
-            this.post.liked=true;
-            this.post.likes=like.likes;
+        this.prevReaction=this.post.reaction;
+        this.post.reaction={type};
+        if(!this.post.amIReacted){
+            this.post.reactions++;
+        }
+        axios.post("/post/like",{post_id:this.post.id,type}).then(({data:{reaction}})=>{
+            this.post.amIReacted=true;
+            this.post.reaction=reaction;
         }).catch(()=>{
             //reset the values;
-            this.post.like=this.prevReaction;
+            this.post.reaction=this.prevReaction;
         })
       },
       sendComment(){
          if(this.comment.trim()===""){
              return;
          }
-         this.commentLoadingSpinner=true;
+         this.sendingReply=true;
 
          axios.post("/post/comment",{
-             postId:this.post.id,
+             post_id:this.post.id,
              content:this.comment
          }).then(({data})=>{
                 this.comment="";
                 this.showCommentBox=false;
                 this.post.comments++;
-                this.commentLoadingSpinner=false;
                 if(this.preventOnComment){
                    this.$emit('comment',data.comment);
                 }else{
                     this.comments.push(data.comment);
                 }
          }).catch(()=>{
-             //i dont care
-             this.commentLoadingSpinner=false;
+         }).finally(()=>{
+             this.sendingReply=false;
          })
       },
       deletePost(){ 
@@ -227,17 +235,13 @@ export default {
       share:function(){
         this.openEditor({post:{...this.post},callback:this.onPostShare,type:"SHARE"});
       },
-     deleteComment(id){
-       Axios.post("/post/uncomment",{postId:this.post.id,commentId:id}).then(()=>{
-         let index=this.comments.findIndex(c=>c.comment_id===id);
-         if(index!=-1){
-           this.comments.splice(index,1);
-           this.post.comments--;
-         }
-       }).catch(()=>{
-         //
-       })
-     },
+    removeComment(id){
+        let index=this.comments.findIndex(comment=>comment.id===id);
+        if(index!=-1){
+            this.comments.splice(index,1);
+            this.post.comments--;
+        }
+    },
       unfollow(){
           this.rungl_loader();
           Axios.post("/users/unfollow",{userId:this.post.author}).then(()=>{
@@ -257,7 +261,7 @@ export default {
           })
       },
       openReactions(){
-          clearTimeout(this.clearTimeout);
+          clearTimeout(this.reactionTimer);
           this.reactionTimer=setTimeout(()=>{
               this.showReactions=true;
           },300);
@@ -445,6 +449,9 @@ export default {
      font-weight: bold;
      color: blue;
  }
+ .action.like .icon{
+     font-size: 2rem;
+ }
 
  .action .icon{
     margin: 0px 5px;
@@ -467,8 +474,10 @@ export default {
      position: relative;
  }
  .reactions-wrapper{
-   position: absolute;
+   position:absolute;
+   left: 10px; 
    bottom: 100%;
-   left: 10px;
 }
+
+
 </style>

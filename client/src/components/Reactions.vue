@@ -1,24 +1,26 @@
 <template>
-  <div class="reactions" @click.stop ref="reactions">
-    <div class="reaction" data-type="like"  @click="event=>animate(event,'LIKE')">
-        <img src="../assets/reactions/like.svg"  alt="like" >
+ <transition name="reactions">
+    <div class="reactions" @click.stop ref="reactions">
+        <div class="reaction" data-type="like"  @click="event=>animate(event,'LIKE')">
+            <img src="../assets/reactions/like.svg"  alt="like" >
+        </div>
+        <div class="reaction" data-type="love"  @click="event=>animate(event,'LOVE')">
+            <img src="../assets/reactions/love.svg"  alt="love" >
+        </div>
+        <div class="reaction" data-type="care" @click="event=>animate(event,'CARE')">
+            <img src="../assets/reactions/care.svg"  alt="care" >
+        </div>
+        <div class="reaction" data-type="haha"  @click="event=>animate(event,'HAHA')">
+            <img src="../assets/reactions/haha.svg"  alt="haha" >
+        </div>
+        <div class="reaction" data-type="wow"  @click="event=>animate(event,'WOW')">
+            <img src="../assets/reactions/wow.svg"  alt="wow" >
+        </div>
+        <div class="reaction" data-type="angry"  @click="event=>animate(event,'ANGRY')">
+            <img src="../assets/reactions/angry.svg"  alt="angry" >
+        </div>
     </div>
-    <div class="reaction" data-type="love"  @click="event=>animate(event,'LOVE')">
-        <img src="../assets/reactions/love.svg"  alt="love" >
-    </div>
-    <div class="reaction" data-type="care" @click="event=>animate(event,'CARE')">
-        <img src="../assets/reactions/care.svg"  alt="care" >
-    </div>
-    <div class="reaction" data-type="haha"  @click="event=>animate(event,'HAHA')">
-        <img src="../assets/reactions/haha.svg"  alt="haha" >
-    </div>
-    <div class="reaction" data-type="wow"  @click="event=>animate(event,'WOW')">
-        <img src="../assets/reactions/wow.svg"  alt="wow" >
-    </div>
-    <div class="reaction" data-type="angry"  @click="event=>animate(event,'ANGRY')">
-        <img src="../assets/reactions/angry.svg"  alt="angry" >
-    </div>
-  </div>
+ </transition>
 </template>
 
 <script>
@@ -29,7 +31,28 @@ export default {
         e.target.classList.add('thrown');
         this.$refs.reactions.classList.add("hide");
         this.$emit('react',type);
+      },
+      setInPlace(){
+            let view=this.$refs.reactions;
+            if(!view) return;
+            console.log("stuck",view);
+            const {x}=view.getBoundingClientRect();
+            const docWidth=document.documentElement.clientWidth;
+            const width=view.clientWidth;
+            let offset=(x+width)-docWidth;
+            console.log(offset,"dang");
+            if(x+width>docWidth){
+                view.style.transform=`translateX(-${offset}px)`;
+            }
+            console.log(x,width,docWidth,view);
+            console.log(view.cloneNode(true));
+            setTimeout(()=>{
+                console.log(view);
+            })
       }
+  },
+  mounted(){
+    this.setInPlace();
   }
 }
 </script>
@@ -46,6 +69,7 @@ export default {
     animation: popup 250ms ease 1;
     transform-origin: left;
     position: relative;
+    transition: all 100ms linear;
 }
 .reactions.hide{
     background: none;

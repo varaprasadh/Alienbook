@@ -9,7 +9,6 @@ const Reaction=require("../models/Reaction");
 
 
 const LIMIT=20;
-const NotificationService=require("./NotificationService");
 
 const contentSanitizer = require("./middlewares/contentSanitizer");
 
@@ -78,15 +77,21 @@ const getComment=async (comment_id,user_id)=>{
         authorName: "$author.username",
         parent_id: 1,
         depth: 1,
-        reaction:1,
+        "reaction.type":1,
         reactions:{
           $size:"$reactions"
         },
-        comments:1
+        comments: {
+          $size: "$comments"
+        }
         //userprofilepic
       }
     }
   ]);
+  response.forEach(record=>{
+    record.amIReacted = record.reaction != null;
+    record.reaction = record.reaction || null;
+  })
   return response[0];
 }
 
@@ -95,7 +100,7 @@ Router.post("/comment",contentSanitizer,async (req,res)=>{
   let {post_id,parent_id=null,content}=req.body;
   console.log("current",user_id,parent_id);
   const uid = uuid();
-
+ 
   const parentComment=await Comment.findOne({id:parent_id});
   console.log("debug",parentComment);
   let path=[];
@@ -134,25 +139,17 @@ Router.post("/comment",contentSanitizer,async (req,res)=>{
   }
 })
 
-/*
-
-      NotificationService.createNotification({
-        type: "COMMENT",
-        initiator: userId,
-        owner: comment.post_author_id,
-        postId: postId,
-        ref_id: comment.comment_id,
-      });
-
-*/
 
 //delete a comment for the post
 Router.post("/uncomment",async (req,res)=>{
-  const {comment_id,post_id}=req.body;
+  const {comment_id}=req.body;
+
   try{
+    if(!comment_id){
+      throw new Error("comment_id is required");
+    }
     await Comment.deleteMany({parents:comment_id});
     await Reaction.deleteMany({parents:comment_id});
-  //  NotificationService.undoNotification({type:"COMMENT",ref_id:comment_id,postId:post_id});
     res.status(200).json({
       message:"comment has been deleted"
     })
@@ -233,15 +230,22 @@ Router.get("/comments",(req,res)=>{
         authorName: "$author.username",
         parent_id: 1,
         depth: 1,
-        reaction:1,
-        reactions:{
-          $size:"$reactions"
+        "reaction.type":1,
+        reactions: {
+          $size: "$reactions"
         },
-        comments:1
+        comments: {
+          $size: "$comments"
+        }
         //userprofilepic
       }
     }
   ]).skip(skip).limit(LIMIT).then((comments)=>{
+     comments.forEach(record => {
+       record.amIReacted = record.reaction != null;
+       record.reaction = record.reaction || null;
+     });
+
       res.status(200).json({
         comments,
         completed:comments.length<20

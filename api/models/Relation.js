@@ -26,7 +26,4 @@ const Relation = new mongoose.Schema({
     },
 })
 
-
-
-
 module.exports = mongoose.model('Relation', Relation);

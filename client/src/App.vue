@@ -81,6 +81,24 @@ export default {
 .cyan{
   background: rgb(4, 100, 100);
 }
+.reaction-text.LIKE{
+   color: rgb(36, 84, 214)!important;
+}
+.reaction-text.LOVE{
+  color: red!important;
+}
+.reaction-text.CARE {
+  color: red!important;
+}
+.reaction-text.HAHA{
+    color:  rgb(226, 105, 49)!important;
+}
+.reaction-text.ANGRY{
+  color: rgb(209, 114, 130)!important;
+}
+.reaction-text.WOW{
+  color: rgb(226, 105, 49)!important;
+}
 @media screen and (max-width:600px) {
  body{
    padding-bottom: 80px;

@@ -4,7 +4,6 @@ const uuid = require('uuid').v1;
 const Reaction = require("../models/Reaction");
 
 const Post = require("../models/Post");
-const NotificationService=require("./NotificationService");
 
 const Comment=require("../models/Comment")
 
@@ -57,7 +56,6 @@ Router.post("/dislike",async (req,res)=>{
     try{
         // await Reaction.deleteOne({user_id,post_id});
         const disliked=await Reaction.findOneAndRemove({user_id,post_id,parent: parent_id});
-        //TODO -undo notification with the like id
         console.log(disliked);
         res.status(200).json({
             message:"disliked",

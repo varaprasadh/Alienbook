@@ -26,7 +26,7 @@ import HorizontalLoader from "./BottomLoadBar";
 
 export default {
   name:"likeViewer",
-  props:['postid'],
+  props:['post_id','parent_id'],
   components:{
       LikeInfo,HorizontalLoader
   },
@@ -56,8 +56,8 @@ export default {
         return;
       }
       this.loading=true;
-      Axios.get(`/post/likes/${this.postid}`,{params:{skip:this.skip}}).then(({data})=>{
-        this.reactions.push(...data.likes);
+      Axios.get(`/post/likes`,{params:{post_id:this.post_id,parent_id:this.parent_id,kip:this.skip}}).then(({data})=>{
+        this.reactions.push(...data.reactions);
         this.completed=data.completed;
         this.skip+=20;
       }).catch(err=>{

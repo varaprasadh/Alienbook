@@ -86,9 +86,12 @@ const getPost = (postid, current_user_id) => {
                     }
                 }
             },
-            {
-              $unwind:"$reaction"
-            },
+             {
+                $unwind: {
+                     path: "$reaction",
+                     preserveNullAndEmptyArrays: true
+                 }
+             },
             {
                 $project: {
                     id: 1,
@@ -134,6 +137,8 @@ const getPost = (postid, current_user_id) => {
             }
         ]).limit(1).then(([post]) => {
             if (!post) throw new Error("post does'nt exist");
+             post.amIReacted = post.reaction != null;
+             post.reaction = post.reaction || null;
             resolve(post)
         }).catch(err => {
             reject(err);

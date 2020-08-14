@@ -12,7 +12,7 @@ export default {
     namespaced:true,
     state: {
         editorAuxData: editorInitialState,
-        editorOpen: true,
+        editorOpen: false,
         loading:false
     },
     getters:{
@@ -64,11 +64,11 @@ export default {
         sharePost({state,dispatch,commit}){
             const {content,post,callback}=state.editorAuxData;
             //if its a normal post
-            let postid,username,owner
+            let postid,username,owner;
             if(post.type==='NORMAL'){
-              postid=post.id;
-              username = post.authorName;
-              owner=post.author;
+                postid=post.id;
+                username = post.authorName;
+                owner=post.author;
             }else{
                 //if its already shared one,then use orginalpost data
                 postid = post.originalPost.id;

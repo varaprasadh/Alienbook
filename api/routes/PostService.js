@@ -15,6 +15,7 @@ const {uploadImages,uploadProfileImage,deleteImages} =require("./imageService/in
 
 const Reaction =require("../models/Reaction");
 const Comment=require("../models/Comment");
+const Relation =require("../models/Relation");
 
 //add the post
 Router.post('/create', multer.array('images'), uploadImages, contentSanitizer, (req, res) => {
@@ -35,10 +36,6 @@ Router.post('/create', multer.array('images'), uploadImages, contentSanitizer, (
     })
 });
 
-Router.post("/test", multer.array("images"), uploadImages, (req, res) => {
-  console.log(req.files);
-  res.json(req.filesMeta);
-});
 
 
 //update the post 
@@ -92,15 +89,24 @@ function test(p) {
 
 
 //returns the all posts that user following
-Router.get("/",retrieveUserInfo,(req, res) => {
+Router.get("/",async (req, res) => {
 
     let skip= parseInt(req.query.skip) || 0;
     let current_user_id=req.user.id
+    let following_users=await Relation.aggregate([
+        {
+            $match:{
+                source:current_user_id,
+                status:"following"
+            }
+        }
+    ])
+    following_users =following_users.map(relation=>relation.target);
     Post.aggregate([
         {  $match:
             {
                 $or:[
-                    {author:{"$in": req.user.info.following}},
+                    {author:{"$in":following_users}},
                     {author:{"$eq": current_user_id }}
                 ]
             }
@@ -232,8 +238,13 @@ Router.get("/",retrieveUserInfo,(req, res) => {
                         }
                     },
                 }
+            },
+            {
+                $sort:{
+                    createdAt: -1
+                }
             }
-        ]).sort({createdAt:-1}).skip(skip).limit(20).then(records => {
+        ]).skip(skip).limit(20).then(records => {
             records.forEach(record=>{
                 record.amIReacted = record.reaction != null;
                 record.reaction = record.reaction || null;
@@ -248,7 +259,9 @@ Router.get("/",retrieveUserInfo,(req, res) => {
         });
     })
 });
+
 //returns posts for the specific user (redundent code,figure it out later);
+
 Router.get("/:username",(req, res) => {
     let skip=req.query.skip && parseInt(req.query.skip) || 0;
     let username=req.params.username;

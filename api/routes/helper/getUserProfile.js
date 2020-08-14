@@ -19,6 +19,46 @@ const User = require("../../models/User");
                     }
                 },
                 {
+                    $lookup: {
+                        "from": "relations",
+                        "localField": "id",
+                        "foreignField": "source",
+                        "as": "following"
+                    }
+                },
+                {
+                    $lookup: {
+                        "from": "relations",
+                        "localField": "id",
+                        "foreignField": "target",
+                        "as": "followers"
+                    }
+                },
+                 {
+                   $addFields:{
+                       following: {
+                          $filter:{
+                              input: "$following",
+                              cond:{
+                                  $eq:["$$this.status","following"]
+                              }
+                          }
+                       }
+                   }
+                 },
+                 {
+                   $addFields:{
+                       followers:{
+                          $filter:{
+                              input:"$followers",
+                              cond:{
+                                  $eq:["$$this.status","following"]
+                              }
+                          }
+                       }
+                   }
+                 },
+                {
                     $project: {
                         username: 1,
                         fullName: 1,
@@ -34,7 +74,7 @@ const User = require("../../models/User");
                             $size: "$posts"
                         },
                         amIFollowing:{
-                            $in:[current_user_id,"$followers"]
+                            $in:[current_user_id,"$followers.source"]
                         },
                         isSelf:{
                             $eq:[current_user_id,"$id"]

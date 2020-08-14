@@ -16,13 +16,13 @@ const pictureSchema=new mongoose.Schema({
         default:[]
     }
 })
-
+  
 const User=new mongoose.Schema({
     id:{
-        required:true,
+        required:true, 
         type:String
     },
-     open_id:{
+     open_id:{ 
          type:String,
          required:true,
          unique:true
@@ -37,7 +37,7 @@ const User=new mongoose.Schema({
          type:String
      },
      pictures:{
-       type: pictureSchema
+       type: pictureSchema,
      },
      bio:{
          type:String
@@ -51,14 +51,6 @@ const User=new mongoose.Schema({
          required:true,
          type:Date,
          default:Date.now
-     },
-     following:{
-         type:Array(String),
-         default:[]
-     },
-     followers:{
-         type:Array(String),
-         default:[]
      }
 });
 

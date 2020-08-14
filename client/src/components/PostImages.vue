@@ -83,6 +83,7 @@ export default {
 .img-grid.grid-4
 {
   grid-template-columns:repeat(2,1fr);
+  max-height: 200px;
 }
 .image-wrapper{
   flex: 1;
