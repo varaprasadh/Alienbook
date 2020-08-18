@@ -3,7 +3,7 @@
   <div class="comment-wrapper">
       <div class="comment-container">
         <div class="author-image">
-            <img src="../assets/png/alien_white.png" alt="avatar">
+            <Avatar :src="comment.profile_pic_url"/>
         </div>
         <div class="comment-root-column">
             <div class="comment-main">
@@ -92,13 +92,14 @@ import Reaction from "./Reaction";
 import Reactions from "./Reactions";
 import BottomLoadBar from "./BottomLoadBar";
 import Spinner from "./Spinner";
+import Avatar from "./Avatar";
 
 export default {
    name:"comment-component",
    props:['comment','onCommentDelete'],
    components:{
       MenuIcon,CommentIcon,Reaction,Reactions,BottomLoadBar,
-      Spinner
+      Spinner,Avatar
    },
    data(){
        return ({
@@ -254,7 +255,6 @@ export default {
 }
 .comment-root-column{
     flex: 1;
-    /* background:rgb(218, 224, 224); */
     padding: 0px 3px;
 }
 .comment{
@@ -297,10 +297,8 @@ export default {
     color: rgb(53, 52, 52);
 }
  .author-image{
-     border-radius: 50%;
      min-width: 25px;
      height: 25px;
-     background: rgb(84, 28, 173);
      display: flex;
      justify-content: center;
      align-items: center;

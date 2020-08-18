@@ -67,6 +67,7 @@ const User = require("../../models/User");
                         following: {
                             $size: "$following"
                         },
+                        profile_pic_url: "$pictures.profile.url",
                         followers: {
                             $size: "$followers"
                         },

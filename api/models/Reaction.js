@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const {ObjectId,String} = mongoose.Schema.Types;
 const Reaction = new mongoose.Schema({
     id:{
         type:String,

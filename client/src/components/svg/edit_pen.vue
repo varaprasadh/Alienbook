@@ -8,6 +8,8 @@ export default {
 }
 </script>
 
-<style>
-
+<style scoped>
+svg{
+    width: 1rem;
+}
 </style>

@@ -1,13 +1,11 @@
 <template>
-  <section class="wrapper" v-if="editorOpen">
+  <section class="wrapper" v-if="editorOpen" @click.self="closeEditor">
     <div class="container">
         <div class="editor">
           <div class="editor-container">
-            <label>write a post</label>
             <textarea class="post-textarea" type="text" v-model="editorAuxData.content" placeholder="start typing..."></textarea>
             <div class="post-preview">
               <div v-if="type==='SHARE'">
-                <div class=""></div>
                 <div v-if="editorAuxData.post.type==='SHARE'">
                       <RefPost  :post="editorAuxData.post.originalPost"/>
                 </div>
@@ -15,20 +13,25 @@
                       <RefPost :post="editorAuxData.post"/>
                 </div>
               </div>
+              <div v-if="type==='EDIT'">
+                <div v-if="editorAuxData.post.type==='SHARE'">
+                      <RefPost  :post="editorAuxData.post.originalPost"/>
+                </div>
+              </div>
             </div>
-            <div class="image-upload-section">
+            <div class="image-upload-section" v-if="editorAuxData.type!=='SHARE'">
               <div class="image-preview-list">
                 <ImagePreview v-for="(image,i) in images" :key="i" :image="image" @remove="removeImage(i)"/>
                 <UploadImageButton v-if="images.length<4" @add="addImage"/>
               </div>
             </div>
+          </div>
             <div class="actions">
               <div class="action cancel" @click="closeEditor">Cancel</div>
               <div :class="['action','post',{disable:disableButton}]" @click="post" v-if="type==='NORMAL'">Publish</div>
               <div class="action update" @click="update" v-if="type==='EDIT'">Update</div>
               <div :class="['action','share',{disable:disableButton}]" @click="share" v-if="type==='SHARE'">Share</div>
             </div>
-          </div>
         </div>
     </div>
   </section>
@@ -76,7 +79,7 @@ export default {
        disableButton:({editorAuxData})=>(editorAuxData.type==="NORMAL" || editorAuxData.type==="EDIT") && editorAuxData.content.trim()===""
       }),
     ...mapGetters(['images'])
-   }
+   },
 }
 
 </script>
@@ -92,6 +95,10 @@ export default {
     z-index: 99;
     animation: animateBg 500ms linear 1 300ms;
     animation-fill-mode: forwards;
+    overflow: scroll;
+  }
+  .wrapper::-webkit-scrollbar{
+    display: none;
   }
   @keyframes animateBg{
     to{
@@ -110,7 +117,7 @@ export default {
    width: 100%;
    box-sizing: border-box;
    overflow: hidden;
-   padding: 20px 20px 10px 20px;
+   padding: 1em;
  }
   .post-textarea{
    width: 100%;
@@ -129,10 +136,10 @@ export default {
 .actions{
   display: flex;
   justify-content: space-between;
-  padding: 0.6rem;
+  padding-top: 10px;
 }
 .action{
-  padding: 10px 20px;
+  padding: 0.5em 1em;
   font-weight: bold;
   color: white;
   border-radius: 2px;

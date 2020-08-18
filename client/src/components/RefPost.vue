@@ -1,8 +1,8 @@
 <template>
-    <div class="ref-original-post" @click.stop="$router.push({name:'postview',params:{postid:post.id}})">
+    <div class="ref-original-post">
         <div class="ref-post-meta">
             <div class="author-img">
-                <avatarSVG/>
+                <Avatar :src="post.profile_pic_url" size="40"/>
             </div>
             <div class="info">
                 <div class="author-name">{{post.authorName || this.refAuthorName}}</div>
@@ -12,18 +12,21 @@
         <div class="ref-post-content">
              <PostTextContent v-if="post.content" :content="post.content"/>
              <div class="content-fallback" v-else>this post not available</div>
+             <PostImages v-if="post.images" :images="post.images"/>  
         </div>
     </div>
 </template>
 
 <script>
-import avatarSVG from "./svg/user_avatar";
 import PostTextContent from "./PostTextContent";
+import PostImages from "./PostImages";
+import Avatar from "./Avatar";
+
 export default {
    name:"ref-post",
    props:['post','refAuthorName'],
    components:{
-     avatarSVG,PostTextContent
+     PostTextContent,PostImages,Avatar
    },
 
 }

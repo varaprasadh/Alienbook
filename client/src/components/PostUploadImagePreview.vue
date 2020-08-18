@@ -19,6 +19,9 @@ export default {
   props:['image'],
   methods:{
     getObjectURI(image){
+        if(typeof image==="string"){
+          return image;
+        }
         const uri=URL.createObjectURL(image);
         return uri;
     }

@@ -44,14 +44,31 @@ export default {
            }).finally(()=>{
                 commit("stopLoading");
            })
-   
         },
         //should be inline with in the post component 
         updatePost({state,commit,dispatch}){
-            const {content,post,callback}=state.editorAuxData;
-            let data={content,postid:post.id};
+            const {content,images,post,callback}=state.editorAuxData;
+
+            // let data={content,postid:post.id};
+            const formData=new FormData();
+            formData.append("content",content);
+            formData.append("postid",post.id);
+            const prevImages=images.filter(image=>typeof image==='string');
+            const files=images.filter(image=>typeof image!=='string');
+            for (const image of files) {
+                    formData.append("images", image);
+            }
+            for (const url of prevImages) {
+                    formData.append("prev_urls[]", url);
+            }
+            
+
             commit("runLoading");
-            Axios.post("/posts/update",data).then(({data})=>{
+            Axios.post("/posts/update",formData,{
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(({data})=>{
                 dispatch("feed/updatePost",{callback,post:data.post},{root:true});
                 commit("closeEditor");
             }).catch(()=>{
@@ -89,12 +106,13 @@ export default {
     },
     mutations: {
         openEditor(state, data={}) {
-            let {post={content:" "},callback=()=>{},type="NORMAL",content=""}=data;
-            console.log("debug",type);
+            let {post={content:" ",images:[]},callback=()=>{},type="NORMAL",content=""}=data;
+            console.log("debug",type,post);
+            let images=post.images;
             if(type==='EDIT'){
                 content=post.content;
             }
-            state.editorAuxData={...state.editorAuxData,post,callback,type,content}
+            state.editorAuxData={...state.editorAuxData,post,callback,type,content,images}
             state.editorOpen =true;
         },
         closeEditor(state){

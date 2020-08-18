@@ -45,6 +45,7 @@ Router.get("/", attachUserInfo,(req, res) => {
             username:1,
             fullName:1,
             id:1,
+            profile_pic_url: "$pictures.profile.url",
             amIFollowing: {
                 $in: [current_user_id, "$follower_followers.source"]
             },
@@ -83,27 +84,46 @@ Router.get("/profile/:username?", attachUserInfo, (req, res) => {
     })
 })
 
+
+
+
+Router.post("/profile/image", multer.single("image"),async (req,res)=>{
+    const userid = req.user.id;
+    const profileImage = req.file;
+    try{
+        const meta = await uploadProfileImage(profileImage, userid);
+        console.log(meta);
+        const user=await User.findOne({id:userid});
+        if(!user){
+            throw new Error("user not exisits");
+        }
+        user['pictures']['profile']=meta;
+        await user.save();
+        res.status(200).json({
+           message:"profile photo has been updated",
+           url:meta.url
+        });
+    }catch(err){
+          res.status(400).json({
+              error:err.message
+          });
+    }
+})
+
 //updates the profile
-Router.post("/profile", multer.single("image"),async (req, res) => {
+Router.post("/profile",async (req, res) => {
     const userid=req.user.id;
     const {fullName,username}=req.body;
-    const profileImage=req.file;
     console.log(fullName,username);
     try{
         if (!fullName || !username) {
            throw new Error("username or fullname is not valid");
         }
-        const meta=await uploadProfileImage(profileImage,userid);
-
-        console.log(meta);
         const status=await User.findOneAndUpdate({id:userid},{fullName,username});
-
         const userProfile=await getUserProfile(username,userid);
         res.status(200).json({
             profile:userProfile
         });
-
-        
     }catch(err){
          res.status(400).json({
              error: err.message

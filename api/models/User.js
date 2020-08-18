@@ -4,7 +4,7 @@ const Notification =require("../models/Notification");
 
 const pictureSchema=new mongoose.Schema({
     profile:{
-        type:String,
+        type:Object,
         default:null
     },
     cover:{
@@ -38,6 +38,7 @@ const User=new mongoose.Schema({
      },
      pictures:{
        type: pictureSchema,
+       default:{}
      },
      bio:{
          type:String

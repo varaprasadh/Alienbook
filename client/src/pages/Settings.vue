@@ -15,6 +15,10 @@
 </template>
 
 <script>
+import { createNamespacedHelpers } from 'vuex'
+
+const {mapState}= createNamespacedHelpers("user");
+
 import EditProfile from "../components/EditProfile";
 export default {
    name:"settings",
@@ -23,9 +27,12 @@ export default {
    },
    data(){
      return ({
-       editProfile:true,
+       editProfile:false,
        logoutDailogue:false,
      })
+   },
+   computed:{
+      ...mapState(['user']),
    }
 }
 </script>

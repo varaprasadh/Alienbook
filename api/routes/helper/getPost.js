@@ -111,6 +111,7 @@ const getPost = (postid, current_user_id) => {
                     createdAt: 1,
                     authorName: "$authorData.username",
                     ref_author_username: "$ref_author.username",
+                    profile_pic_url: "$authorData.pictures.profile.url",
                     originalPost: {
                         $cond: {
                             if: {

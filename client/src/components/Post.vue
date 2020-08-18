@@ -4,9 +4,9 @@
             <div class="meta">
                 <div class="meta-post-info">
                     <div class="author-img">
-                        <avatarSVG/>
+                        <Avatar :src="post.profile_pic_url" size="40"/>
                     </div>
-                    <div class="info" @click.stop="$router.push({name:'postview',params:{postid:post.id}})">
+                    <div class="info" >
                         <div class="post-head-info" >
                             <span class="author-name">{{post.authorName}}</span>
                             <span class="shared-meta" v-if="post.type==='SHARE'">
@@ -103,7 +103,6 @@
 import moment from "moment";
 import axios from "axios";
 import { mapState, mapMutations, createNamespacedHelpers} from 'vuex';
-import avatarSVG from "./svg/user_avatar";
 import menuOptionsIcon from "./svg/menu_option";
 import RefPost from "./RefPost";
 import PostTextContent from "./PostTextContent";
@@ -116,6 +115,7 @@ import LikeViewer from "./LikeViewer";
 import Reactions from "./Reactions";
 import PostImages from "./PostImages";
 import Spinner from "./Spinner";
+import Avatar from "./Avatar";
 
 const {mapMutations:mapEditorMutations} =createNamespacedHelpers('editor');
 
@@ -123,11 +123,12 @@ export default {
   name:"Post",
   components:{
       menuOptionsIcon,
-      avatarSVG,RefPost,PostTextContent,Comment,Like,
+      RefPost,PostTextContent,Comment,Like,
       CommentIcon,ShareIcon,LikeViewer,
       Reactions,
       PostImages,
-      Spinner
+      Spinner,
+      Avatar
   },
   props:["post",'preventOnComment'],
   data(){
@@ -302,10 +303,7 @@ export default {
  .meta-post-info{
      display: flex;
  }
- .meta-post-info .author-img svg{
-     width:2rem;
-     height: 2rem;
- }
+
  .meta-post-info .info{
      margin-left: 10px;
      cursor: pointer;

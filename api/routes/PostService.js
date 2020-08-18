@@ -22,7 +22,6 @@ Router.post('/create', multer.array('images'), uploadImages, contentSanitizer, (
     let author=req.user.id;
     const { content} = req.body;
     const images=req.filesMeta;
-    console.log(req.files,"oooo");
     createPost({author,content,images}).then(post=>{
         getPost(post.id, author).then(post => {
             res.status(200).json({
@@ -39,28 +38,45 @@ Router.post('/create', multer.array('images'), uploadImages, contentSanitizer, (
 
 
 //update the post 
-Router.post("/update", contentSanitizer,(req, res) => {
+Router.post("/update", multer.array('images'), uploadImages, contentSanitizer, async (req, res) => {
      let userId=req.user.id;
-      const {content, postid} = req.body; //parse the content extract tags
-      Post.findOneAndUpdate({
-          id: postid
-      }, {
-          content,
-          lastModifiedAt:Date.now()
-      }).then(post=>{
-          getPost(postid,userId).then(post=>{
-              res.status(200).json({
-                  post:post
-              })
-          }).catch(err=>{
-              throw new Error(err)
-          })
-      }).catch(err=>{
-         console.log(err);
+      const {content, postid,prev_urls=[],} = req.body; //parse the content extract tags
+      //remove useless images
+      //update meta on 
+      //upload new images and save meta data
+      const uploadedFilesMeta = req.filesMeta || [];
+
+      try{
+        const post=await Post.findOne({id:postid});
+        post.content=content;
+        post.lastModifiedAt=Date.now();
+
+        //images to be deleted
+        const junk_public_ids=[];
+        post.images=post.images.filter(meta=>{
+            if(prev_urls.indexOf(meta.url)==-1){
+                //this should be removed;
+                junk_public_ids.push(meta.public_id);
+                return false;
+            }
+            return true;
+        });
+        post.images.push(...uploadedFilesMeta);
+        await post.save();
+        
+        //upload new images and save meta
+            getPost(postid, userId).then(post => {
+                res.status(200).json({
+                    post: post
+                })
+            }).catch(err => {
+                throw new Error(err)
+            })
+      }catch(err){
           res.status(400).json({
-              error: "something went wrong!"
+              error:err.message
           })
-      })
+      }
 }) 
 // delete a post 
 Router.post("/delete", (req,res)=>{
@@ -215,17 +231,26 @@ Router.get("/",async (req, res) => {
                     createdAt: 1,
                     authorName: "$authorData.username",
                     ref_author_username: "$ref_author.username",
+                    profile_pic_url: "$authorData.pictures.profile.url",
                     originalPost: {
                         $cond: {
                             if: {
                                 $ne: ["$sharedContent", undefined]
                             },
                             then: {
+                                profile_pic_url: "$prim_author.pictures.profile.url",
                                 content: "$sharedContent.content",
                                 createdAt: "$sharedContent.createdAt",
                                 id: "$sharedContent.id",
                                 author: "$sharedContent.author",
-                                authorName: "$prim_author.username"
+                                authorName: "$prim_author.username",
+                                images: {
+                                    $map: {
+                                        input: "$sharedContent.images",
+                                        as: "meta",
+                                        in: "$$meta.url"
+                                    }
+                                },
                             },
                             else: null
                         }
@@ -369,6 +394,7 @@ Router.get("/:username",(req, res) => {
                     author: 1,
                     createdAt: 1,
                     authorName: "$authorData.username",
+                    profile_pic_url: "$authorData.pictures.profile.url",
                     ref_author_username: "$ref_author.username",
                     originalPost: {
                         $cond: {
@@ -376,6 +402,7 @@ Router.get("/:username",(req, res) => {
                                 $ne: ["$sharedContent", undefined]
                             },
                             then: {
+                                profile_pic_url: "$prim_author.pictures.profile.url",
                                 content: "$sharedContent.content",
                                 createdAt: "$sharedContent.createdAt",
                                 id: "$sharedContent.id",
