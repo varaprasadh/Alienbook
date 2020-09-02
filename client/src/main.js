@@ -24,6 +24,7 @@ import Profile from "./pages/Profile.vue";
 import Settings from "./pages/Settings.vue";
 import FindAliens from "./pages/FindAliens.vue";
 import Notifications from "./pages/Notifications.vue";
+import Chat from "./pages/Messaging/Index.vue";
 
 import config from "../config.json";
 
@@ -110,6 +111,11 @@ const router = new VueRouter({
       },
     ]
     },
+    {
+      path: "/chat",
+      name: "chat",
+      component: Chat
+  },
     {
       path: "/profile/:username?",
       name: "profile",

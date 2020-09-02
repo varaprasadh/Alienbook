@@ -8,6 +8,7 @@
 <script>
 import {mapState } from 'vuex';
 import AppLoader from "./components/AppLoader.vue";
+// import socketio from "socket.io-client";
 
 import {createNamespacedHelpers} from 'vuex';
 const {mapActions:mapUserActions}= createNamespacedHelpers("user");
@@ -24,6 +25,14 @@ export default {
   },
   created(){
     // this.loadUserInfo();
+  },
+  mounted(){
+    // const socket=socketio("http://localhost:3001/");
+
+    // socket.on('connect',()=>{
+    //   //send userid to make a room
+      
+    // })
   }
 }
 </script>

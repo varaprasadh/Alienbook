@@ -61,7 +61,13 @@ Router.post("/update", multer.array('images'), uploadImages, contentSanitizer, a
             }
             return true;
         });
+        //delete the junk from cloudinary
+        await deleteImages(junk_public_ids);
+
+        //update the new photos meta data
         post.images.push(...uploadedFilesMeta);
+
+        //save the post
         await post.save();
         
         //upload new images and save meta

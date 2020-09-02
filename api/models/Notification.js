@@ -21,6 +21,10 @@ const Notification = mongoose.Schema({
         type:String,
         required:true
     },
+    parents:{
+        type:[String],
+        required:true
+    },
     content: {
         type: String
     },
