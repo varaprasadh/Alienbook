@@ -8,6 +8,7 @@
 <script>
 import {mapState } from 'vuex';
 import AppLoader from "./components/AppLoader.vue";
+// import socketio from "socket.io-client";
 
 import {createNamespacedHelpers} from 'vuex';
 const {mapActions:mapUserActions}= createNamespacedHelpers("user");
@@ -23,7 +24,15 @@ export default {
       ...mapUserActions(['loadUserInfo']),
   },
   created(){
-    this.loadUserInfo();
+    // this.loadUserInfo();
+  },
+  mounted(){
+    // const socket=socketio("http://localhost:3001/");
+
+    // socket.on('connect',()=>{
+    //   //send userid to make a room
+      
+    // })
   }
 }
 </script>
@@ -80,6 +89,24 @@ export default {
 }
 .cyan{
   background: rgb(4, 100, 100);
+}
+.reaction-text.LIKE{
+   color: rgb(36, 84, 214)!important;
+}
+.reaction-text.LOVE{
+  color: red!important;
+}
+.reaction-text.CARE {
+  color: red!important;
+}
+.reaction-text.HAHA{
+    color:  rgb(226, 105, 49)!important;
+}
+.reaction-text.ANGRY{
+  color: rgb(209, 114, 130)!important;
+}
+.reaction-text.WOW{
+  color: rgb(226, 105, 49)!important;
 }
 @media screen and (max-width:600px) {
  body{

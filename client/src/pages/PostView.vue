@@ -5,7 +5,11 @@
        <Post v-if="post" v-on:delete="onDeletePost" :post="post" v-on:comment="addToComments($event)" :preventOnComment="true"/>
        <div class="comments" v-if="post">
          <div class="label">comments</div>
-         <Comment v-for="(cmt,i) in comments" v-on:commentdelete="deleteComment($event)" :key="i" :comment="cmt"/>
+         <Comment 
+          v-for="(cmt,i) in comments" 
+          v-on:delete="removeComment" 
+          :key="i" :comment="cmt"
+         />
          <div class="fallback card" v-if="comments.length<=0">
            <div>be the first to comment</div>
          </div>
@@ -83,7 +87,7 @@ export default {
               return;
           }
         this.loading=true;
-        Axios.get(`/post/comments/${this.post.id}`,{params:{skip:this.commentSkipOffest}}).then(({data})=>{
+        Axios.get(`/post/comments/`,{params:{post_id:this.post.id,skip:this.commentSkipOffest}}).then(({data})=>{
             this.comments.push(...data.comments);
             this.completed=data.completed;
             this.commentSkipOffest+=20;
@@ -94,16 +98,13 @@ export default {
       addToComments(comment){
          this.comments.unshift(comment);
      },
-     deleteComment(id){
-       Axios.post("/post/uncomment",{postId:this.post.id,commentId:id}).then(()=>{
-         let index=this.comments.findIndex(c=>c.comment_id===id);
-         if(index!=-1){
-           this.comments.splice(index,1);
-         }
-       }).catch(()=>{
-         //
-       })
-     },
+    removeComment(id){
+        let index=this.comments.findIndex(comment=>comment.id===id);
+        if(index!=-1){
+            this.comments.splice(index,1);
+            this.post.comments--;
+        }
+    },
       onDeletePost(){
        window.history.length > 2?this.$router.go(-1):this.$router.push("/");
       }

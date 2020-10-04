@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img src="design files/png/logo_black.png"/>
+  <img src="design files/labels/alienbook/dark_blue.png"/>
 </p>
 
 # AlienBook
@@ -11,36 +11,33 @@
 
 ## Features
 
-- posting textual content (image sharing can be integrated in future)
-- like,comment and share the post
+- posting - textual + images (limited to 4 per post)
+- like,comment and reshare the post
 - follow others 
-- notification system (when someone lik,comment on your post,follow you)
-
+- notification
+- chat (pending)
 ## techStack used
-
-- Vue.js (vue,vue-router,vuex)
-- nodejs (express.js)
-- mongodb with mongoose.js
+  <img src="design files/labels/vue.png" height="30px"/> 
+  <img src="design files/labels/node.png" height="30px"/> 
+  <img src="design files/labels/mongo.png" height="30px"/>
+  <img src="design files/labels/cloudinary.png" height="30px"/>
 
 ## tools used
- 
+
 - vs code
 - postman
 - robo3T (mongodb gui tool)
 
 ## configuration
- - clone the project 
- - open terminal and navigate to ```/client ``` and run
- ```
- npm install
-```
-- do the same thing on /api also.
-- on ```/client``` run ```npm run serve```
-- on ```/api``` run ```npm run dev```
-- open ```browser ``` and navigate to ***localhost:8080***
----
-### final note:
-- feel free to clone and make pull requests to improve the project
+  ***--- todo ---***
+
+## ***if you are interested in this,*** 
+<img src="design files/labels/contribute.png" height="50px"/>
+
+## contact me
+<img src="design files/labels/instagram.png" height="30px"/>
+<img src="design files/labels/twitter.png" height="30px"/>
+<img src="design files/labels/github.png" height="30px"/>
 
  ## contributers
 myself - [@varaprasadh]("https://github.com/varaprasadh")

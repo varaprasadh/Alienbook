@@ -2,41 +2,15 @@ const User=require("../models/User");
 const Notification=require("../models/Notification");
 const uuid=require('uuid').v4;
 
-const NOTIFY_TYPES={
-    LIKE:"LIKE",
-    COMMENT:"COMMENT",
-    SHARE:"SHARE",
-    FOLLOW:"FOLLOW"
+const NOTIFY_TYPES = {
+    REACTION: "REACTION",
+    COMMENT: "COMMENT",
+    FOLLOW: "FOLLOW",
+    SHARE: "SHARE",
+    REACTED_TO_COMMENT: "REACTED_TO_COMMENT",
+    REPLY_TO_COMMENT: "REPLY_TO_COMMENT"
 }
 
-
-
-const createNotification = ({
-        type,
-        initiator,
-        postId = "",
-        ref_id,
-        owner,
-        content=""
-    }) => {
-        let notification=new Notification({
-            type,
-            initiator,
-            postId,
-            ref_id,
-            owner,
-            content,
-            id:uuid()
-        });
-        if (owner === initiator) {
-            console.log("cant");
-            return;
-        }
-       return notification.save().then(()=>{
-           //push notificagtion thing
-           console.log("added notification");
-       })
-  }
   const removeNotification=(notificationId)=>{
      return new Promise((resolve,reject)=>{
         Notification.findOneAndDelete({id:notificationId}).then(notification=>{
@@ -55,47 +29,7 @@ const createNotification = ({
     })
   }
 
-  //refid : commentid || likeid || 
-  
-  const undoNotification=({type,postId,ref_id,initiator,owner})=>{
-     if(type==="LIKE" || type==="COMMENT"){
-         let query={};
-         if(type==="LIKE"){
-             query={postId,type}
-         }else{
-             query={ref_id,type}
-         }
-         return new Promise((resolve,reject)=>{
-            Notification.findOneAndDelete(query).then(()=>{
-                console.log("undone",type);
-                resolve("done");
-            }).catch(err=>reject(err));
-     })
-    }
-     if(type==="SHARE"){
-         return new Promise((resolve, reject) => {
-           Notification.findOneAndDelete({
-               initiator,
-               owner,
-               type,
-               postId
-           }).then(()=>resolve("done")).catch(err=>reject(err))
-         })
-     }
-     if(type==="FOLLOW"){
-        return new Promise((resolve,reject)=>{
-           Notification.findOneAndDelete({
-               initiator,
-               owner,
-               type
-           }).then(()=>{
-               console.log("undone follow");
-               resolve("done");
-           }).catch(err=>reject(err));
-         })
-     }
-   }
- 
+
 
   const getNotifications=(userid,skip=0)=>{
       return new Promise((resolve,reject)=>{
@@ -117,28 +51,29 @@ const createNotification = ({
            },
            {
                $project: {
-                   from: "$initiator.username",
+                   from: {
+                      username: "$initiator.username",
+                      avatar: "$initiator.pictures.profile.url"
+                   },
                    type: 1,
                    timestamp: 1,
-                   ref_id: 1,
-                   postId: 1,
+                   parent_id: 1,
                    read: 1,
                    content:1,
                    notification_id: "$id"
                }
            }
        ]).sort({timestamp:-1}).skip(skip).limit(20).then(notifications=>{
+
            resolve(notifications);
        }).catch(err=>reject(err))
       })
   }
 
 module.exports = {
-    createNotification,
     getNotifications,
     markasRead,
-    removeNotification,
-    undoNotification
+    removeNotification
 };
 
 

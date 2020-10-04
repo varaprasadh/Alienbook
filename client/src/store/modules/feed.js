@@ -8,6 +8,7 @@ export default {
         skip:0,
         completed:false,
         loading:false,
+        scrollPosition:{x:0,y:0}
     },
 
     actions:{
@@ -24,63 +25,16 @@ export default {
                 state.loading = false;
             })
         },
-        publishPost({commit},payload){
-           console.log(payload);
-            console.log("here");
-           const {content} =payload;
-           if(content.trim()===""){
-               return;
-           }
-           commit("rungl_loader",null,{root:true});
-           commit("editor/closeEditor",null,{root:true});
-           Axios.post("/posts/create",{content}).then(({data})=>{
-               commit("setNewPost", [data.post]);
-               commit("stopgl_loader",null,{root:true})
-           }).catch(()=>{
-              commit("stopgl_loader",null,{root:true})
-           })
-       },
-       updatePost({commit},payload){
-
-        commit("rungl_loader",null,{root:true});
-        commit("editor/closeEditor",null,{root:true});
-         const {content,post,callback}=payload;
-         let data={content,postid:post.id};
-         Axios.post("/posts/update",data).then(({data})=>{
-             callback(data.post);
-             commit("stopgl_loader",null,{root:true})
-         }).catch(err=>{
-             console.log(err);
-            commit("stopgl_loader",null,{root:true})
-         })
-       },
-       sharePost({commit},payload){
-            commit("rungl_loader",null,{root:true});
-            commit("editor/closeEditor",null,{root:true});//todo
-            const {content,post,callback}=payload;
-            //if its a normal post
-            let postid,username,owner
-            if(post.type==='NORMAL'){
-              postid=post.id;
-              username = post.authorName;
-              owner=post.author;
-            }else{
-                //if its already shared one,then use orginalpost data
-                postid = post.originalPost.id;
-                username = post.originalPost.authorName;
-                owner = post.originalPost.author;
-            }
-            let data={content,postid,username,owner};
-            Axios.post("/post/share",data).then(({data})=>{
-                //call the callback
-                //push the post to feed
-                commit("setNewPost", [data.post]);
-                callback(data.post);
-                commit("stopgl_loader",null,{root:true})
-            }).catch(err=>{
-                commit("stopgl_loader",null,{root:true});
-            })
-       }
+        publishPost({commit},{post}){
+            commit("setNewPost", [post]);
+        },
+        updatePost({commit},{callback,post}){
+            callback(post);
+        },
+        sharePost({commit},{callback,post}){
+            commit("setNewPost", [post]);
+            callback(post);
+        }
     },
     mutations:{
         setPosts(state, posts) {
@@ -95,5 +49,10 @@ export default {
                 state.posts.splice(index, 1);
             }
         },
+        setScrollPostion(state,{x,y}){
+            console.log("setting",x,y);
+            state.scrollPosition.x=x;
+            state.scrollPosition.y=y;
+        }
     },
 }

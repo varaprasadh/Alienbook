@@ -1,7 +1,7 @@
 <template>
     <div class="alien-card">
         <div class="image">
-            <img src="../assets/png/alien_black.png" alt="alien">
+            <Avatar :src="alien.profile_pic_url" />
         </div>
         <router-link :to="'/profile/'+alien.username">
             <div class="meta">
@@ -26,10 +26,14 @@
 
 <script>
 import Axios from 'axios';
+import Avatar from "./Avatar";
 
 export default {
   name:"alien-follow-card",
   props:["alien"],
+  components:{
+    Avatar
+  },
   data:()=>({
    btnLoadingState:false
   }),
@@ -70,21 +74,14 @@ export default {
   padding: 10px;
 }
 .alien-card .image{
-  border: 2px solid rgb(187, 187, 187);
   width: 60px;
   height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  padding: 5px;
   margin-right: 10px;
-  background: rgb(246, 246, 246);
 }
-.alien-card .image img{
-  margin: 10px;
-  width: 50px;
-}
+
 .alien-card .meta .username{
   font-size: 1.3em;
   font-weight: bold;

@@ -7,7 +7,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
-  "keywords": [],
+  "keywords": ["social-media"],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -15,16 +15,19 @@
     "bcrypt": "^4.0.1",
     "cloudinary": "^1.22.0",
     "cors": "^2.8.5",
+    "datauri": "^3.0.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.15",
+    "multer": "^1.4.2",
     "nodemailer": "^6.4.8",
     "passport": "^0.4.1",
     "passport-facebook": "^3.0.0",
     "passport-google-oauth": "^2.0.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-linkedin-oauth2": "^2.0.0",
+    "socket.io": "^2.3.0",
     "uuid": "^8.1.0"
   }
 }

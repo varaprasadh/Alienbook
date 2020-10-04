@@ -1,5 +1,4 @@
 const express=require('express');
-const mongoose=require('mongoose');
 const Auth =require("./routes/auth");
 const PostService = require('./routes/PostService');
 const LikeHandler=require("./routes/LikeHandler");
@@ -30,23 +29,20 @@ const getWebToken=require("./routes/helper/createJWT");
 
 dotEnv.config();
 
+const connection=require('./dbconnection');
 
-let mongoURL;
-if (process.env.mode == 'production') {
-    mongoURL = process.env.MONGO_DB_URL;
-}else{
-    mongoURL = process.env.MONGO_DEV_URL
-}
-
-mongoose.connect(mongoURL, {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useUnifiedTopology: true
-}).then(()=>{
-    console.log("db connected", mongoURL);
+connection.then((conn)=>{
+    console.log("db connected");
 }).catch(err=>{
-    console.log(err);
+    console.log("db error:" ,err);
 })
+
+
+require("./Triggers/Notifications/Reaction.js");
+
+
+const messagingService =require("./routes/Messaging/index");
+
 
 
 const app=express();
@@ -70,6 +66,7 @@ app.use("/post", verifyAndAttachUser, CommentHandler);
 app.use("/users", verifyAndAttachUser, FollowManager);
 app.use("/notifications",verifyAndAttachUser,NotificationHandler);
 
+app.use("/chat", verifyAndAttachUser,messagingService);
 
 passport.serializeUser((user, cb) => {
     cb(null, user);

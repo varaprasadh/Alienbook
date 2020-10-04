@@ -23,7 +23,8 @@ import PostView from "./pages/PostView.vue";
 import Profile from "./pages/Profile.vue";
 import Settings from "./pages/Settings.vue";
 import FindAliens from "./pages/FindAliens.vue";
-import Notifications from "./pages/Notifications.vue";
+import Notifications from "./pages/Notifications/Index.vue";
+import Chat from "./pages/Messaging/Index.vue";
 
 import config from "../config.json";
 
@@ -60,7 +61,6 @@ axios.interceptors.response.use((response) => {
     return Promise.reject(error.message);
 });
 
-
 const router = new VueRouter({
   mode:"history",
   scrollBehavior(to, from, savedPosition) {
@@ -76,13 +76,14 @@ const router = new VueRouter({
     {path:"/signup/createuserame",component:UsernameView},
     {path:"/signin/saveToken",component:saveToken},
     {path:"/",
-     component:Home,
+     component: Home,
      exact:true,
      children:[
        {
         path:"/",
         name:"feed",
-        component: Feed
+        component: Feed,
+        
       },
        {
         path:"aliens",
@@ -111,6 +112,11 @@ const router = new VueRouter({
       },
     ]
     },
+    {
+      path: "/chat",
+      name: "chat",
+      component: Chat
+  },
     {
       path: "/profile/:username?",
       name: "profile",

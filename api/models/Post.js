@@ -1,7 +1,7 @@
 const mongoose =require('mongoose');
 const {ObjectId} =mongoose.Schema.Types;
 
-const Like =require("./Like");
+const Like =require("./Reaction");
 const Comment=require("./Comment");
 
 const Post=new mongoose.Schema({
@@ -18,11 +18,10 @@ const Post=new mongoose.Schema({
     },
     createdAt:{
       type:Date,
-      required:true,
       default:Date.now
     },
     saved:{
-        type:Array(String)
+        type:[String]
     },
     refId:{
         type:String,
@@ -35,26 +34,22 @@ const Post=new mongoose.Schema({
     ref_author:{
         type:String,
     },
-    // tags:{
-    //     type:Array(String),
-    //     default:[]
-    // },
-    // people:{
-    //     type:Array(String),
-    //     default:[]
-    // },
+    images:{
+        type:[Object],
+        default:[]
+    },
+    tags:{
+        type:[String],
+        default:[]
+    },
+    people:{
+        type:[String],
+        default:[]
+    },
     lastModifiedAt:{
         type:Date,
         required:true,
         default:Date.now
-    },
-    likes:{
-        type:Array(Like.Schema),
-        default:[]
-    },
-    comments:{
-        type:Array(Comment.Schema),
-        default:[]
     }
 });
 module.exports = mongoose.model('Post', Post);

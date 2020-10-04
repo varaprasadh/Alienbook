@@ -4,7 +4,9 @@ const bcrypt=require('bcrypt');
 const attachUserInfo = require("./middlewares/attachUserInfo");
 const getUserProfile = require("./helper/getUserProfile");
 const LIMIT=20;
+const multer = require("multer")();
 
+const {uploadImages,uploadProfileImage,deleteImages} =require("./imageService/index");
 
 //getting users 
 //excluding current user
@@ -14,31 +16,46 @@ Router.get("/", attachUserInfo,(req, res) => {
   User.aggregate([
      {
          $match:{
-             $and:[
-                 {
-                    id: {
-                        $ne: current_user_id
-                    }
-                 },
-                 {
-                    id: {
-                        $nin: req.user.info.following
-                    }
-                 }
-             ]
+           id: {
+               $ne: current_user_id
+           }
          }
+     }, {
+         $lookup: {
+             from: "relations",
+             localField: "id",
+             foreignField: "target",
+             as: "follower_followers"
+         },
      },
+      {
+          $addFields: {
+              follower_followers: {
+                  $filter: {
+                      input: "$follower_followers",
+                      cond: {
+                          $eq: ["$$this.status", "following"]
+                      }
+                  }
+              }
+          }
+      },
       {
         $project:{
             username:1,
             fullName:1,
             id:1,
-            amIFollowing:{
-                $in:[current_user_id,"$followers"]
-            }
+            profile_pic_url: "$pictures.profile.url",
+            amIFollowing: {
+                $in: [current_user_id, "$follower_followers.source"]
+            },
         }
       },
-     
+     {
+         $sort:{
+             amIFollowing:1
+         }
+     }
   ]).skip(skip).limit(LIMIT).then(users => {
       res.status(200).json({
           users:users,
@@ -68,47 +85,50 @@ Router.get("/profile/:username?", attachUserInfo, (req, res) => {
 })
 
 
-Router.post("/profile",(req,res)=>{
-    const userid=req.user.id;
-    const {fullName,username}=req.body;
-    User.findOneAndUpdate({id:userid},{fullName,username}).then((status)=>{
-       getUserProfile(username, userid).then(user => {
-           res.status(200).json({
-            profile:user
-        })
-       })
-    }).catch(err=>{
-        res.status(400).json({
-            error:err.message
-        })
-    })
-});
-Router.post("/profile/changepwd",async (req,res)=>{
-    const userid=req.user.id;
-    const {current_password,new_password}=req.body;
-    User.findOne({id:userid}).then(user=>{
-        if(!user) throw new Error("user not found");
-        // const isPasswordValid=bcrypt.compareSync(current_password,user.password);
 
 
-        const isPasswordValid=current_password===user.password;
-        if(!isPasswordValid){
-            throw new Error("invalid password");
+Router.post("/profile/image", multer.single("image"),async (req,res)=>{
+    const userid = req.user.id;
+    const profileImage = req.file;
+    try{
+        const meta = await uploadProfileImage(profileImage, userid);
+        console.log(meta);
+        const user=await User.findOne({id:userid});
+        if(!user){
+            throw new Error("user not exisits");
         }
-        user.password=new_password;
-        user.save().then(()=>{
-            res.status(200).json({
-                message:"password had been updated"
-            })
-        })
-        
-    }).catch(err=>{
-        res.status(400).json({
-            error:err.message
-        })
-    })
+        user['pictures']['profile']=meta;
+        await user.save();
+        res.status(200).json({
+           message:"profile photo has been updated",
+           url:meta.url
+        });
+    }catch(err){
+          res.status(400).json({
+              error:err.message
+          });
+    }
 })
 
-
+//updates the profile
+Router.post("/profile",async (req, res) => {
+    const userid=req.user.id;
+    const {fullName,username}=req.body;
+    console.log(fullName,username);
+    try{
+        if (!fullName || !username) {
+           throw new Error("username or fullname is not valid");
+        }
+        const status=await User.findOneAndUpdate({id:userid},{fullName,username});
+        const userProfile=await getUserProfile(username,userid);
+        res.status(200).json({
+            profile:userProfile
+        });
+    }catch(err){
+         res.status(400).json({
+             error: err.message
+         })
+    }
+});
 
 module.exports=Router;

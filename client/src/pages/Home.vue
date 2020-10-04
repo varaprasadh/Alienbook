@@ -9,7 +9,7 @@
         <PostEditor/>
       </transition>
     </div>
-      <router-view :key="$route.fullPath"></router-view>
+      <router-view></router-view>
   </section>
 </template>
 
@@ -18,7 +18,6 @@
 import AppNavBar from "../components/AppNavBar";
 import GLHLoader from "../components/GLHLoader";
 import PostEditor from "../components/PostEditor";
-
 
 import Axios from 'axios';
 import { mapMutations,createNamespacedHelpers} from 'vuex';

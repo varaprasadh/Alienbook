@@ -1,184 +1,120 @@
 const Router = require('express').Router();
 const User = require('../models/User');
 const uuid = require('uuid').v1;
-const Like =require("../models/Like");
+const Reaction = require("../models/Reaction");
 
 const Post = require("../models/Post");
-const NotificationService=require("./NotificationService");
 
-const formatedLike=(postid,userid)=>{
-    return new Promise((resole,reject)=>{
-        Post.aggregate([{
-                $match: {
-                    id: postid
-                }
-            }, {
-                $addFields: {
-                    like: {
-                        $filter: {
-                            input: "$likes",
-                            cond: {
-                                $eq: ["$$this.user_id", userid]
-                            }
-                        }
-                    }
-                }
-            }, {
-                $unwind: "$like"
-            },
-             {
-                 $project: {
-                     like: 1,
-                     likes:{
-                         $size:"$likes"
-                     }
-                 }
-             }
-
-        ]).limit(1).then(([likeAsChild])=>{
-            if (!likeAsChild || !likeAsChild.like) throw new Error("not liked yet");
-            resole({
-                ...likeAsChild.like,
-                likes: likeAsChild.likes
-            });
-        }).catch(err=>{
-            reject(err);
-        })
-    })
-}
+const Comment=require("../models/Comment")
 
 
-Router.post("/like",(req,res)=>{
-    let {postId,type}=req.body;
-    let userId = req.user.id;
-    const likeId = uuid();
-    const like=new Like({
-        user_id:userId,
-        id:likeId,
-        type
-    });
-    Post.findOne({id:postId,"likes.user_id":{$nin:[userId]}}).then((post)=>{
-       if(!post){
-           //update the reaction type
-          return Post.findOneAndUpdate({
-                   id: postId,
-                   "likes.user_id": userId
-               }, 
-               {
-                   $set: {
-                       "likes.$.type": type
-                   }
-               }).then(() => {
-               return formatedLike(postId,userId)
-               .then((like)=>{
-                   res.status(200).json({
-                       like
-                   })
-               })
-               .catch(err=>{
-                   console.log("debuf",err);
-                   res.status(400).json({
-                       error: err.message
-                   })
-               });
-           })
-           //update the notification
-       }
+Router.post("/like",async (req,res)=>{
+ const user_id=req.user.id;
+ const {post_id,type,parent_id=null}=req.body;
 
-       post.likes.addToSet(like);
-       post.save().then(()=>{
-            NotificationService.createNotification({
-                owner: post.author,
-                type: "LIKE",
-                initiator: userId,
-                postId: postId,
-                ref_id:likeId
-            })
-            return formatedLike(postId, userId)
-                .then((like) => {
-                    res.status(200).json({
-                        like
-                    })
-                })
-                .catch(err => {
-                    console.log("debuf", err);
-                    res.status(400).json({
-                        error: err.message
-                    })
-                });
-        }).catch(err=>{
-           throw new Error("cant like the post");
-       })
-    
-    }).catch(err=>{
+ try{
+   let parents=[];
+   if(parent_id){
+       const parent=await Comment.findOne({id:parent_id});
+       parents=[...parent.parents];
+   }else{
+       parents.push(post_id);
+   }
+   let reaction = await Reaction.findOne({
+       post_id,
+       user_id,
+       parent: parent_id || post_id
+   });
+   if (reaction) {
+     reaction.type = type;
+   }
+   else{
+        reaction = new Reaction({
+            id: uuid(),
+            user_id: user_id,
+            post_id: post_id,
+            type: type,
+            parent:parent_id||post_id,
+            parents:parents
+        });
+   }
+
+   const savedReaction = await reaction.save();
+   res.status(200).json({
+       message:"liked",
+       reaction:savedReaction._doc,
+   });
+ }catch(err){
+     res.status(400).json({
+         error:err.message
+     })
+ }
+});
+Router.post("/dislike",async (req,res)=>{
+    const user_id=req.user.id;
+    const {post_id,parent_id}=req.body;
+    try{
+        // await Reaction.deleteOne({user_id,post_id});
+        const disliked=await Reaction.findOneAndRemove({user_id,post_id,parent: parent_id});
+        console.log(disliked);
+        res.status(200).json({
+            message:"disliked",
+        });
+    }catch(err){
         res.status(400).json({
             error:err.message
         });
-    })
-});
+    }
+})
 
 
-Router.post("/dislike",(req,res)=>{
-    let {postId}=req.body;
-     let userId = req.user.id;
-    Post.update({id:postId},{$pull:{likes:{user_id:userId}}}).then(doc=>{
-        if (doc.nModified===0){
-            throw new Error("already disliked");
-        }
-        NotificationService.undoNotification({postId:postId,type:"LIKE",initiator:userId});
+
+Router.get("/likes",(req,res)=>{
+    const {post_id,parent_id}=req.query;
+    const skip= parseInt(req.query.skip) || 0;
+    const user_id=req.user.id;
+
+    Reaction.aggregate([
+             {
+                $match: {
+                    post_id,
+                    parent:parent_id || post_id
+                }
+             },
+            {
+                $lookup: {
+                    from: "users",
+                    as: "userData",
+                    localField: "user_id",
+                    foreignField: "id"
+                }
+            }, 
+            {
+                $unwind: {
+                    path: "$userData",
+                    preserveNullAndEmptyArrays:true
+                }
+            }, 
+            {
+                $project: {
+                    username: "$userData.username",
+                    timestamp: 1,
+                    type: 1,
+                    parent:1
+                }
+            }
+    ]).skip(skip).limit(20).then((reactions)=>{
         res.status(200).json({
-            message:"disliked!"
-        })
+            reactions,
+            completed:reactions.length<20
+        });
     }).catch(err=>{
         res.status(400).json({
-            message:err.message
+            error:err.message
         })
-    })
+    });
 });
 
-Router.get("/likes/:postId",(req,res)=>{
-  const postId=req.params.postId;
-  const skip= parseInt(req.query.skip) || 0;
-  Post.aggregate([{
-          $match: {
-              id: postId
-          }
-      }, {
-          $unwind: {
-              path: "$likes",
-              "preserveNullAndEmptyArrays": true
-          }
-      },
-      {
-          $lookup: {
-              from: "users",
-              as: "userData",
-              localField: "likes.user_id",
-              foreignField: "id"
-          }
-      },
-      {
-          $unwind: {
-              path: "$userData",
-          }
-      },
-      {
-          $project:{
-              username: "$userData.username",
-              timestamp:"$likes.timestamp",
-              type:"$likes.type"
-          }
-      }
-  ]).skip(skip).limit(20).then(likes=>{
-      res.status(200).json({
-          likes,
-          completed:likes.length<20
-      })
-  }).catch(err=>{
-      res.status(400).json({
-          error:err.message
-      })
-  })
-})
+
 
 module.exports=Router;
