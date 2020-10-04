@@ -7,20 +7,21 @@ const Conversation = new mongoose.Schema({
         type: String,
         required: true
     },
+    title:{
+       type:String,
+       default:""
+    },
     description:{
       type:String,
       default:"",
     },
+    is_group:{
+        type:Boolean,
+        default:false
+    },
     created_at:{
         type:Date,
         default:Date.now
-    },
-    lastMessage:{
-        type:{
-            from:String,
-            content:String
-        },
-        default:{}
     },
     participents:{
         type: [String],
@@ -33,3 +34,4 @@ const Conversation = new mongoose.Schema({
 });
 
 module.exports = new mongoose.model('Conversation', Conversation);
+

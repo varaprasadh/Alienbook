@@ -15,9 +15,8 @@ app.use(ConversationRouter);
 const server=http.createServer(app);
 
 
-// io.origins('*:*');
 
-const events = new ChatEvents();
+const events = new ChatEvents(server);
 events.initialise();
 
 server.listen(3001,()=>{

@@ -1,7 +1,12 @@
 <template>
     <div class="converation-header">
+        <div class="nav">
+            <div class="nav action back icon" @click="$emit('back')" v-if="backNav">
+                <ArrowLeft/>
+            </div>
+        </div>
         <div class="avatar">
-            <img src="../assets/Avatar.png" alt="avatar">
+            <img src="./icons/Avatar.png" alt="avatar">
         </div>
         <div class="conversation-header-info">
             <div class="username">John doe</div>
@@ -9,15 +14,26 @@
         </div>
         <div class="conversation-actions">
             <div class="icon">
-                <MenuIcon/>
+                <!-- <MenuIcon/> -->
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import ArrowLeft from "vue-material-design-icons/ArrowLeft";
+
 export default {
    name:"conversation-header",
+   props:{
+       backNav:{
+           type:Boolean,
+           default:false
+       }
+   },
+   components:{
+       ArrowLeft
+   }
 }
 </script>
 
@@ -44,4 +60,30 @@ export default {
       font-weight: bold;
       font-size: 1.2em;
  }
+.nav{
+    margin-right: 0.2em;
+}
+ .nav.action{
+     padding: 0.2em;
+     width: 30px;
+     height: 30px;
+     border-radius: 50%;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+ }
+ .thread-enter .nav.action.back.icon ,
+ .thread-leave-to .nav.action.back.icon
+ {
+    transform: rotate(360deg);
+}
+.thread-enter-to .nav.action.back.icon
+{
+    transform: rotate(0deg);
+}
+.thread-enter-active .nav.action.back.icon
+{
+    transition: all 300ms;
+}
+
 </style>

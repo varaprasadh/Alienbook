@@ -48,7 +48,6 @@ class MessageManager{
         console.log("getting rid of zombies");
         return Message.deleteMany({conversation_id:conversation_id});
     }
-
 }
 
 module.exports = MessageManager;

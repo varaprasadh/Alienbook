@@ -3,18 +3,19 @@
       <div v-if="src" class="image-container" ref="image_container">
           <img :src="src" alt="avatar">
       </div>
-      <avatarSVG v-else/>
+      <div v-else class="image-container" ref="image_container">
+          <img src="../assets/png/Avatar.png" alt="avatar"/>
+      </div>
+      
   </div>
 </template>
 
 <script>
-import avatarSVG from "./svg/user_avatar";
 
 export default {
   name:"avatar",
   props:['src',"size"],
   components:{
-      avatarSVG
   },
   mounted(){
       const el=this.$refs.image_container;
@@ -22,7 +23,6 @@ export default {
         el.style.width=this.size+"px";
         el.style.height=this.size+"px";
       }
-      console.log(this.size,this.src);
   }
 }
 </script>

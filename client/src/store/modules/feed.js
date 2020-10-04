@@ -8,6 +8,7 @@ export default {
         skip:0,
         completed:false,
         loading:false,
+        scrollPosition:{x:0,y:0}
     },
 
     actions:{
@@ -48,5 +49,10 @@ export default {
                 state.posts.splice(index, 1);
             }
         },
+        setScrollPostion(state,{x,y}){
+            console.log("setting",x,y);
+            state.scrollPosition.x=x;
+            state.scrollPosition.y=y;
+        }
     },
 }

@@ -12,7 +12,7 @@
             </div>
         </div>
         <div class="controls" v-if="!user.isSelf">
-          <div class="btn message">quick message</div>
+          <div class="btn message">message</div>
           <template v-if="!fl_loading">
             <div class="btn unfollow" v-if="user.amIFollowing" @click="unfollow">unfollow</div>
             <div class="btn follow" v-else @click="follow">Follow</div>

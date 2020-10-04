@@ -53,7 +53,7 @@ const NOTIFY_TYPES = {
                $project: {
                    from: {
                       username: "$initiator.username",
-                      profile_pic: "$initiator.pictures.profile"
+                      avatar: "$initiator.pictures.profile.url"
                    },
                    type: 1,
                    timestamp: 1,
@@ -64,13 +64,7 @@ const NOTIFY_TYPES = {
                }
            }
        ]).sort({timestamp:-1}).skip(skip).limit(20).then(notifications=>{
-           //send parsed notifications
-            //    const formatted_notifications=notifications.map(notification=>{
 
-            //        return ({
-
-            //        })
-            //    })
            resolve(notifications);
        }).catch(err=>reject(err))
       })

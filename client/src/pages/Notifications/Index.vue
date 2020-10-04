@@ -15,9 +15,9 @@
 </template>
 
 <script>
-import Notification from "../components/Notification";
+import Notification from "./components/Notification";
 import { createNamespacedHelpers } from 'vuex';
-import BottomLoadingBar from "../components/BottomLoadBar";
+import BottomLoadingBar from "../../components/BottomLoadBar";
 
 const {mapState,mapActions} =createNamespacedHelpers('notificationCentre');
 

@@ -16,6 +16,7 @@ import feedState from "./modules/feed";
 import notificationsState from "./modules/notifications";
 import userState from "./modules/user";
 import editor from "./modules/editor";
+import chat from "./modules/chat";
 
 
 
@@ -24,7 +25,8 @@ import editor from "./modules/editor";
         feed:feedState,
         notificationCentre:notificationsState,
         user:userState,
-        editor:editor
+        editor:editor,
+        chat:chat
      },
     state: appState,
     mutations:{

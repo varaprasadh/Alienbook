@@ -12,67 +12,29 @@ class ConversationManager{
        
     }
 
-    createConversation(participents){
-        //check if exactly the participeints exists then decide
-                 
-
-        return //conversation 
-    },
-
+    
     //message with conversation id
     //anonymous message with participents
-    handleMessage(content,user_id,conversation_id,participents){
+    handleMessage(content,user_id,conversation_id){
        return new Promise(async (resolve,reject)=>{
              try{
-                  if (participents.length <= 1) {
-                      throw new Error("insufficient pariticipents");
-                  }
-                  if (!content || content.trim() === "") {
-                      throw new Error("content should not be empty");
-                  }
-                  if (!conversation_id) {
-                      //cant create duplicate group for two users
-                      if (participents.length == 2) {
-                          let conversation = await Conversation.find({
-                              "$and": [{
-                                      "participents": {
-                                          "$all": participents
-                                      }
-                                  },
-                                  {
-                                      "participents": {
-                                          "$size": 2
-                                      }
-                                  }
-                              ]
-                          });
-                          if (conversation) {
-                              conversation_id = conversation.id;
-                          }
 
-                      }
-                      if (!conversation_id) {
-                          let conversation = new Conversation({
-                              participents: participents,
-                              id: uuid()
-                          });
-                          let savedConversation = await conversation.save();
-                          conversation_id = savedConversation.id;
-                      }
+                  if (!content || content.trim() === "") {
+                      throw new Error("content should not be empty or null");
                   }
-                  //now do the trick
-                  // we have conversation id and participents
+                  const conversation=await Conversation.findOne({id:conversation_id});
+                  conversation.deleted_by=[];
                   const message = new Message({
                       id: uuid(),
                       conversation_id: conversation_id,
                       sender_id: user_id,
                       content: content
                   });
+                  await conversation.save();
                   const savedMessage = await message.save();
 
+                  resolve(savedMessage);
                   //return aggregated message
-                  
-
              }catch(err){
                 reject(err);
              }
@@ -86,7 +48,7 @@ class ConversationManager{
         //put user id in removed_by
         //check if removed_by===participents 
             // - delete conversation and messages
-        return new Promise((resolve,reject)=>{
+        return new Promise(async (resolve,reject)=>{
             try {
                 const conversation = await Conversation.findOne({
                     id: conversation_id
@@ -120,48 +82,7 @@ class ConversationManager{
             }
         })
     }
-    getInbox(user_id,skip){
-         //inbox list
-         //conversation user/group data last message
-    }
-    getConversation(conversation_id,user_id,skip){
-        //returns messages on chat screen
-
-    }
-    
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-   - create conversation
-   - remove conversation
-   - get conversations :(userid,skip) ->[]
-
- * create conversation  
- * leave conversation
- * 
- * 
- * a chats with b
- * a removes conversation
- *        - marks all message deleted_by[] a  
- *       
- *  
- * b send message after some time. 
- *     
- *           
- */
+module.exports=ConversationManager;

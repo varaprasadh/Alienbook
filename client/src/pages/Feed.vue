@@ -27,6 +27,8 @@ const {mapState,mapActions,mapMutations} = createNamespacedHelpers("feed");
 
 const {mapActions:mapNotificationActions}= createNamespacedHelpers("notificationCentre");
 
+
+
 export default {
     name:"feed",
     components:{
@@ -35,26 +37,40 @@ export default {
     },
     data(){
       return ({
-
+         
       })
     },
     computed:{
       ...mapState({
         posts:state=>state.posts,
-        loading:state=>state.loading
+        loading:state=>state.loading,
+        scrollPosition:state=>state.scrollPosition
       })
     },
     created(){
       if(this.posts.length<=0){
         this.loadFeed();
         this.loadNotifications();
-      }
+      }    
+    },
+    mounted(){
+            window.scroll(0,this.scrollPosition.y);
     },
     methods:{
       ...mapActions(['loadFeed']),
-      ...mapMutations(['removeFromPosts']),
-      ...mapNotificationActions(['loadNotifications'])
-
+      ...mapMutations(['removeFromPosts','setScrollPostion']),
+      ...mapNotificationActions(['loadNotifications']),
+      saveScroll(){
+         let position={
+            x:window.document.documentElement.scrollLeft,
+            y:window.document.documentElement.scrollTop
+          };
+        this.setScrollPostion(position);
+      }
+    },
+      beforeRouteLeave (to, from, next) {
+        this.saveScroll();
+        next();
     }
 }
 </script>

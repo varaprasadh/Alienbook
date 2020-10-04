@@ -41,7 +41,7 @@ connection.then((conn)=>{
 require("./Triggers/Notifications/Reaction.js");
 
 
-// const messagingService =require("./routes/Messaging/index");
+const messagingService =require("./routes/Messaging/index");
 
 
 
@@ -66,7 +66,7 @@ app.use("/post", verifyAndAttachUser, CommentHandler);
 app.use("/users", verifyAndAttachUser, FollowManager);
 app.use("/notifications",verifyAndAttachUser,NotificationHandler);
 
-// app.use("/chat",messagingService);
+app.use("/chat", verifyAndAttachUser,messagingService);
 
 passport.serializeUser((user, cb) => {
     cb(null, user);

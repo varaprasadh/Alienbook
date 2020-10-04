@@ -9,9 +9,6 @@
         <PostEditor/>
       </transition>
     </div>
-    <div class="profile-editor">
-      
-    </div>
       <router-view></router-view>
   </section>
 </template>
