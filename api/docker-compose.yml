@@ -1,0 +1,23 @@
+version : '3'
+services:
+  mongdb: 
+    image: "mongo"
+    ports:
+      - "27017:27017"
+    command: ["--replSet", "rs","--bind_ip_all"]
+    volumes: 
+        - ./data/db:/data/db
+    healthcheck:
+      test: test $$(echo "rs.initiate({_id:'rs',members:[{_id:0,host:\"localhost:27017\"}]}).ok || rs.status().ok" | mongo --port 27017 --quiet) -eq 1
+      interval: 10s
+      start_period: 30s
+  
+
+
+# db = (new Mongo('localhost:27017')).getDB('intellias')
+# config={"_id":"mongodb-replicaset",
+# "members":[{"_id":0,"host":"localhost:27017"}]}
+# rs.initiate(config)
+
+# docker run -p 27017:27017 -d mongo mongod --replSet mongodb-replicaset 
+
