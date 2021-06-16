@@ -28,12 +28,12 @@ import Chat from "./pages/Messaging/Index.vue";
 
 import config from "../config.json";
 
-// if(process.env.MODE==="development"){
-//    axios.defaults.baseURL = config.DEV_API;
-// }else{
-//   axios.defaults.baseURL = config.PRODUCTION_API;
-// }
- axios.defaults.baseURL = config.DEV_API;
+if (process.env.NODE_ENV==="production"){
+  axios.defaults.baseURL =  config.PRODUCTION_API;
+}else{
+  axios.defaults.baseURL = config.DEV_API;
+}
+
 
 Vue.use(VueRouter);
 
