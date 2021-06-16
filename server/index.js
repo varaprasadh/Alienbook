@@ -88,7 +88,7 @@ passport.deserializeUser((user, cb) => {
 passport.use(new LinkedInStrategy({
     clientID: process.env.LINKEDIN_CLIENT_ID,
     clientSecret: process.env.LINKEDIN_SECRET,
-    callbackURL: process.env.LINKEDIN_CALLBACK,
+    callbackURL: "/api/auth/linkedin/callback/",
     scope: ['r_emailaddress', 'r_liteprofile'],
     
 },(accessToken,refreshToken,profile,done)=>{
@@ -98,7 +98,7 @@ passport.use(new LinkedInStrategy({
 passport.use(new FacebookStrategy({
         clientID: process.env.FACEBOOK_APP_ID,
         clientSecret: process.env.FACEBOOK_APP_SECRET,
-        callbackURL: process.env.FACEBOOK_CALLBACK,
+        callbackURL: "/api/auth/facebook/callback/",
     },
     function (accessToken, refreshToken, profile, done) {
      done(null,profile) 
@@ -107,7 +107,7 @@ passport.use(new FacebookStrategy({
 passport.use(new GoogleStrategy({
                 clientID: process.env.GOOGLE_APP_ID,
                 clientSecret: process.env.GOOGLE_SECRET,
-                callbackURL: process.env.GOOGLE_CALLBACK,
+                callbackURL: "/api/auth/google/callback/",
                 scope:["profile"]
             }, (_, __, profile, done) => {
                     done(null, profile);
