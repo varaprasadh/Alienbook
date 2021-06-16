@@ -1,6 +1,6 @@
 export NODE_ENV=production
 cd client
-npm install
+npm ci
 npm run build 
 cd ..
 mkdir server/public
