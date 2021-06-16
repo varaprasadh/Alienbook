@@ -13,15 +13,11 @@
   - notifications based upon user interactions
 
 ## TechStack
-  <img style="display:inline-block;" src="design files/labels/vue.png" height="30px"/> 
-  <img style="display:inline-block;" src="design files/labels/node.png" height="30px"/> 
-  <img style="display:inline-block;" src="design files/labels/mongo.png" height="30px"/>
-  <img style="display:inline-block;" src="design files/labels/cloudinary.png" height="30px"/>
-
+  - Vue,Vue-router,Vuex
   - Passport js
   - Express 
-  - Vue-router,Vuex
-  - Mongoose
+  - MongoDB, Mongoose 
+  - Cloudinary for media storage
   - Docker to spin up mongodb container for local development
 
 ## Tools used
