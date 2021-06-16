@@ -1,3 +1,4 @@
+export NODE_ENV=production
 cd client
 npm install
 npm run build 

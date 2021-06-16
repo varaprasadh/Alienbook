@@ -11,14 +11,14 @@ const oauth=(req,res)=>{
         if (user) {
             //take him to processing page to generate jwt
             let encodedToken = encodeURIComponent(getWebToken(user));
-            res.redirect(`/signin/saveToken?token=${encodedToken}`)
+            res.redirect(`${process.env.BASE_URL}/signin/saveToken?token=${encodedToken}`)
         } else {
             let tempdata = {
                 open_id: boardinguser.id,
                 fullName: boardinguser.displayName,
             }
             let encoded = encodeURIComponent(JSON.stringify(tempdata));
-            res.redirect(`/signup/createuserame?data=${encoded}`);
+            res.redirect(`${process.env.BASE_URL}/signup/createuserame?data=${encoded}`);
         }
     }).catch(err => {
         console.log(err);
