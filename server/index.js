@@ -5,6 +5,8 @@ const LikeHandler=require("./routes/LikeHandler");
 const CommentHandler=require("./routes/commentHandler");
 const cors=require('cors');
 const dotEnv=require('dotenv');
+const mongoose = require('mongoose');
+
 
 const verifyAndAttachUser = require("./routes/verifyAndAttachUser");
 
@@ -34,7 +36,7 @@ dotEnv.config();
 const connection=require('./dbconnection');
 
 connection.then((conn)=>{
-    console.log("db connected", conn);
+    console.log("db connected");
 }).catch(err=>{
     console.log("db error:" ,err);
 })
@@ -55,6 +57,12 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cors());
 
+app.use((req,res,next)=>{
+    console.log({ 
+        dbStatus: mongoose
+    })
+    next()
+})
 
 
 app.use("/auth",Auth);
@@ -116,6 +124,8 @@ app.get('/auth/google',  passport.authenticate('google'));
 app.get('/auth/facebook/callback', passport.authenticate('facebook'),oauth);
 app.get('/auth/linkedin/callback', passport.authenticate('linkedin'),oauth);
 app.get('/auth/google/callback', passport.authenticate('google'), oauth);
+
+
 
 const server = express();
 
