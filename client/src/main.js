@@ -75,8 +75,16 @@ const router = new VueRouter({
     {path:"/login",component:Auth},
     {path:"/signup/createuserame",component:UsernameView},
     {path:"/signin/saveToken",component:saveToken},
-    {path:"/",
-     component: Home,
+    { path:"/",
+      component: Home,
+      beforeEnter:(to, from, next) => {
+        console.log("here it is coming")
+        if (!localStorage.getItem('token')) {
+          next("/login");
+        } else {
+          next();
+        }
+      },
      exact:true,
      children:[
        {

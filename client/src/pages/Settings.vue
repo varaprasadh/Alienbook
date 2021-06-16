@@ -6,7 +6,7 @@
           <div class="setting" @click="$router.push(`/profile/${user.username}`)">Profile</div>
           <div class="setting" @click="editProfile=true">Edit Profile</div>
           <div class="setting" @click="$router.push('/policy')">Privacy Policy</div>
-          <div class="setting warning">Logout</div>
+          <div class="setting warning" @click="logout">Logout</div>
         </div>
       </div>
       <EditProfile v-if="editProfile" @close="()=>editProfile=false"/>
@@ -33,6 +33,12 @@ export default {
    },
    computed:{
       ...mapState(['user']),
+   },
+   methods:{
+     logout(){
+       localStorage.removeItem('token');
+       this.$router.push('/login');
+     }
    }
 }
 </script>

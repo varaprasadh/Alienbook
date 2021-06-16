@@ -7,7 +7,9 @@
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
-  "keywords": ["social-media"],
+  "keywords": [
+    "social-media"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {

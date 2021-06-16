@@ -5,24 +5,27 @@
       <transition name="slide" appear>
         <div class="auth-card">
           <div class="auth-header">
-            <span class="text">login with</span>
+            <span class="text">Login with</span>
           </div>
           <div class="auth-options">
-            <div class="auth-option-wrapper">
+            <div class="auth-option-wrapper disabled" aria-disabled="true" title="temporarly not available" >
               <a :href="`${baseURL}/auth/facebook`" class="auth-option facebook">
-                facebook
+                Facebook
               </a>
             </div>
             <div class="auth-option-wrapper">
               <a :href="`${baseURL}/auth/google`" class="auth-option google">
-                google
+                Google
               </a>
             </div>
-            <div class="auth-option-wrapper">
+            <div class="auth-option-wrapper disabled" aria-disabled="true" title="temporarly not available">
               <a :href="`${baseURL}/auth/linkedin`" class="auth-option linkedin">
-                linkedin
+                Linkedin
               </a>
             </div>
+          </div>
+          <div class="note">
+             Login with Facebook &amp; Linkedin are temporarly not available 
           </div>
         </div>
       </transition>
@@ -75,6 +78,11 @@ section{
   max-width: 400px;
   filter:drop-shadow(2px 2px 5px rgb(179, 176, 176));
   border-radius: 2px;  
+  min-width: 400px;
+}
+.auth-card .note{
+  color: gray;
+  padding: 0.5em 1em 0em;
 }
 .auth-header{
   text-align: center;
@@ -120,6 +128,7 @@ section{
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  border-radius: 0.2rem;
 }
 
 .auth-option:hover{
@@ -140,5 +149,10 @@ section{
 .slide-enter, .slide-leave-to{
   opacity: 0;
   transform: translateY(200px);
+}
+.auth-option-wrapper.disabled .auth-option{
+  background: rgb(194, 193, 193);
+  pointer-events: none;
+  /* display: none; */
 }
 </style>

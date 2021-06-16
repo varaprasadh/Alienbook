@@ -13,7 +13,11 @@ let mongoURL;
 //     mongoURL = process.env.MONGO_DEV_URL
 //     console.log("devvv");
 // }
- mongoURL = process.env.MONGO_DEV_URL
+mongoURL = process.env.MONGO_DEV_URL;
+
+console.log({
+        mongoURL
+})
 const connection = mongoose.connect(mongoURL, {
         useNewUrlParser: true,
         useCreateIndex: true,

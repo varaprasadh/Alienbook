@@ -24,6 +24,8 @@ const User=require("./models/User");
 const FollowManager =require("./routes/FollowManager");
 const NotificationHandler=require("./routes/NotificationsHandler");
 const {oauth}=require("./routes/middlewares/oauth");
+const path = require('path');
+
 
 const getWebToken=require("./routes/helper/createJWT");
 
@@ -32,7 +34,7 @@ dotEnv.config();
 const connection=require('./dbconnection');
 
 connection.then((conn)=>{
-    console.log("db connected");
+    console.log("db connected", conn);
 }).catch(err=>{
     console.log("db error:" ,err);
 })
@@ -41,8 +43,7 @@ connection.then((conn)=>{
 require("./Triggers/Notifications/Reaction.js");
 
 
-const messagingService =require("./routes/Messaging/index");
-
+// const messagingService =require("./routes/Messaging/index");
 
 
 const app=express();
@@ -66,7 +67,7 @@ app.use("/post", verifyAndAttachUser, CommentHandler);
 app.use("/users", verifyAndAttachUser, FollowManager);
 app.use("/notifications",verifyAndAttachUser,NotificationHandler);
 
-app.use("/chat", verifyAndAttachUser,messagingService);
+// app.use("/chat", verifyAndAttachUser,messagingService);
 
 passport.serializeUser((user, cb) => {
     cb(null, user);
@@ -116,9 +117,20 @@ app.get('/auth/facebook/callback', passport.authenticate('facebook'),oauth);
 app.get('/auth/linkedin/callback', passport.authenticate('linkedin'),oauth);
 app.get('/auth/google/callback', passport.authenticate('google'), oauth);
 
+const server = express();
 
+// api is sub app
+server.use("/api", app);
+
+server.use(express.static(path.join(__dirname, 'public')));
+
+
+server.get("*", (req,res)=>{
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+
+})
 const PORT=process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`server listeing at port ${PORT}..`);
 })
