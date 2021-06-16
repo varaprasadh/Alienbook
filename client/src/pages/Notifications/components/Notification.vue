@@ -106,9 +106,6 @@ export default {
      handleClick(){
          this.markAsRead();
          if(this.notification.type==="FOLLOW" || this.notification.type==="MESSAGE"){
-             console.log({
-                 what: this.notification
-             })
              this.$router.push(`/profile/${this.notification.from.username}`)
          }
          if(this.notification.type==="LIKE" || this.notification.type==="COMMENT"){
