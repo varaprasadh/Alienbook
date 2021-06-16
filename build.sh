@@ -1,5 +1,6 @@
 export NODE_ENV=development
 cd client
+npm install
 npm run build 
 cd ..
 rm -rf server/public/*
