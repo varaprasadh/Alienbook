@@ -23,13 +23,14 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
+        with:
+          node-version: 12
       - uses: akhileshns/heroku-deploy@v3.12.12
         with: 
           appdir: "server"
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: "alienbook" #Must be unique in Heroku
           heroku_email: "varaprasadh.a@gmail.com"
-          node-version: 12
       - run: sh build.prod.sh
       
   
