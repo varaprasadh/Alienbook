@@ -57,13 +57,6 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cors());
 
-app.use((req,res,next)=>{
-    console.log({ 
-        dbStatus: mongoose
-    })
-    next()
-})
-
 
 app.use("/auth",Auth);
 app.use("/posts", verifyAndAttachUser, attachUserInfo, PostService); 
