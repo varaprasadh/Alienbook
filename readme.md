@@ -1,44 +1,38 @@
 
 <p align="center">
-  <img src="design files/labels/alienbook/dark_blue.png"/>
+  <img src="design files/png/logo_black.png"/>
 </p>
 
 # AlienBook
- alienBook is the social media platform that enables us to share our ideas, your ```followers``` can see them and
-   - like them
-   - comment on them
-   - reshare that post to their timeline
+ alienBook is the social media platform which supports features like
+  - posts
+  - reactions
+  - comments upto 3 level depth
+      - reactions for the comments
+  - re-sharing the posts
+  - notifications based upon user interactions
 
-## Features
+## TechStack
+  <img style="display:inline-block;" src="design files/labels/vue.png" height="30px"/> 
+  <img style="display:inline-block;" src="design files/labels/node.png" height="30px"/> 
+  <img style="display:inline-block;" src="design files/labels/mongo.png" height="30px"/>
+  <img style="display:inline-block;" src="design files/labels/cloudinary.png" height="30px"/>
 
-- posting - textual + images (limited to 4 per post)
-- like,comment and reshare the post
-- follow others 
-- notification
-- chat (pending)
-## techStack used
-  <img src="design files/labels/vue.png" height="30px"/> 
-  <img src="design files/labels/node.png" height="30px"/> 
-  <img src="design files/labels/mongo.png" height="30px"/>
-  <img src="design files/labels/cloudinary.png" height="30px"/>
+  - Passport js
+  - Express 
+  - Vue-router,Vuex
+  - Mongoose
+  - Docker to spin up mongodb container for local development
 
-## tools used
+## Tools used
+- VS Code
+- Postman
+- Robo3T
 
-- vs code
-- postman
-- robo3T (mongodb gui tool)
-
-## configuration
-  ***--- todo ---***
-
-## ***if you are interested in this,*** 
-<img src="design files/labels/contribute.png" height="50px"/>
-
-## contact me
-<img src="design files/labels/instagram.png" height="30px"/>
-<img src="design files/labels/twitter.png" height="30px"/>
-<img src="design files/labels/github.png" height="30px"/>
-
- ## contributers
-myself - [@varaprasadh]("https://github.com/varaprasadh")
+## Development Setup
+  - clone the repo
+  - cd /db and run docker-compose up -d (to run mongo instance)
+  - cd /client and run `npm run serve` to start vue dev server
+  - cd /server and run `npm run dev` to start express dev server
+  - express server probably runs on port:3000 and vue runs at port:5000
 
