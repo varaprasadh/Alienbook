@@ -109,7 +109,7 @@ export default {
              this.$router.push(`/profile/${this.notification.from.username}`)
          }
          if(this.notification.type==="LIKE" || this.notification.type==="COMMENT"){
-             this.$router.push(`/post/${this.notification.postId}`);
+             this.$router.push(`/post/${this.notification.parent_id}`);
          }
      }
  }
