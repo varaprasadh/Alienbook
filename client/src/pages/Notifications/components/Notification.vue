@@ -106,7 +106,7 @@ export default {
      handleClick(){
          this.markAsRead();
          if(this.notification.type==="FOLLOW" || this.notification.type==="MESSAGE"){
-             this.$router.push(`/profile/${this.notification.from}`)
+             this.$router.push(`/profile/${this.notification.from.username}`)
          }
          if(this.notification.type==="LIKE" || this.notification.type==="COMMENT"){
              this.$router.push(`/post/${this.notification.postId}`);
